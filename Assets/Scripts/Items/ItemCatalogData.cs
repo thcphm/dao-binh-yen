@@ -74,15 +74,31 @@ namespace SereneIsle
             R("hotpot", "Lẩu cá chua", F, 220, 1.2f, IconShape.Bowl, "#d8452f", "#7d8890", en: 60, hp: 25, wt: 20);
             R("smoothie", "Sinh tố dừa", F, 45, .5f, IconShape.Cup, "#f6f0e0", "#5fae3e", wt: 45, en: 10);
 
-            // ---- nong san + hat giong ----
-            R("tomato", "Cà chua bụi", C, 32, .3f, IconShape.Tomato, "#d8452f", "#5fae3e", en: 10, wt: 8);
+            // ---- nong san + hat giong: sinh tu bang giong cay 4 mua (CropCatalogData) ----
+            foreach (var row in CropCatalogData.Rows)
+            {
+                bool tree = row.kind == CropKind.Tree;
+                string when = CropCatalogData.SeasonText(row.seasons), soil = Soils.Names(row.soils);
+                var p = R(row.id, row.name, C, row.price, row.weight, CropCatalogData.IconOf(row), row.prod, row.leaf, hp: row.hp, wt: row.wt, en: row.en);
+                p.description = tree ? $"Ra trái mùa {when}." : $"Mùa {when}.";
+                var s = R("seed_" + row.id,
+                          (tree ? "Cây giống " : "Hạt ") + row.name.ToLowerInvariant(), S, row.seedPrice, tree ? 1.5f : .02f,
+                          IconShape.SeedBag, "#d8b27a", row.prod);
+                s.seedOf = row.id;
+                s.description = tree
+                    ? $"Trồng được mọi mùa, {row.grow} ngày thì lớn, ra trái mùa {when}. Hợp {soil}."
+                    : $"Gieo mùa {when}. Lớn sau {row.grow} ngày tưới{(row.regrow > 0 ? $", thu lại mỗi {row.regrow} ngày" : "")}. Hợp {soil}."
+                      + (row.paddy ? " Cần ruộng nước." : "") + (row.trellis ? " Leo giàn." : "");
+            }
             R("wheat", "Lúa mì", C, 20, .3f, IconShape.Wheat, "#e0b84a", "#a8862a");
-            R("pumpkin", "Bí ngô", C, 115, 4f, IconShape.Pumpkin, "#e8913a", "#5f8a3a");
-            R("melon", "Dưa hấu", C, 170, 5f, IconShape.Melon, "#3f8a3a", "#d8452f", en: 18, wt: 30, hp: 4);
-            R("seed_tomato", "Hạt cà chua", S, 6, .02f, IconShape.SeedBag, "#d8b27a", "#d8452f").seedOf = "tomato";
             R("seed_wheat", "Hạt lúa mì", S, 4, .02f, IconShape.SeedBag, "#d8b27a", "#e0b84a").seedOf = "wheat";
-            R("seed_pumpkin", "Hạt bí ngô", S, 15, .02f, IconShape.SeedBag, "#d8b27a", "#e8913a").seedOf = "pumpkin";
-            R("seed_melon", "Hạt dưa hấu", S, 22, .02f, IconShape.SeedBag, "#d8b27a", "#3f8a3a").seedOf = "melon";
+
+            // ---- bai trieu: nhat khi nuoc rong ----
+            R("so_huyet", "Sò huyết", X, 18, .05f, IconShape.Shell, "#8a5a4a", "#c87a6a");
+            R("ngheu", "Nghêu", X, 14, .05f, IconShape.Shell, "#d8c8a8", "#8a7a6a");
+            R("oc_buou", "Ốc biển", X, 12, .05f, IconShape.Shell, "#a8805a", "#e0c8a0");
+            R("sao_bien", "Sao biển", X, 25, .05f, IconShape.Shell, "#f08a3a", "#d8452f");
+            R("rong_bien", "Rong biển", M, 6, .1f, IconShape.Fiber, "#3f7a4a", "#8ab84a");
 
             // ---- linh tinh ----
             R("worm", "Giun đất", X, 3, .02f, IconShape.Worm, "#d98a8a", "#a85a5a");

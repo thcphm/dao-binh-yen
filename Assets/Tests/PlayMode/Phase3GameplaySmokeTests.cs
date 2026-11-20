@@ -1,0 +1,220 @@
+﻿// Smoke test lich am + con nuoc + vuon ruong trong game that (seed 424242). Chup anh vao SERENE_SHOT_DIR.
+using System.Collections;
+using System.Collections.Generic;
+using System.IO;
+using NUnit.Framework;
+using UnityEngine;
+using UnityEngine.TestTools;
+
+namespace SereneIsle.Tests
+{
+    public class Phase3GameplaySmokeTests
+    {
+        [TearDown]
+        public void TearDown()
+        {
+            foreach (var go in Object.FindObjectsByType<GameObject>())
+                if (go && go.transform.parent == null) Object.Destroy(go);
+        }
+
+        static string ShotDir()
+        {
+            string dir = System.Environment.GetEnvironmentVariable("SERENE_SHOT_DIR");
+            if (string.IsNullOrEmpty(dir)) dir = Path.GetFullPath(Path.Combine(Application.dataPath, "..", "Logs", "shots"));
+            Directory.CreateDirectory(dir);
+            return dir;
+        }
+
+        static IEnumerator Boot()
+        {
+            var boot = new GameObject("Bootstrap");
+            boot.SetActive(false);
+            var b = boot.AddComponent<GameBootstrap>();
+            b.seed = 424242;
+            boot.SetActive(true);
+            float t0 = Time.realtimeSinceStartup;
+            while (!(IslandTerrain.Instance && IslandTerrain.Instance.IsReady))
+            {
+                if (Time.realtimeSinceStartup - t0 > 180) Assert.Fail("sinh dao qua 180s");
+                yield return null;
+            }
+            for (int i = 0; i < 10; i++) yield return null;
+        }
+
+        static IEnumerator WaitAct(GameSession s)
+        {
+            float t = Time.realtimeSinceStartup;
+            yield return null;
+            while (s.Body && s.Body.Acting && Time.realtimeSinceStartup - t < 3) yield return null;
+        }
+
+        static IEnumerator Sleep(GameSession s)
+        {
+            s.StartCoroutine(s.NewDay(NewDayReason.Sleep));
+            yield return null;
+            float t = Time.realtimeSinceStartup;
+            while (s.Transitioning && Time.realtimeSinceStartup - t < 10) yield return null;
+        }
+
+        static void Face(GameSession s, Vector3 from, int k)
+        {
+            var d = IslandTerrain.Instance.Data;
+            float tx = k % d.N, tz = k / d.N;
+            s.Player.PlaceAt(from, Mathf.Atan2(tx - from.x, tz - from.z));
+        }
+
+        [UnityTest]
+        public IEnumerator VuonRuong_CuocTuoiGieo_QuaNgay_ThuHoach()
+        {
+            yield return Boot();
+            var s = GameSession.Instance;
+            var d = IslandTerrain.Instance.Data;
+            var farm = s.Farm;
+            Assert.IsNotNull(farm);
+            Assert.IsTrue(s.OwnedTools.Contains("hoe") && s.OwnedTools.Contains("can") && s.OwnedTools.Contains("seed"));
+            Assert.AreEqual("Mùng 1 tháng 1", s.Date.ShortLabel);
+
+            // o cuoc duoc gan leu, dung cach 1 o phia nam
+            int target = -1; Vector3 stand = default;
+            Vector3 home = s.HomePosition;
+            for (int r = 3; r < 12 && target < 0; r++)
+                for (int a = 0; a < 16 && target < 0; a++)
+                {
+                    int i = Mathf.RoundToInt(home.x + Mathf.Cos(a * .3927f) * r), j = Mathf.RoundToInt(home.z + Mathf.Sin(a * .3927f) * r);
+                    if (!d.InBounds(i, j) || !d.InBounds(i, j - 1)) continue;
+                    int k = d.Idx(i, j), ks = d.Idx(i, j - 1);
+                    if (!farm.CanTill(k, out _) || d.Solid[ks] != 0 || !d.Walkable(i, j - 1, d.HT[ks])) continue;
+                    if (Mathf.Abs(d.HT[k] - d.HT[ks]) > .3f) continue;
+                    target = k; stand = new Vector3(i, d.HT[ks], j - 1);
+                }
+            Assert.GreaterOrEqual(target, 0, "khong tim duoc o dat cuoc gan leu");
+            Face(s, stand, target);
+            yield return null;
+            Assert.AreEqual(target, farm.TargetTile());
+
+            s.SelectSlot(s.Hotbar.IndexOf("hoe")); s.UseSelected(); yield return WaitAct(s);
+            var p = farm.PlotAt(target);
+            Assert.IsNotNull(p, "cuoc xong phai co o dat");
+            Assert.AreEqual(SoilType.Vuon, p.soil, "gan leu la dat vuon");
+
+            s.SelectSlot(s.Hotbar.IndexOf("can")); s.UseSelected(); yield return WaitAct(s);
+            Assert.IsTrue(p.watered);
+            Assert.AreEqual(FarmSystem.CanCapacity - 1, farm.CanWater);
+
+            s.SelectSlot(s.Hotbar.IndexOf("seed")); s.UseSelected(); yield return WaitAct(s);
+            Assert.AreEqual("cai_be", p.crop, "tui hat gieo loai dung mua dau tien");
+            Assert.AreEqual(5, s.Inventory.Count("seed_cai_be"));
+
+            // 5 ngay tuoi deu -> chin
+            for (int day = 0; day < 5; day++)
+            {
+                p.watered = true;
+                yield return Sleep(s);
+            }
+            Assert.AreEqual(6, s.Clock.Day);
+            var c = CropDatabase.Instance.Get("cai_be");
+            Assert.IsTrue(FarmRules.Harvestable(p, c), $"sau 5 ngay phai chin (growth {p.growth})");
+            Face(s, stand, target);
+            yield return null;
+            s.Inventory.Take("stone", s.Inventory.Count("stone")); // tui khoi dau day 8 o: chua 1 o cho rau
+            s.UseSelected(); yield return WaitAct(s);
+            Assert.Greater(s.Inventory.Count("cai_be"), 0, "thu hoach vao tui");
+            Assert.IsTrue(p.Empty);
+
+            // vuon mau nhieu loai cay (dung cho anh duyet)
+            // tim 1 khu 4x4 o cuoc duoc gan leu nhat
+            var demo = new List<FarmPlot>();
+            string[] ids = { "cai_be", "xa_lach", "dua_leo", "dau_que", "pumpkin", "cu_cai", "hanh_la", "melon", "tomato", "ot", "bap", "toi", "van_tho", "khoai_lang", "buoi", "xoai" };
+            int bx = -1, bz = -1; float bd = 1e9f;
+            for (int z0 = (int)home.z - 20; z0 <= home.z + 20; z0++)
+                for (int x0 = (int)home.x - 20; x0 <= home.x + 20; x0++)
+                {
+                    bool ok = true;
+                    for (int q = 0; q < 16 && ok; q++)
+                    {
+                        int i = x0 + q % 4, j = z0 + q / 4;
+                        ok = d.InBounds(i, j) && farm.CanTill(d.Idx(i, j), out _) && d.Idx(i, j) != target && Mathf.Abs(d.HT[d.Idx(i, j)] - d.HT[d.Idx(x0, z0)]) < .5f;
+                    }
+                    float dist = Vector2.Distance(new Vector2(x0 + 1.5f, z0 + 1.5f), new Vector2(home.x, home.z));
+                    if (ok && dist > 3 && dist < bd) { bd = dist; bx = x0; bz = z0; }
+                }
+            Assert.GreaterOrEqual(bx, 0, "khong co khu dat 4x4 gan leu");
+            for (int q = 0; q < 16; q++)
+            {
+                int k = d.Idx(bx + q % 4, bz + q / 4);
+                var cc = CropDatabase.Instance.Get(ids[q]);
+                var fp = new FarmPlot { k = k, soil = farm.SoilAt(k), crop = cc.id, growth = cc.growDays, hasFruit = true, watered = q % 3 == 0 };
+                if (q % 5 == 4) fp.growth = cc.growDays * .5f;
+                demo.Add(fp);
+            }
+            farm.Restore(demo);
+            var rig = Camera.main.GetComponent<OrbitCamera>();
+            float cx = bx + 1.5f, cz = bz - 1.2f;
+            s.Player.PlaceAt(new Vector3(cx, d.GroundHeight(cx, cz), cz), 0);
+            rig.yaw = Mathf.PI; rig.pitch = .62f; rig.distance = 7.5f;
+            s.Clock.Minutes = 9 * 60;
+            yield return new WaitForSecondsRealtime(1.5f); // cho man chuyen ngay tan
+            for (int i = 0; i < 20; i++) yield return null;
+            yield return GameplayShots.Shot(Path.Combine(ShotDir(), "p3_1_vuon.png"));
+        }
+
+        [UnityTest]
+        public IEnumerator ConNuoc_BaiTrieu_NuocLenBiKet()
+        {
+            yield return Boot();
+            var s = GameSession.Instance;
+            var d = IslandTerrain.Instance.Data;
+
+            // ngay 1 (nuoc rong): nuoc lon 6:00, can luc 12:13
+            s.Clock.Minutes = 12 * 60 + 13;
+            yield return null; yield return null;
+            Assert.AreEqual(IslandData.SEA - TideClock.SpringAmp, d.WaterLevel, .02f, "nuoc ròng kiet");
+            Assert.AreEqual(d.WaterLevel, IslandTerrain.Instance.WaterPlane.position.y, .001f, "mat nuoc di theo con nuoc");
+
+            // o bai trieu gan thi tran nhat
+            int flat = -1; float best = 1e9f;
+            for (int k = 0; k < d.N * d.N; k++)
+            {
+                if (d.Ocean[k] == 0 || d.Pier[k] != 0) continue;
+                float h = d.HT[k];
+                if (h < IslandData.SEA - .3f || h > IslandData.SEA - .18f) continue;
+                float dist = Vector2.Distance(new Vector2(k % d.N, k / d.N), new Vector2(d.CX, d.CZ));
+                if (dist < best) { best = dist; flat = k; }
+            }
+            Assert.GreaterOrEqual(flat, 0, "khong co bai trieu");
+            var at = new Vector3(flat % d.N, 0, flat / d.N);
+            at.y = d.GroundHeight(at.x, at.z);
+            Assert.IsTrue(d.Walkable(at.x, at.z, at.y), "nuoc ròng: di bo tren bai duoc");
+            s.Player.PlaceAt(at, 0);
+
+            // rai do bai trieu quanh nguoi choi (lan sau khi nuoc rong lai)
+            int before = ItemPile.All.Count;
+            s.Clock.Minutes = 9 * 60; yield return null;
+            s.Clock.Minutes = 12 * 60 + 13; yield return null; yield return null;
+            Assert.Greater(ItemPile.All.Count, before, "nuoc ròng thi co do bai trieu");
+
+            var rig = Camera.main.GetComponent<OrbitCamera>();
+            rig.pitch = .5f; rig.distance = 12f;
+            for (int i = 0; i < 20; i++) yield return null;
+            yield return GameplayShots.Shot(Path.Combine(ShotDir(), "p3_2_nuoc_rong.png"));
+
+            // nuoc lon (18:25): bai ngap, nguoi choi bi ket -> Bac Chin don, mat 30% tien, hong do an
+            s.Coins = 100;
+            int bread = s.Inventory.Count("bread");
+            Assert.Greater(bread + s.Inventory.Count("berry"), 0);
+            s.Clock.Minutes = 18 * 60 + 25;
+            yield return null; yield return null;
+            Assert.AreEqual(IslandData.SEA + TideClock.SpringAmp, d.WaterLevel, .03f, "nuoc lon dinh");
+            yield return GameplayShots.Shot(Path.Combine(ShotDir(), "p3_3_nuoc_lon.png"));
+            float t = Time.realtimeSinceStartup;
+            while (!s.Transitioning && Time.realtimeSinceStartup - t < 2) yield return null;
+            Assert.IsTrue(s.Transitioning, "bi ket thi chuyen canh cuu");
+            while (s.Transitioning && Time.realtimeSinceStartup - t < 10) yield return null;
+            Assert.AreEqual(70, s.Coins);
+            Assert.AreEqual(0, s.Inventory.Count("bread"));
+            Assert.AreEqual(0, s.Inventory.Count("berry"));
+            Assert.Greater(s.Inventory.Count("wood"), 0, "go van con");
+            Assert.IsTrue(d.IsPier(s.Player.transform.position.x, s.Player.transform.position.z), "ve cau tau");
+        }
+    }
+}

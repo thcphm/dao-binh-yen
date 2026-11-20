@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d997ac2ebbe8d1b47a5adad6b571302b, type: 3}
+  m_Name: ca_tim
+  m_EditorClassIdentifier: SereneIsle::SereneIsle.CropDefinition
+  id: ca_tim
+  displayName: "C\xE0 t\xEDm"
+  produce: ca_tim
+  kind: 3
+  seasons: 2
+  perennial: 0
+  growDays: 12
+  regrowDays: 4
+  soils: 18
+  needsPaddy: 0
+  trellis: 0
+  yieldMin: 2
+  yieldMax: 3
+  leafColor: {r: 0.30980393, g: 0.47843137, b: 0.22745098, a: 1}
+  produceColor: {r: 0.41568628, g: 0.22745098, b: 0.5411765, a: 1}

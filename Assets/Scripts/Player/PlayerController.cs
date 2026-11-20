@@ -85,7 +85,7 @@ namespace SereneIsle
                 float mx = fx * iz + rx * ix, mz = fz * iz + rz * ix, ml = Mathf.Sqrt(mx * mx + mz * mz);
                 mx /= ml; mz /= ml;
                 Sprinting = GameInput.Run;
-                float wd = data.TileHeight(_x, _z) < IslandData.SEA ? wadeFactor : 1f;
+                float wd = data.WaterDepth(_x, _z) > .02f ? wadeFactor : 1f;
                 float sp = (Sprinting ? runSpeed : walkSpeed) * Mathf.Min(1, il) * wd * SpeedMultiplier;
                 data.MoveEntity(ref _x, ref _z, mx * sp * dt, mz * sp * dt, radius, _y);
                 float target = Mathf.Atan2(mx, mz), dRot = Mathf.Atan2(Mathf.Sin(target - _rot), Mathf.Cos(target - _rot));

@@ -40,6 +40,13 @@ namespace SereneIsle
         public event Action<string> Toast;
         public event Action<int, string> FadeShown;
         public event Action FadeHidden;
+        /// <summary>Sau khi sang ngay moi (truoc khi man hinh sang lai). Tham so: so ngay.</summary>
+        public event Action<int> DayStarted;
+
+        /// <summary>Vuon ruong, con nuoc (giai doan 3, Docs/ThietKeGameplay.md).</summary>
+        public FarmSystem Farm { get; private set; }
+        public TideSystem Tide { get; private set; }
+        public LunarDate Date => LunarCalendar.Date(Clock.Day);
 
         bool _warn22, _warn225, _kitGiven;
         float _fullToastTime = -10;
@@ -49,6 +56,8 @@ namespace SereneIsle
             Instance = this;
             Inventory = new Inventory(Items);
             Stats.Warning += m => Toast?.Invoke(m);
+            Farm = gameObject.AddComponent<FarmSystem>();
+            Tide = gameObject.AddComponent<TideSystem>();
         }
 
         void OnDestroy() { if (Instance == this) Instance = null; }
@@ -140,9 +149,11 @@ namespace SereneIsle
             if (d.IsTool)
             {
                 if (!OwnedTools.Contains(id)) Say($"Chưa có {d.displayName}.");
+                else if (Farm && Farm.TryUse(d)) { }
                 else Say($"{d.displayName}: sẽ dùng được ở giai đoạn 3.");
                 return;
             }
+            if (d.category == ItemCategory.Seed && Farm && Farm.TryUse(d)) return;
             if (d.IsFood) Consume(id);
         }
 
@@ -199,7 +210,26 @@ namespace SereneIsle
             Give("wood", 6, true); Give("stone", 4, true);
             Hotbar.Assign(9, "bottle");
             Hotbar.Selected = 9;
+            // vuon ruong (thu nghiem giai doan 3): cuoc, binh tuoi, tui hat + hat giong mua Xuan
+            Give("hoe", 1, true); Give("can", 1, true); Give("seed", 1, true);
+            Give("seed_cai_be", 6, true); Give("seed_dua_leo", 3, true);
+            if (Farm) Farm.CanWater = FarmSystem.CanCapacity;
             Say("Đồ khởi đầu: dừa, nước, quả mọng, bánh mì. Bấm 0 hoặc F để uống nước.");
+        }
+
+        /// <summary>Toi man hinh, chay apply (tra ve cac dong thong bao), roi sang lai. Dung cho cuu nan, chuyen canh.</summary>
+        public IEnumerator Cutscene(string subtitle, Func<List<string>> apply)
+        {
+            if (Transitioning) yield break;
+            Transitioning = true;
+            FadeShown?.Invoke(Clock.Day, subtitle);
+            yield return new WaitForSecondsRealtime(1.3f);
+            var msgs = apply?.Invoke() ?? new List<string>();
+            yield return new WaitForSecondsRealtime(1.2f);
+            FadeHidden?.Invoke();
+            Transitioning = false;
+            yield return new WaitForSecondsRealtime(.6f);
+            foreach (var m in msgs) Say(m);
         }
 
         // ---------------------------------------------------------------- qua ngay
@@ -215,6 +245,11 @@ namespace SereneIsle
             Coins = coins;
             Clock.StartNewDay();
             _warn22 = _warn225 = false;
+            DayStarted?.Invoke(Clock.Day);
+            var date = Date;
+            string fest = LunarCalendar.Festival(date);
+            if (fest != null) msgs.Add($"Hôm nay là {fest}!");
+            if (date.IsMarketDay) msgs.Add(LunarCalendar.IsBigMarket(date) ? "Hôm nay có phiên chợ lớn." : "Hôm nay có phiên chợ.");
             if (HasHome && Player) Player.PlaceAt(HomePosition, HomeFacing);
             if (Environment) Environment.hour = Clock.Hour;
 

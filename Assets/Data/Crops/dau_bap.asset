@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d997ac2ebbe8d1b47a5adad6b571302b, type: 3}
+  m_Name: dau_bap
+  m_EditorClassIdentifier: SereneIsle::SereneIsle.CropDefinition
+  id: dau_bap
+  displayName: "\u0110\u1EADu b\u1EAFp"
+  produce: dau_bap
+  kind: 3
+  seasons: 4
+  perennial: 0
+  growDays: 8
+  regrowDays: 3
+  soils: 16
+  needsPaddy: 0
+  trellis: 0
+  yieldMin: 2
+  yieldMax: 3
+  leafColor: {r: 0.3529412, g: 0.6039216, b: 0.22745098, a: 1}
+  produceColor: {r: 0.47843137, g: 0.7529412, b: 0.2901961, a: 1}

@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1e9a6876b7042064b965bcdd10808fc1, type: 3}
+  m_Name: seed_cu_cai
+  m_EditorClassIdentifier: SereneIsle::SereneIsle.ItemDefinition
+  id: seed_cu_cai
+  displayName: "H\u1EA1t c\u1EE7 c\u1EA3i tr\u1EAFng"
+  category: 5
+  price: 8
+  weight: 0.02
+  eatHp: 0
+  eatWater: 0
+  eatEnergy: 0
+  icon: 25
+  iconColor: {r: 0.84705883, g: 0.69803923, b: 0.47843137, a: 1}
+  iconColor2: {r: 0.9490196, g: 0.9372549, b: 0.9019608, a: 1}
+  sprite: {fileID: 0}
+  seedOf: cu_cai
+  bagLevel: 0
+  fishDifficulty: 0
+  habitats: []
+  activeTime: 
+  description: "Gieo m\xF9a Xu\xE2n. L\u1EDBn sau 8 ng\xE0y t\u01B0\u1EDBi. H\u1EE3p c\xE1t pha, ph\xF9 sa."

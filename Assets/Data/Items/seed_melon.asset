@@ -22,11 +22,11 @@ MonoBehaviour:
   eatEnergy: 0
   icon: 25
   iconColor: {r: 0.84705883, g: 0.69803923, b: 0.47843137, a: 1}
-  iconColor2: {r: 0.24705882, g: 0.5411765, b: 0.22745098, a: 1}
+  iconColor2: {r: 0.22745098, g: 0.47843137, b: 0.19607843, a: 1}
   sprite: {fileID: 0}
   seedOf: melon
   bagLevel: 0
   fishDifficulty: 0
   habitats: []
   activeTime: 
-  description: 
+  description: "Gieo m\xF9a H\u1EA1, \u0110\xF4ng. L\u1EDBn sau 12 ng\xE0y t\u01B0\u1EDBi. H\u1EE3p c\xE1t pha."
