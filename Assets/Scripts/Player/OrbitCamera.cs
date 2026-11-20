@@ -76,7 +76,7 @@ namespace SereneIsle
             float cx = p.x + Mathf.Sin(yaw) * cp, cz = p.z + Mathf.Cos(yaw) * cp;
             float cy = p.y + lookHeight + Mathf.Sin(pitch) * distance;
             var data = Data;
-            if (data != null) cy = Mathf.Max(cy, data.HeightAt(cx, cz) + .5f, IslandData.SEA + .4f);
+            if (data != null) cy = Mathf.Max(cy, data.HeightAt(cx, cz) + .5f, data.WaterLevel + .4f);
 
             transform.position = new Vector3(cx, cy, cz);
             transform.LookAt(new Vector3(p.x, p.y + lookHeight, p.z));

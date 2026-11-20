@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1e9a6876b7042064b965bcdd10808fc1, type: 3}
+  m_Name: seed_oi
+  m_EditorClassIdentifier: SereneIsle::SereneIsle.ItemDefinition
+  id: seed_oi
+  displayName: "C\xE2y gi\u1ED1ng \u1ED5i"
+  category: 5
+  price: 45
+  weight: 1.5
+  eatHp: 0
+  eatWater: 0
+  eatEnergy: 0
+  icon: 25
+  iconColor: {r: 0.84705883, g: 0.69803923, b: 0.47843137, a: 1}
+  iconColor2: {r: 0.72156864, g: 0.84705883, b: 0.4392157, a: 1}
+  sprite: {fileID: 0}
+  seedOf: oi
+  bagLevel: 0
+  fishDifficulty: 0
+  habitats: []
+  activeTime: 
+  description: "Tr\u1ED3ng \u0111\u01B0\u1EE3c m\u1ECDi m\xF9a, 28 ng\xE0y th\xEC l\u1EDBn, ra tr\xE1i m\xF9a Thu. H\u1EE3p m\u1ECDi lo\u1EA1i \u0111\u1EA5t."

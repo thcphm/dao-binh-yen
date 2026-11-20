@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: seed_pumpkin
   m_EditorClassIdentifier: SereneIsle::SereneIsle.ItemDefinition
   id: seed_pumpkin
-  displayName: "H\u1EA1t b\xED ng\xF4"
+  displayName: "H\u1EA1t b\xED \u0111\u1ECF"
   category: 5
   price: 15
   weight: 0.02
@@ -29,4 +29,4 @@ MonoBehaviour:
   fishDifficulty: 0
   habitats: []
   activeTime: 
-  description: 
+  description: "Gieo m\xF9a Xu\xE2n. L\u1EDBn sau 14 ng\xE0y t\u01B0\u1EDBi. H\u1EE3p \u0111\u1EA5t \u0111\u1ECF, \u0111\u1EA5t v\u01B0\u1EDDn."

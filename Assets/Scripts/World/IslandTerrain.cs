@@ -27,6 +27,8 @@ namespace SereneIsle
 
         public IslandData Data { get; private set; }
         public VegetationRenderer Vegetation { get; private set; }
+        /// <summary>Mat nuoc bien (TideSystem dich len xuong theo con nuoc).</summary>
+        public Transform WaterPlane { get; private set; }
         public bool IsReady { get; private set; }
         public float Progress { get; private set; }
         public event Action<IslandData> Ready;
@@ -163,6 +165,7 @@ namespace SereneIsle
             float N = d.N;
             // mat nuoc: PlaneGeometry(N+240, N+240, 150, 150) tai y = SEA
             var water = new GameObject("Water");
+            WaterPlane = water.transform;
             water.transform.SetParent(transform, false);
             water.transform.localPosition = new Vector3(N / 2f, IslandData.SEA, N / 2f);
             water.AddComponent<MeshFilter>().sharedMesh = MakePlane(N + 240, 150, "WaterPlane");

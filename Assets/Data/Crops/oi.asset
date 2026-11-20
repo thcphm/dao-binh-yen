@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d997ac2ebbe8d1b47a5adad6b571302b, type: 3}
+  m_Name: oi
+  m_EditorClassIdentifier: SereneIsle::SereneIsle.CropDefinition
+  id: oi
+  displayName: "\u1ED4i"
+  produce: oi
+  kind: 10
+  seasons: 4
+  perennial: 1
+  growDays: 28
+  regrowDays: 6
+  soils: 31
+  needsPaddy: 0
+  trellis: 0
+  yieldMin: 3
+  yieldMax: 4
+  leafColor: {r: 0.2901961, g: 0.5411765, b: 0.22745098, a: 1}
+  produceColor: {r: 0.72156864, g: 0.84705883, b: 0.4392157, a: 1}

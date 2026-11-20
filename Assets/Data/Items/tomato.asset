@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: tomato
   m_EditorClassIdentifier: SereneIsle::SereneIsle.ItemDefinition
   id: tomato
-  displayName: "C\xE0 chua b\u1EE5i"
+  displayName: "C\xE0 chua"
   category: 4
   price: 32
   weight: 0.3
@@ -29,4 +29,4 @@ MonoBehaviour:
   fishDifficulty: 0
   habitats: []
   activeTime: 
-  description: 
+  description: "M\xF9a \u0110\xF4ng."

@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d997ac2ebbe8d1b47a5adad6b571302b, type: 3}
+  m_Name: toi
+  m_EditorClassIdentifier: SereneIsle::SereneIsle.CropDefinition
+  id: toi
+  displayName: "T\u1ECFi \u0111\u1EA3o"
+  produce: toi
+  kind: 2
+  seasons: 8
+  perennial: 0
+  growDays: 24
+  regrowDays: 0
+  soils: 5
+  needsPaddy: 0
+  trellis: 0
+  yieldMin: 2
+  yieldMax: 3
+  leafColor: {r: 0.41568628, g: 0.65882355, b: 0.2901961, a: 1}
+  produceColor: {r: 0.9490196, g: 0.9254902, b: 0.8784314, a: 1}

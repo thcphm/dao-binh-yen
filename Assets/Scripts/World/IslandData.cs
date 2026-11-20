@@ -386,7 +386,27 @@ namespace SereneIsle
             return 1e9f;
         }
 
-        /// <summary>walkable: khong xuong bien man / nuoc sau, khong leo bac cao hon .42.</summary>
+        // ================= con nuoc =================
+        /// <summary>Muc nuoc bien hien tai (con nuoc). Ao, ho, song ngot giu muc SEA.</summary>
+        public float WaterLevel = SEA;
+        /// <summary>Nuoc bien sau hon muc nay thi khong loi tiep duoc.</summary>
+        public const float MaxWadeDepth = .4f;
+
+        /// <summary>Mat nuoc tai o k: bien theo con nuoc, nuoc ngot co dinh.</summary>
+        public float WaterSurface(int k) => Fresh[k] != 0 ? SEA : WaterLevel;
+
+        /// <summary>Do sau nuoc tai (x, z) (&lt;= 0 la tren can).</summary>
+        public float WaterDepth(float x, float z)
+        {
+            int i = RoundJs(x), j = RoundJs(z);
+            if (!InBounds(i, j)) return 9f;
+            int k = Idx(i, j);
+            if (Pier[k] != 0) return 0f;
+            return WaterSurface(k) - HeightAt(x, z);
+        }
+
+        /// <summary>walkable: khong xuong nuoc sau, khong leo bac cao hon .42.
+        /// Ban web khong cho xuong bien; ban nay cho loi bien nong (do sau &lt; .4) vi bai bien thay doi theo con nuoc.</summary>
         public bool Walkable(float x, float z, float fromY)
         {
             int i = RoundJs(x), j = RoundJs(z);
@@ -394,7 +414,11 @@ namespace SereneIsle
             int k = Idx(i, j);
             if (Solid[k] != 0 && !(fromY >= SolidTop(k))) return false;
             float h = GroundHeight(x, z);
-            if (h < SEA + .04f && !(Fresh[k] != 0 && h > SEA - .4f && Pier[k] == 0)) return false;
+            if (Pier[k] == 0)
+            {
+                if (Fresh[k] != 0) { if (h < SEA + .04f && !(h > SEA - .4f)) return false; }
+                else if (WaterLevel - h > MaxWadeDepth) return false;
+            }
             return h - fromY <= .42f;
         }
 

@@ -27,6 +27,7 @@ namespace SereneIsle
         UIDocument _doc;
         VisualElement _root, _hud;
         Label _dayLabel, _timeLabel, _coinLabel, _panelSub, _itemInfo, _fadeTitle, _fadeSub;
+        Label _tideLabel, _targetHint;
         StatIconElement _sun;
         VisualElement _hpFill, _waterFill, _energyFill, _calmFill, _energyRec, _weightFill;
         VisualElement _toasts, _hotbar, _overlay, _grid, _toolsRow, _fade, _ghost, _help;
@@ -105,6 +106,8 @@ namespace SereneIsle
             clock.Add(row);
             _timeLabel = L("time-label", null, "14:00");
             clock.Add(_timeLabel);
+            _tideLabel = L("tide-label");
+            clock.Add(_tideLabel);
             _hpFill = StatRow(clock, StatIcon.Heart, "hp-fill", out _);
             _waterFill = StatRow(clock, StatIcon.Drop, "water-fill", out _);
             _energyFill = StatRow(clock, StatIcon.Bolt, "energy-fill", out var enBar);
@@ -145,6 +148,11 @@ namespace SereneIsle
                 _hotbar.Add(v.root);
             }
             _hud.Add(_hotbar);
+
+            // ---- goi y o phia truoc (cuoc, tuoi, thu hoach...) ----
+            _targetHint = L("target-hint", "chip");
+            _targetHint.style.display = DisplayStyle.None;
+            _hud.Add(_targetHint);
 
             // ---- huong dan ----
             _help = E("help", "chip", true);
@@ -261,8 +269,17 @@ namespace SereneIsle
                 _help.style.display = _help.style.display == DisplayStyle.None ? DisplayStyle.Flex : DisplayStyle.None;
 
             // dong ho + chi so
-            _dayLabel.text = $"NGÀY {s.Clock.Day}";
+            var date = s.Date;
+            _dayLabel.text = $"{LunarCalendar.SeasonName(date.Season).ToUpperInvariant()} · {date.ShortLabel.ToUpperInvariant()}";
             _timeLabel.text = s.Clock.TimeLabel;
+            double abs = TideClock.AbsHours(s.Clock.Day, s.Clock.Hour);
+            bool rising = TideClock.Rising(abs);
+            _tideLabel.text = rising
+                ? $"Nước lên · lớn lúc {TideClock.ClockLabel(TideClock.NextHigh(abs))}"
+                : $"Nước ròng · cạn lúc {TideClock.ClockLabel(TideClock.NextLow(abs))}";
+            string hint = s.Active && s.Farm ? s.Farm.HintFor(DB.Get(s.Hotbar.SelectedId)) : null;
+            _targetHint.style.display = string.IsNullOrEmpty(hint) ? DisplayStyle.None : DisplayStyle.Flex;
+            if (!string.IsNullOrEmpty(hint)) _targetHint.text = hint;
             _sun.Icon = s.Clock.IsNight ? StatIcon.Moon : StatIcon.Sun;
             var st = s.Stats;
             float en = Mathf.Clamp01(st.Energy / st.EnergyMax) * 100f;
@@ -483,7 +500,7 @@ namespace SereneIsle
 
         void ShowFade(int day, string sub)
         {
-            _fadeTitle.text = $"Ngày {day}";
+            _fadeTitle.text = LunarCalendar.Date(day).ShortLabel;
             _fadeSub.text = sub;
             _fade.pickingMode = PickingMode.Position;
             _fade.AddToClassList("fade--on");
