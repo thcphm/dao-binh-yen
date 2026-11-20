@@ -20,6 +20,13 @@ namespace SereneIsle
         public static InputAction ScrollAction { get; private set; }
         public static InputAction ZoomKeyAction { get; private set; }   // + / -
         public static InputAction RotateKeyAction { get; private set; } // Z / C
+        public static InputAction ZoomModifierAction { get; private set; } // Ctrl/Alt + lan chuot = zoom (ban web)
+        public static InputAction UseAction { get; private set; }       // F / chuot trai / X tay cam
+        public static InputAction InventoryAction { get; private set; } // I / Tab / Y tay cam
+        public static InputAction CancelAction { get; private set; }    // Esc / B tay cam
+        public static InputAction SlotPrevAction { get; private set; }  // LB
+        public static InputAction SlotNextAction { get; private set; }  // RB
+        public static InputAction[] SlotActions { get; private set; }   // 1..9, 0
 
         static bool _ready;
 
@@ -71,6 +78,26 @@ namespace SereneIsle
             RotateKeyAction = Map.AddAction("RotateKey", InputActionType.Value, expectedControlLayout: "Axis");
             RotateKeyAction.AddCompositeBinding("1DAxis").With("Positive", "<Keyboard>/z").With("Negative", "<Keyboard>/c");
 
+            ZoomModifierAction = Map.AddAction("ZoomModifier", InputActionType.Button);
+            foreach (var b in new[] { "<Keyboard>/leftCtrl", "<Keyboard>/rightCtrl", "<Keyboard>/leftAlt", "<Keyboard>/rightAlt" }) ZoomModifierAction.AddBinding(b);
+
+            UseAction = Map.AddAction("Use", InputActionType.Button);
+            UseAction.AddBinding("<Keyboard>/f"); UseAction.AddBinding("<Mouse>/leftButton"); UseAction.AddBinding("<Gamepad>/buttonWest");
+            InventoryAction = Map.AddAction("Inventory", InputActionType.Button);
+            InventoryAction.AddBinding("<Keyboard>/i"); InventoryAction.AddBinding("<Keyboard>/tab"); InventoryAction.AddBinding("<Gamepad>/buttonNorth");
+            CancelAction = Map.AddAction("Cancel", InputActionType.Button);
+            CancelAction.AddBinding("<Keyboard>/escape"); CancelAction.AddBinding("<Gamepad>/start");
+            SlotPrevAction = Map.AddAction("SlotPrev", InputActionType.Button, "<Gamepad>/leftShoulder");
+            SlotNextAction = Map.AddAction("SlotNext", InputActionType.Button, "<Gamepad>/rightShoulder");
+            SlotActions = new InputAction[10];
+            for (int i = 0; i < 10; i++)
+            {
+                string key = i == 9 ? "0" : (i + 1).ToString();
+                SlotActions[i] = Map.AddAction("Slot" + (i + 1), InputActionType.Button);
+                SlotActions[i].AddBinding("<Keyboard>/" + key);
+                SlotActions[i].AddBinding("<Keyboard>/numpad" + key);
+            }
+
             Map.Enable();
         }
 
@@ -94,6 +121,28 @@ namespace SereneIsle
         {
             get { Ensure(); return ZoomKeyAction.WasPressedThisFrame() ? Mathf.Sign(ZoomKeyAction.ReadValue<float>()) : 0; }
         }
+
+        public static bool ZoomModifier { get { Ensure(); return ZoomModifierAction.IsPressed(); } }
+        public static bool UsePressed { get { Ensure(); return UseAction.WasPressedThisFrame(); } }
+        public static bool UseHeld { get { Ensure(); return UseAction.IsPressed(); } }
+        /// <summary>Chuot trai vua bam (de UI biet lan bam nay co trung giao dien khong).</summary>
+        public static bool UsePressedByMouse { get { Ensure(); return UseAction.WasPressedThisFrame() && UseAction.activeControl?.device is Mouse; } }
+        public static bool InventoryPressed { get { Ensure(); return InventoryAction.WasPressedThisFrame(); } }
+        public static bool CancelPressed { get { Ensure(); return CancelAction.WasPressedThisFrame(); } }
+
+        /// <summary>O hotbar vua bam (0..9) hoac -1.</summary>
+        public static int SlotPressed
+        {
+            get { Ensure(); for (int i = 0; i < SlotActions.Length; i++) if (SlotActions[i].WasPressedThisFrame()) return i; return -1; }
+        }
+        /// <summary>-1 / +1 khi doi o hotbar bang LB/RB.</summary>
+        public static int SlotCycle
+        {
+            get { Ensure(); return SlotNextAction.WasPressedThisFrame() ? 1 : SlotPrevAction.WasPressedThisFrame() ? -1 : 0; }
+        }
+
+        /// <summary>Vi tri chuot tren man hinh (pixel, goc duoi trai).</summary>
+        public static Vector2 PointerPosition => Mouse.current != null ? Mouse.current.position.ReadValue() : Vector2.zero;
 
         /// <summary>Z = +1, C = -1 (giu phim).</summary>
         public static float CameraRotateKeys { get { Ensure(); return RotateKeyAction.ReadValue<float>(); } }

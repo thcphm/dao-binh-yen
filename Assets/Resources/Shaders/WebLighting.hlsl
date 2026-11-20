@@ -12,6 +12,29 @@ float4 _SI_HemiGround;  // rgb = mau dat * cuong do (sRGB)
 float4 _SI_FogColor;    // rgb = mau suong mu (sRGB)
 float4 _SI_FogParams;   // x = near, y = far, z = 1 bat suong mu
 
+// Vat che nhan vat (ban web FADE: uCam, uPl, uR). Dat boi OrbitCamera; w = 1 khi co nguoi choi.
+float4 _SI_Cam;
+float4 _SI_Player;
+float _SI_FadeR;
+
+/// Thua dan phan vat nam tren doan camera -> nhan vat, cao hon hong nguoi choi (luoi Bayer 4x4).
+void SI_OcclusionClip(float3 wpos, float2 pixel, half enabled)
+{
+    if (enabled < .5 || _SI_Player.w < .5) return;
+    float3 ab = _SI_Player.xyz - _SI_Cam.xyz;
+    float t = saturate(dot(wpos - _SI_Cam.xyz, ab) / max(1e-4, dot(ab, ab)));
+    float d = length(wpos - (_SI_Cam.xyz + ab * t));
+    float r = _SI_FadeR > 0 ? _SI_FadeR : 2.2;
+    float f = (1 - smoothstep(r * .55, r, d)) * smoothstep(0, .12, t) * (1 - smoothstep(.86, .97, t))
+            * smoothstep(_SI_Player.y - .5, _SI_Player.y + .4, wpos.y);
+    if (f > 0)
+    {
+        float2 q = fmod(floor(pixel), 4.0);
+        float b2 = fmod(fmod(q.x, 2.0) * 2.0 + fmod(q.y, 2.0) * 3.0 + floor(q.x / 2.0) * 8.0 + floor(q.y / 2.0) * 12.0, 16.0) / 16.0;
+        if (b2 < f * .85) discard;
+    }
+}
+
 half3 SI_ToSRGB(half3 c)
 {
 #if defined(UNITY_COLORSPACE_GAMMA)

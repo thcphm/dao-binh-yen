@@ -66,6 +66,37 @@ namespace SereneIsle
             return mesh;
         }
 
+        /// <summary>Lang tru deu n canh, truc Y, cao h, ban kinh r, phap tuyen phang (THREE.CylinderGeometry(r,r,h,n)).
+        /// Dinh dau tien nam o +z giong three.js.</summary>
+        public static Mesh Prism(int n, float r, float h, string name = "Prism")
+        {
+            var v = new List<Vector3>(); var nr = new List<Vector3>(); var t = new List<int>();
+            float y0 = -h / 2, y1 = h / 2;
+            Vector3 P(int i) { float a = i / (float)n * Mathf.PI * 2; return new Vector3(r * Mathf.Sin(a), 0, r * Mathf.Cos(a)); }
+            for (int i = 0; i < n; i++)
+            {
+                Vector3 a = P(i), b = P(i + 1), nn = ((a + b) * .5f).normalized;
+                int s = v.Count;
+                v.Add(a + Vector3.up * y0); v.Add(b + Vector3.up * y0); v.Add(a + Vector3.up * y1); v.Add(b + Vector3.up * y1);
+                for (int k = 0; k < 4; k++) nr.Add(nn);
+                // nhin tu ngoai: b nam ben trai man hinh -> (a0, b0, a1), (b0, b1, a1) theo chieu kim dong ho
+                t.Add(s); t.Add(s + 1); t.Add(s + 2); t.Add(s + 1); t.Add(s + 3); t.Add(s + 2);
+            }
+            foreach (float y in new[] { y0, y1 })
+            {
+                int c = v.Count; v.Add(new Vector3(0, y, 0)); nr.Add(y > 0 ? Vector3.up : Vector3.down);
+                for (int i = 0; i <= n; i++) { v.Add(P(i) + Vector3.up * y); nr.Add(y > 0 ? Vector3.up : Vector3.down); }
+                for (int i = 0; i < n; i++)
+                {
+                    if (y > 0) { t.Add(c); t.Add(c + 1 + i); t.Add(c + 2 + i); }
+                    else { t.Add(c); t.Add(c + 2 + i); t.Add(c + 1 + i); }
+                }
+            }
+            var m = new Mesh { name = name };
+            m.SetVertices(v); m.SetNormals(nr); m.SetTriangles(t, 0); m.RecalculateBounds();
+            return m;
+        }
+
         /// <summary>Chop cau don vi (ban kinh 1) tu dinh xuong goc theta (radian), giong SphereGeometry(1,..,0,2PI,0,thetaLength).</summary>
         public static Mesh SphereCap(float thetaLength, int segments = 24, int rings = 12)
         {

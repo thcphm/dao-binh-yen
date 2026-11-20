@@ -277,7 +277,38 @@ namespace SereneIsle
             for (int i = 0; i < KC; i++) dst[i] = a[i] + (b[i] - a[i]) * t;
         }
 
-        readonly float[] _W = new float[KC], _R = new float[KC], _T = new float[KC], _J = new float[KC], _U = new float[KC], _D = new float[KC], _L = new float[KC];
+        readonly float[] _W = new float[KC], _R = new float[KC], _T = new float[KC], _J = new float[KC], _U = new float[KC], _D = new float[KC], _L = new float[KC], _A = new float[KC];
+
+        // ---- dong tac dang dien (ban web: PL.swing / PL.swingDur / PL.act) ----
+        string _act;
+        float _swing, _swingDur = .4f;
+        GameObject _held;
+
+        public bool Acting => _swing > 0;
+        public string CurrentAct => _swing > 0 ? _act : null;
+
+        /// <summary>startAct: dien 1 dong tac theo bang ACTS (eat, drink, axe, pick...).</summary>
+        public void PlayAct(string act, ItemDefinition held = null)
+        {
+            _act = act;
+            _swingDur = _swing = CharacterActions.DurationOf(act);
+            ShowHeld(held);
+        }
+
+        /// <summary>Hien mon do tren tay phai (ban web: emoji sprite gan vao player.hand).</summary>
+        void ShowHeld(ItemDefinition it)
+        {
+            if (_held) Destroy(_held);
+            _held = null;
+            if (!it || !Hand) return;
+            _held = new GameObject("held_" + it.id);
+            _held.transform.SetParent(Hand, false);
+            _held.transform.localPosition = new Vector3(0, .04f, .1f);
+            var mesh = it.IsDrink ? ProceduralMeshes.Cylinder : ProceduralMeshes.Sphere;
+            _held.transform.localScale = it.IsDrink ? new Vector3(.09f, .08f, .09f) : Vector3.one * .15f;
+            _held.AddComponent<MeshFilter>().sharedMesh = mesh;
+            _held.AddComponent<MeshRenderer>().sharedMaterial = MaterialLibrary.Solid(it.iconColor);
+        }
 
         static void Set(float[] d, float hnR, float thL, float thR, float knL, float knR, float ftL, float ftR, float shL, float shR,
                         float elL, float elR, float azL, float azR, float hipY, float hipR, float spR, float lean, float hdX, float hdY)
@@ -343,6 +374,20 @@ namespace SereneIsle
             float k = Mathf.Min(1, dt * (fast ? 22 : 12));
             if (!_poseInit) { System.Array.Copy(t, _P, KC); _poseInit = true; }
             for (int i = 0; i < KC; i++) _P[i] += (t[i] - _P[i]) * k;
+
+            // dong tac (an, uong, dung cu...): tron len tu the, nha dan o 20% cuoi
+            if (_swing > 0)
+            {
+                _swing = Mathf.Max(0, _swing - dt);
+                if (CharacterActions.Has(_act))
+                {
+                    float q = 1 - _swing / _swingDur;
+                    CharacterActions.Sample(_act, q, _A);
+                    float w = q < .8f ? 1 : 1 - (q - .8f) / .2f;
+                    for (int i = 0; i < KC; i++) if (!float.IsNaN(_A[i])) _P[i] = _P[i] * (1 - w) + _A[i] * w;
+                }
+                if (_swing <= 0) { _act = null; ShowHeld(null); }
+            }
 
             Apply();
 

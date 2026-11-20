@@ -1,11 +1,16 @@
 // Lambert kieu ban web: mau dinh (vertex color sRGB) x _BaseColor, den ban cau + mat troi + bong do URP.
-// Dung cho dia hinh (_VertexColorWeight = 1) va nhan vat / vat the mau don (_VertexColorWeight = 0).
+// Dung cho dia hinh (_VertexColorWeight = 1), cay/da/nha (mau dinh) va nhan vat (mau don, _VertexColorWeight = 0).
+// Them (ban web makeObjMat, dong 408-428):
+//   _SWAY          : cay co lay theo gio (dinh cay dung dua, goc dung yen) - ho tro GPU instancing.
+//   _OcclusionFade : vat nam giua camera va nhan vat thi thua dan bang luoi diem Bayer 4x4.
 Shader "SereneIsle/WebLambert"
 {
     Properties
     {
         [MainColor] _BaseColor ("Base Color", Color) = (1, 1, 1, 1)
         _VertexColorWeight ("Vertex Color Weight", Range(0, 1)) = 1
+        [Toggle(_SWAY)] _Sway ("Lay theo gio", Float) = 0
+        _OcclusionFade ("Thua khi che nhan vat", Range(0, 1)) = 0
     }
 
     SubShader
@@ -18,7 +23,22 @@ Shader "SereneIsle/WebLambert"
         CBUFFER_START(UnityPerMaterial)
             half4 _BaseColor;
             half _VertexColorWeight;
+            half _Sway;
+            half _OcclusionFade;
         CBUFFER_END
+
+        // gio: dich chuyen trong khong gian vat the, phase theo vi tri goc cua tung cay
+        float3 SI_ApplySway(float3 posOS)
+        {
+        #if defined(_SWAY)
+            float3 ip = TransformObjectToWorld(float3(0, 0, 0));
+            float hg = max(0, posOS.y - .5);
+            float ph = _Time.y * 1.5 + ip.x * .37 + ip.z * .29;
+            posOS.x += (sin(ph) + sin(ph * 2.3) * .3) * .03 * hg * hg;
+            posOS.z += cos(ph * .8) * .025 * hg * hg;
+        #endif
+            return posOS;
+        }
         ENDHLSL
 
         Pass
@@ -32,6 +52,7 @@ Shader "SereneIsle/WebLambert"
             #pragma multi_compile _ _MAIN_LIGHT_SHADOWS _MAIN_LIGHT_SHADOWS_CASCADE _MAIN_LIGHT_SHADOWS_SCREEN
             #pragma multi_compile_fragment _ _SHADOWS_SOFT _SHADOWS_SOFT_LOW _SHADOWS_SOFT_MEDIUM _SHADOWS_SOFT_HIGH
             #pragma multi_compile_instancing
+            #pragma multi_compile_local _ _SWAY
 
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
             #include "WebLighting.hlsl"
@@ -58,7 +79,7 @@ Shader "SereneIsle/WebLambert"
                 Varyings o;
                 UNITY_SETUP_INSTANCE_ID(input);
                 UNITY_TRANSFER_INSTANCE_ID(input, o);
-                VertexPositionInputs p = GetVertexPositionInputs(input.positionOS.xyz);
+                VertexPositionInputs p = GetVertexPositionInputs(SI_ApplySway(input.positionOS.xyz));
                 o.positionCS = p.positionCS;
                 o.positionWS = p.positionWS;
                 o.normalWS = TransformObjectToWorldNormal(input.normalOS);
@@ -69,6 +90,8 @@ Shader "SereneIsle/WebLambert"
             half4 frag(Varyings i) : SV_Target
             {
                 UNITY_SETUP_INSTANCE_ID(i);
+                SI_OcclusionClip(i.positionWS, i.positionCS.xy, _OcclusionFade);
+
                 float3 n = normalize(i.normalWS);
                 half3 albedo = i.color * SI_ToSRGB(_BaseColor.rgb);
 
@@ -96,6 +119,7 @@ Shader "SereneIsle/WebLambert"
             #pragma fragment frag
             #pragma multi_compile_instancing
             #pragma multi_compile_vertex _ _CASTING_PUNCTUAL_LIGHT_SHADOW
+            #pragma multi_compile_local _ _SWAY
 
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Shadows.hlsl"
 
@@ -112,7 +136,7 @@ Shader "SereneIsle/WebLambert"
             float4 vert(Attributes input) : SV_POSITION
             {
                 UNITY_SETUP_INSTANCE_ID(input);
-                float3 positionWS = TransformObjectToWorld(input.positionOS.xyz);
+                float3 positionWS = TransformObjectToWorld(SI_ApplySway(input.positionOS.xyz));
                 float3 normalWS = TransformObjectToWorldNormal(input.normalOS);
             #if defined(_CASTING_PUNCTUAL_LIGHT_SHADOW)
                 float3 lightDir = normalize(_LightPosition - positionWS);
@@ -143,13 +167,14 @@ Shader "SereneIsle/WebLambert"
             #pragma vertex vert
             #pragma fragment frag
             #pragma multi_compile_instancing
+            #pragma multi_compile_local _ _SWAY
 
             struct Attributes { float4 positionOS : POSITION; UNITY_VERTEX_INPUT_INSTANCE_ID };
 
             float4 vert(Attributes input) : SV_POSITION
             {
                 UNITY_SETUP_INSTANCE_ID(input);
-                return TransformObjectToHClip(input.positionOS.xyz);
+                return TransformObjectToHClip(SI_ApplySway(input.positionOS.xyz));
             }
 
             half4 frag() : SV_Target { return 0; }
@@ -166,6 +191,7 @@ Shader "SereneIsle/WebLambert"
             #pragma vertex vert
             #pragma fragment frag
             #pragma multi_compile_instancing
+            #pragma multi_compile_local _ _SWAY
 
             struct Attributes { float4 positionOS : POSITION; float3 normalOS : NORMAL; UNITY_VERTEX_INPUT_INSTANCE_ID };
             struct Varyings { float4 positionCS : SV_POSITION; float3 normalWS : TEXCOORD0; };
@@ -174,7 +200,7 @@ Shader "SereneIsle/WebLambert"
             {
                 Varyings o;
                 UNITY_SETUP_INSTANCE_ID(input);
-                o.positionCS = TransformObjectToHClip(input.positionOS.xyz);
+                o.positionCS = TransformObjectToHClip(SI_ApplySway(input.positionOS.xyz));
                 o.normalWS = TransformObjectToWorldNormal(input.normalOS);
                 return o;
             }

@@ -21,7 +21,7 @@ namespace SereneIsle
         [Header("Hien thi")]
         public bool castShadows = true;
         [Tooltip("Them MeshCollider cho tung manh (de raycast chuot / vat ly sau nay).")]
-        public bool addColliders = true;
+        public bool addColliders = false;
         public bool buildWater = true;
 
         public IslandData Data { get; private set; }
@@ -80,6 +80,8 @@ namespace SereneIsle
             }
             if (buildWater) BuildWaterAndFloor(data);
             PierBuilder.Build(data, transform);
+            TentBuilder.Build(data, transform, out var home, out var homeFacing);
+            if (GameSession.Instance) GameSession.Instance.SetHome(home, homeFacing);
 
             Debug.Log($"[SereneIsle] Dao seed={s}, {size}x{size} o, {chunks.Length} manh, thi tran ({data.CX},{data.CZ}) huong {data.TDIR}, " +
                       $"{(Time.realtimeSinceStartup - t0):F2}s");

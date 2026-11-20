@@ -20,6 +20,12 @@ namespace SereneIsle
         [Tooltip("Tat post-processing tren camera (tone mapping se lam lech mau so voi ban web).")]
         public bool disablePostProcessing = true;
 
+        [Header("Thu nghiem")]
+        [Tooltip("Cho vai mon do de thu tui do / an uong (giai doan 2).")]
+        public bool starterKit = true;
+
+        public GameSession Session { get; private set; }
+        public GameHud Hud { get; private set; }
         public IslandTerrain Terrain { get; private set; }
         public PlayerController Player { get; private set; }
         public OrbitCamera CameraRig { get; private set; }
@@ -32,6 +38,12 @@ namespace SereneIsle
             // ---- moi truong ----
             var env = FindAnyObjectByType<IslandEnvironment>();
             if (!env) env = new GameObject("Environment").AddComponent<IslandEnvironment>();
+            env.advanceTime = false; // gio do GameSession dieu khien
+
+            // ---- van choi (phai co truoc dia hinh de nhan vi tri leu) ----
+            Session = FindAnyObjectByType<GameSession>();
+            if (!Session) Session = new GameObject("GameSession").AddComponent<GameSession>();
+            Session.starterKit = starterKit;
 
             // ---- dia hinh (Start chay sau Awake -> kip gan seed/size) ----
             Terrain = FindAnyObjectByType<IslandTerrain>();
@@ -73,6 +85,13 @@ namespace SereneIsle
             Player.cameraRig = CameraRig;
             CameraRig.target = Player.transform;
             env.followTarget = Player.transform;
+            Session.Player = Player;
+            Session.Body = Player.GetComponent<ChibiCharacter>();
+            Session.Environment = env;
+
+            // ---- giao dien ----
+            Hud = FindAnyObjectByType<GameHud>();
+            if (!Hud) Hud = new GameObject("HUD").AddComponent<GameHud>();
 
             if (Terrain.IsReady) Player.PlaceAtArrival();
             else Terrain.Ready += _ => Player.PlaceAtArrival();

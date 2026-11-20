@@ -26,6 +26,12 @@ namespace SereneIsle
         public bool Sprinting { get; private set; }
         public bool Grounded => _ground;
         public float Speed => _speed;
+        /// <summary>Huong mat (radian, 0 = +z).</summary>
+        public float Facing => _rot;
+        /// <summary>Khoa dieu khien (mo tui do, chuyen ngay...) - ban web: running && !uiOpen.</summary>
+        public bool InputLocked { get; set; }
+        /// <summary>He so toc do khi het nang luong (ban web: x0.6).</summary>
+        public float SpeedMultiplier { get; set; } = 1f;
 
         ChibiCharacter _body;
         float _x, _y, _z, _vy, _rot, _prep, _land, _landAmt, _walk, _speed, _time;
@@ -68,7 +74,7 @@ namespace SereneIsle
             _time += dt;
 
             // ---- di chuyen theo huong camera ----
-            Vector2 input = GameInput.Move;
+            Vector2 input = InputLocked ? Vector2.zero : GameInput.Move;
             float ix = input.x, iz = input.y, il = Mathf.Sqrt(ix * ix + iz * iz);
             Moving = il > .1f;
             if (Moving)
@@ -80,7 +86,7 @@ namespace SereneIsle
                 mx /= ml; mz /= ml;
                 Sprinting = GameInput.Run;
                 float wd = data.TileHeight(_x, _z) < IslandData.SEA ? wadeFactor : 1f;
-                float sp = (Sprinting ? runSpeed : walkSpeed) * Mathf.Min(1, il) * wd;
+                float sp = (Sprinting ? runSpeed : walkSpeed) * Mathf.Min(1, il) * wd * SpeedMultiplier;
                 data.MoveEntity(ref _x, ref _z, mx * sp * dt, mz * sp * dt, radius, _y);
                 float target = Mathf.Atan2(mx, mz), dRot = Mathf.Atan2(Mathf.Sin(target - _rot), Mathf.Cos(target - _rot));
                 _rot += dRot * Mathf.Min(1, dt * turnRate);
@@ -90,7 +96,7 @@ namespace SereneIsle
             else Sprinting = false;
 
             // ---- nhay ----
-            if (GameInput.JumpPressed && _ground && !(_prep > 0) && !(_land > .12f)) _prep = jumpPrep;
+            if (!InputLocked && GameInput.JumpPressed && _ground && !(_prep > 0) && !(_land > .12f)) _prep = jumpPrep;
             if (_prep > 0)
             {
                 _prep -= dt;

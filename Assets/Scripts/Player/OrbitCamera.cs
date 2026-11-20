@@ -21,6 +21,10 @@ namespace SereneIsle
         public float stickSensitivity = 2.6f;   // rad/giay
         public float keyRotateSpeed = 1.8f;     // Z / C
         public Vector2 distanceRange = new Vector2(3.5f, 24f);
+        [Tooltip("Ban web: lan chuot doi o hotbar, can giu Ctrl/Alt de zoom")]
+        public bool zoomNeedsModifier = true;
+
+        bool _dragFromUi;
 
         public float Yaw => yaw;
 
@@ -46,7 +50,9 @@ namespace SereneIsle
             float dt = Mathf.Min(.05f, Time.unscaledDeltaTime);
 
             // Luu y: Unity dung he toa do tay trai -> chieu yaw nguoc ban web de keo phai = nhin sang phai nhu cu.
-            if (GameInput.OrbitHeld)
+            // bat dau keo tren giao dien (vd chuot phai xoa o hotbar) thi khong xoay
+            if (GameInput.OrbitAction.WasPressedThisFrame()) _dragFromUi = GameHud.PointerOverUI;
+            if (GameInput.OrbitHeld && !_dragFromUi && !GameHud.BlocksCamera)
             {
                 Vector2 d = GameInput.MouseDelta;
                 yaw += d.x * dragSensitivity;
@@ -58,8 +64,9 @@ namespace SereneIsle
             yaw -= GameInput.CameraRotateKeys * keyRotateSpeed * dt;
             pitch = Mathf.Clamp(pitch, .06f, 1.35f);
 
+            // ban web: lan chuot = doi o hotbar; Ctrl/Alt + lan = zoom
             float steps = GameInput.ScrollSteps;
-            if (steps != 0) distance -= steps;
+            if (steps != 0 && (GameInput.ZoomModifier || !zoomNeedsModifier)) distance -= steps;
             float zk = GameInput.ZoomKeySteps;
             if (zk != 0) distance -= zk * 1.5f;
             distance = Mathf.Clamp(distance, distanceRange.x, distanceRange.y);

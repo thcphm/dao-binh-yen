@@ -1,0 +1,102 @@
+/* HUD Dao Binh Yen - mau va kich thuoc theo CSS ban web (serene-isle.html dong 7-53). */
+.hud-root {
+    --paper: #fff3d6;
+    --paper-2: #f6e3b8;
+    --ink: #3a2715;
+    --ink-2: #7a5a3a;
+    --bark: #6b4423;
+    --ochre: #e0892f;
+    --ochre-d: #b9661c;
+    position: absolute; left: 0; top: 0; right: 0; bottom: 0; color: var(--ink);
+}
+
+.chip {
+    background-color: var(--paper);
+    border-width: 3px;
+    border-color: var(--bark);
+    border-radius: 14px;
+    border-bottom-width: 6px; /* thay cho box-shadow 0 4px 0 */
+}
+
+/* ---------- dong ho + chi so ---------- */
+#clock { position: absolute; top: 12px; left: 12px; padding: 6px 14px 8px 14px; min-width: 190px; }
+.clock-row { flex-direction: row; align-items: center; justify-content: space-between; }
+#day-label { font-size: 15px; -unity-font-style: bold; color: var(--ink-2); letter-spacing: 1px; }
+#time-label { font-size: 30px; -unity-font-style: bold; color: var(--ink); margin-top: -2px; }
+#sun-dot { width: 24px; height: 24px; }
+.stat { flex-direction: row; align-items: center; margin-top: 3px; }
+.stat-icon { width: 16px; height: 16px; margin-right: 6px; }
+.bar {
+    flex-grow: 1; height: 12px; border-radius: 6px; background-color: #e7d3a6;
+    border-width: 2px; border-color: var(--bark); overflow: hidden;
+}
+.bar-fill { position: absolute; left: 0; top: 0; bottom: 0; width: 100%; transition-property: width; transition-duration: .3s; }
+.bar-recover { position: absolute; top: 0; bottom: 0; left: 0; width: 0; background-color: rgba(232, 176, 47, .38); }
+#hp-fill { background-color: #d8452f; }
+#water-fill { background-color: #3d9bd6; }
+#energy-fill { background-color: #e8b02f; }
+#calm-fill { background-color: #5fb8a0; }
+
+/* ---------- xu ---------- */
+#coins { position: absolute; top: 12px; right: 12px; padding: 6px 14px; flex-direction: row; align-items: center; }
+#coin-icon { width: 24px; height: 24px; margin-right: 8px; }
+#coin-label { font-size: 22px; -unity-font-style: bold; }
+
+/* ---------- thong bao ---------- */
+#toasts { position: absolute; left: 12px; bottom: 116px; flex-direction: column; align-items: flex-start; }
+.toast { padding: 3px 12px; margin-top: 6px; font-size: 16px; -unity-font-style: bold; white-space: normal; max-width: 520px;
+         transition-property: opacity, translate; transition-duration: .25s; }
+.toast--in { opacity: 0; translate: -12px 0; }
+
+/* ---------- thanh nhanh ---------- */
+#hotbar { position: absolute; left: 0; right: 0; bottom: 14px; flex-direction: row; justify-content: center; }
+.slot {
+    width: 68px; height: 76px; margin: 0 3px; border-radius: 12px; background-color: var(--paper-2);
+    border-width: 3px; border-color: var(--bark); align-items: center; justify-content: center;
+}
+.slot .item-icon { width: 38px; height: 38px; }
+.slot-key { position: absolute; top: 1px; left: 6px; font-size: 13px; -unity-font-style: bold; color: var(--ink-2); }
+.slot-count { position: absolute; top: 1px; right: 6px; font-size: 13px; -unity-font-style: bold; color: var(--ink); }
+.slot-label { font-size: 11px; -unity-font-style: bold; margin-top: 1px; max-width: 62px; overflow: hidden; -unity-text-overflow-position: end; text-overflow: ellipsis; white-space: nowrap; }
+.slot--on { background-color: #ffe08a; border-color: #8a4f12; translate: 0 -6px; border-bottom-width: 7px; }
+.slot--lock { opacity: .4; }
+.slot--out { opacity: .55; }
+.slot--target { border-color: #e8913a; }
+.slot:hover { border-color: #8a4f12; }
+
+/* ---------- huong dan phim ---------- */
+#help { position: absolute; right: 12px; bottom: 14px; padding: 6px 12px; font-size: 13px; color: var(--ink-2); max-width: 300px; }
+#help Label { white-space: normal; }
+
+/* ---------- tui do ---------- */
+#overlay { position: absolute; left: 0; top: 0; right: 0; bottom: 0; background-color: rgba(26, 18, 10, .45); align-items: center; justify-content: center; }
+#panel { width: 640px; background-color: var(--paper); border-width: 4px; border-bottom-width: 8px; border-color: var(--bark); border-radius: 20px; padding: 18px 20px 20px 20px; }
+.panel-title { font-size: 30px; -unity-font-style: bold; }
+.panel-sub { font-size: 15px; color: var(--ink-2); -unity-font-style: bold; margin-bottom: 8px; }
+.panel-section { font-size: 14px; -unity-font-style: bold; color: var(--ink-2); margin-top: 10px; margin-bottom: 4px; letter-spacing: 1px; }
+.weight-bar { height: 10px; border-radius: 6px; background-color: #e7d3a6; border-width: 2px; border-color: var(--bark); overflow: hidden; margin-bottom: 4px; }
+#weight-fill { position: absolute; left: 0; top: 0; bottom: 0; background-color: #a67e50; }
+.grid { flex-direction: row; flex-wrap: wrap; }
+.cell { width: 66px; height: 66px; margin: 3px; border-radius: 12px; background-color: var(--paper-2); border-width: 3px; border-color: var(--bark); align-items: center; justify-content: center; }
+.cell .item-icon { width: 40px; height: 40px; }
+.cell--empty { background-color: #efdcae; border-color: #c9a46a; }
+.cell--lock { opacity: .35; }
+.cell:hover { border-color: #e8913a; }
+.cell-count { position: absolute; right: 5px; bottom: 1px; font-size: 13px; -unity-font-style: bold; }
+#item-info { min-height: 44px; margin-top: 8px; padding: 6px 10px; border-radius: 10px; background-color: var(--paper-2); font-size: 14px; white-space: normal; }
+.panel-hint { font-size: 13px; color: var(--ink-2); margin-top: 8px; white-space: normal; }
+.btn { margin-top: 10px; align-self: flex-end; padding: 6px 18px; border-radius: 12px; border-width: 3px; border-bottom-width: 5px; border-color: var(--bark);
+       background-color: var(--ochre); color: #fff8e8; font-size: 16px; -unity-font-style: bold; }
+.btn:hover { background-color: var(--ochre-d); }
+
+/* ---------- keo tha ---------- */
+#drag-ghost { position: absolute; width: 58px; height: 58px; border-radius: 12px; background-color: var(--paper-2); border-width: 3px; border-color: #e8913a;
+              align-items: center; justify-content: center; opacity: .92; }
+#drag-ghost .item-icon { width: 36px; height: 36px; }
+
+/* ---------- chuyen ngay ---------- */
+#fade { position: absolute; left: 0; top: 0; right: 0; bottom: 0; background-color: #1a120a; align-items: center; justify-content: center;
+        opacity: 0; transition-property: opacity; transition-duration: .9s; }
+#fade.fade--on { opacity: 1; }
+#fade-title { font-size: 46px; -unity-font-style: bold; color: #ffe9b8; -unity-text-align: middle-center; }
+#fade-sub { font-size: 20px; color: #d9c49a; -unity-text-align: middle-center; white-space: normal; max-width: 760px; margin-top: 8px; }
