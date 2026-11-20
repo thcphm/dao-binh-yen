@@ -25,5 +25,16 @@ namespace SereneIsle.EditorTools
             EditorBuildSettings.scenes = list.ToArray();
             Debug.Log($"[SereneIsle] Da tao {ScenePath}. Bam Play de sinh dao.");
         }
+
+        /// <summary>Mo scene dao va vao Play. Dung tu dong lenh: -executeMethod SereneIsle.EditorTools.SereneIsleMenu.OpenAndPlay</summary>
+        [MenuItem("Serene Isle/Mở đảo và chơi %#p")]
+        public static void OpenAndPlay()
+        {
+            if (EditorApplication.isPlaying) return;
+            if (!System.IO.File.Exists(ScenePath)) CreateScene();
+            if (!EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo()) return;
+            EditorSceneManager.OpenScene(ScenePath, OpenSceneMode.Single);
+            EditorApplication.EnterPlaymode();
+        }
     }
 }
