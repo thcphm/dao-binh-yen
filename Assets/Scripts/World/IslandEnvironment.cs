@@ -37,7 +37,8 @@ namespace SereneIsle
         };
 
         static readonly int idSky = Shader.PropertyToID("_SI_HemiSky"), idGround = Shader.PropertyToID("_SI_HemiGround"),
-                            idFogC = Shader.PropertyToID("_SI_FogColor"), idFogP = Shader.PropertyToID("_SI_FogParams");
+                            idFogC = Shader.PropertyToID("_SI_FogColor"), idFogP = Shader.PropertyToID("_SI_FogParams"),
+                            idSkyTop = Shader.PropertyToID("_SI_SkyTop"), idSunDisc = Shader.PropertyToID("_SI_SunDisc");
 
         void Awake()
         {
@@ -113,6 +114,11 @@ namespace SereneIsle
             Shader.SetGlobalVector(idGround, new Vector4(hemiGround.r * ambI, hemiGround.g * ambI, hemiGround.b * ambI, 1));
             Shader.SetGlobalVector(idFogC, new Vector4(sky.r, sky.g, sky.b, 1));
             Shader.SetGlobalVector(idFogP, new Vector4(fogNear, fogFar, 1, 0));
+            // vom troi: dinh troi dam hon chan troi; dia mat troi tat sau 19h36 (mat troi da lan)
+            var top = new Color(sky.r * .62f, sky.g * .78f, Mathf.Min(1, sky.b * 1.02f));
+            Shader.SetGlobalVector(idSkyTop, new Vector4(top.r, top.g, top.b, 1));
+            float sunUp = h < 19.6f ? Mathf.Clamp01((h - 5.6f) / .6f) : 0;
+            Shader.SetGlobalVector(idSunDisc, new Vector4(Mathf.Lerp(sunC.r, 1, .5f), Mathf.Lerp(sunC.g, 1, .5f), Mathf.Lerp(sunC.b, 1, .5f), sunUp));
 
             // cho shader khac (URP Lit...) cung co ambient tuong tu
             RenderSettings.ambientMode = AmbientMode.Trilight;

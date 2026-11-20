@@ -80,6 +80,15 @@ namespace SereneIsle
 
             transform.position = new Vector3(cx, cy, cz);
             transform.LookAt(new Vector3(p.x, p.y + lookHeight, p.z));
+
+            // ban web FADE: uCam, uPl = nhan vat + .8, uR = 2.2 -> vat che nhan vat thua dan
+            Shader.SetGlobalVector(idCam, transform.position);
+            Shader.SetGlobalVector(idPlayer, new Vector4(p.x, p.y + .8f, p.z, 1));
+            Shader.SetGlobalFloat(idFadeR, occlusionFadeRadius);
         }
+
+        [Tooltip("Ban kinh vung lam mo vat che nhan vat (ban web uR = 2.2)")]
+        public float occlusionFadeRadius = 2.2f;
+        static readonly int idCam = Shader.PropertyToID("_SI_Cam"), idPlayer = Shader.PropertyToID("_SI_Player"), idFadeR = Shader.PropertyToID("_SI_FadeR");
     }
 }

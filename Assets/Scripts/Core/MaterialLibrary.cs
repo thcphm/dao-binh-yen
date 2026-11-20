@@ -38,6 +38,45 @@ namespace SereneIsle
             }
         }
 
+        static Material _obj, _veg, _grass;
+
+        /// <summary>Vat the dung mau dinh (cay, da, nha...): thua khi che nhan vat; sway = lay theo gio (ban web objMat / vegMat).</summary>
+        public static Material Objects(bool sway)
+        {
+            ref Material m = ref sway ? ref _veg : ref _obj;
+            if (m) return m;
+            m = new Material(Lambert) { name = sway ? "SI_Vegetation" : "SI_Objects", enableInstancing = true };
+            m.SetColor("_BaseColor", Color.white);
+            m.SetFloat("_VertexColorWeight", 1f);
+            m.SetFloat("_OcclusionFade", 1f);
+            if (sway) { m.SetFloat("_Sway", 1f); m.EnableKeyword("_SWAY"); }
+            return m;
+        }
+
+        static Material _clouds;
+        /// <summary>May: trang, chi chiu 1 phan suong mu de nhin thay tu xa.</summary>
+        public static Material Clouds(float fogScale)
+        {
+            if (_clouds) return _clouds;
+            _clouds = new Material(Lambert) { name = "SI_Clouds" };
+            _clouds.SetColor("_BaseColor", Color.white);
+            _clouds.SetFloat("_VertexColorWeight", 1f);
+            _clouds.SetFloat("_FogScale", fogScale);
+            return _clouds;
+        }
+
+        /// <summary>Co: lay theo gio, khong thua (qua thap de che nhan vat). Mau theo biome qua MaterialPropertyBlock.</summary>
+        public static Material Grass()
+        {
+            if (_grass) return _grass;
+            _grass = new Material(Lambert) { name = "SI_Grass", enableInstancing = true };
+            _grass.SetColor("_BaseColor", Color.white);
+            _grass.SetFloat("_VertexColorWeight", 1f);
+            _grass.SetFloat("_Sway", 1f);
+            _grass.EnableKeyword("_SWAY");
+            return _grass;
+        }
+
         /// <summary>Material mau don (nhan vat, vat the). Mau nhap theo sRGB nhu ma hex ban web.</summary>
         public static Material Solid(Color srgb)
         {

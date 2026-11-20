@@ -87,6 +87,8 @@ namespace SereneIsle
             switch (TDIR) { case 0: a = dx; b = dz; break; case 1: a = -dz; b = dx; break; case 2: a = -dx; b = -dz; break; default: a = dz; b = -dx; break; }
         }
         public Vector2 TownPoint(double x, double z) { TR(x, z, out var a, out var b); return new Vector2((float)(CX + a), (float)(CZ + b)); }
+        /// <summary>Doi toa do the gioi sang toa do bo cuc thi tran (lx, lz; lz duong = huong bien).</summary>
+        public void ToTownLocal(double x, double z, out double lx, out double lz) => INV(x - CX, z - CZ, out lx, out lz);
         public int TownIdx(int x, int z) { TR(x, z, out var a, out var b); return Idx(CX + (int)a, CZ + (int)b); }
 
         // ================= cac truong khi hau =================
@@ -367,8 +369,22 @@ namespace SereneIsle
             return InBounds(i, j) ? HT[Idx(i, j)] : -1.6f;
         }
 
-        /// <summary>Do cao dinh vat can tai o k (ban web: solidTop). Hien chua co vat the nao.</summary>
-        public float SolidTop(int k) => 1e9f;
+        // ---- vat the tren o (cay, da...) - ban web: objAt ----
+        /// <summary>0 = trong, nguoc lai = (int)WorldObjectType + 1.</summary>
+        public byte[] ObjType;
+        public float[] ObjScale;
+        public float[] ObjRot;
+
+        /// <summary>Do cao dinh vat can tai o k (ban web: solidTop). Cay to = khong nhay qua duoc.</summary>
+        public float SolidTop(int k)
+        {
+            if (ObjType != null && ObjType[k] != 0)
+            {
+                float h = WorldObjects.JumpHeight((WorldObjectType)(ObjType[k] - 1));
+                return h > 0 ? HT[k] + h * ObjScale[k] : 1e9f;
+            }
+            return 1e9f;
+        }
 
         /// <summary>walkable: khong xuong bien man / nuoc sau, khong leo bac cao hon .42.</summary>
         public bool Walkable(float x, float z, float fromY)

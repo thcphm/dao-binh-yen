@@ -3,6 +3,7 @@
 // - Chia manh 64x64 o, moi manh 1 Mesh voi vertex color (sRGB, shader SereneIsle/WebLambert).
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using UnityEngine;
 
@@ -25,6 +26,7 @@ namespace SereneIsle
         public bool buildWater = true;
 
         public IslandData Data { get; private set; }
+        public VegetationRenderer Vegetation { get; private set; }
         public bool IsReady { get; private set; }
         public float Progress { get; private set; }
         public event Action<IslandData> Ready;
@@ -53,11 +55,13 @@ namespace SereneIsle
             seed = s;
             var data = new IslandData(s, size);
             ChunkData[] chunks = null;
+            List<WorldObjects.Placement> objects = null;
             float t0 = Time.realtimeSinceStartup;
 
             var task = Task.Run(() =>
             {
                 data.Generate(p => Progress = p * .7f);
+                objects = WorldObjects.Place(data);
                 chunks = BuildChunkData(data, p => Progress = .7f + p * .25f);
             });
             while (!task.IsCompleted) yield return null;
@@ -82,9 +86,11 @@ namespace SereneIsle
             PierBuilder.Build(data, transform);
             TentBuilder.Build(data, transform, out var home, out var homeFacing);
             if (GameSession.Instance) GameSession.Instance.SetHome(home, homeFacing);
+            Vegetation = gameObject.AddComponent<VegetationRenderer>();
+            Vegetation.Init(data, objects);
 
-            Debug.Log($"[SereneIsle] Dao seed={s}, {size}x{size} o, {chunks.Length} manh, thi tran ({data.CX},{data.CZ}) huong {data.TDIR}, " +
-                      $"{(Time.realtimeSinceStartup - t0):F2}s");
+            Debug.Log($"[SereneIsle] Dao seed={s}, {size}x{size} o, {chunks.Length} manh, {Vegetation.TotalObjects} cay/da, {Vegetation.TotalGrass} bui co, " +
+                      $"thi tran ({data.CX},{data.CZ}) huong {data.TDIR}, {(Time.realtimeSinceStartup - t0):F2}s");
             Progress = 1;
             IsReady = true;
             Ready?.Invoke(data);

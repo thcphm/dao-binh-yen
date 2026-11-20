@@ -37,7 +37,7 @@ namespace SereneIsle
             go.transform.localPosition = new Vector3(c.x, ground, c.y);
             go.transform.localRotation = Quaternion.Euler(0, d.TownAngle * Mathf.Rad2Deg, 0);
             go.AddComponent<MeshFilter>().sharedMesh = b.ToMesh("TentMesh");
-            go.AddComponent<MeshRenderer>().sharedMaterial = MaterialLibrary.Terrain;
+            go.AddComponent<MeshRenderer>().sharedMaterial = MaterialLibrary.Objects(false);
 
             // dung truoc cua (cua huong +z cua leu = huong bien), quay mat vao thi tran
             Vector2 front = d.TownPoint(OX + (W - 1) / 2f, OZ + (D - 1) / 2f + 2f);

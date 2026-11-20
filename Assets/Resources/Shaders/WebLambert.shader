@@ -11,6 +11,7 @@ Shader "SereneIsle/WebLambert"
         _VertexColorWeight ("Vertex Color Weight", Range(0, 1)) = 1
         [Toggle(_SWAY)] _Sway ("Lay theo gio", Float) = 0
         _OcclusionFade ("Thua khi che nhan vat", Range(0, 1)) = 0
+        _FogScale ("Muc anh huong suong mu", Range(0, 1)) = 1
     }
 
     SubShader
@@ -25,6 +26,7 @@ Shader "SereneIsle/WebLambert"
             half _VertexColorWeight;
             half _Sway;
             half _OcclusionFade;
+            half _FogScale;
         CBUFFER_END
 
         // gio: dich chuyen trong khong gian vat the, phase theo vi tri goc cua tung cay
@@ -100,7 +102,8 @@ Shader "SereneIsle/WebLambert"
                 half ndl = saturate(dot(n, sun.direction));
                 half3 light = SI_Hemi(n) + sun.color * (ndl * sun.shadowAttenuation);
 
-                half3 c = SI_Fog(albedo * light, i.positionWS);
+                half3 lit = albedo * light;
+                half3 c = lerp(lit, SI_Fog(lit, i.positionWS), _FogScale);
                 return half4(SI_Output(c), 1);
             }
             ENDHLSL

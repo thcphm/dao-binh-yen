@@ -40,6 +40,17 @@ namespace SereneIsle
         public void Box(string hex, float x, float y, float z, float sx, float sy, float sz, float rx = 0, float ry = 0, float rz = 0)
             => Add(ProceduralMeshes.Primitive(PrimitiveType.Cube), Matrix4x4.TRS(new Vector3(x, y, z), ChibiCharacter.EulerXYZ(rx, ry, rz), new Vector3(sx, sy, sz)), MaterialLibrary.Hex(hex));
 
+        /// <summary>P(g, mau, x,y,z, sx,sy,sz, rx,ry,rz) cua ban web voi khoi bat ky (Euler thu tu XYZ).</summary>
+        public void P(Mesh g, string hex, float x = 0, float y = 0, float z = 0, float sx = 1, float sy = 1, float sz = 1, float rx = 0, float ry = 0, float rz = 0)
+            => Add(g, Matrix4x4.TRS(new Vector3(x, y, z), ChibiCharacter.EulerXYZ(rx, ry, rz), new Vector3(sx, sy, sz)), MaterialLibrary.Hex(hex));
+
+        /// <summary>PM: khoi dai 'len' bat dau tu 'from' theo huong 'dir' (la dua, la cay).</summary>
+        public void PM(Mesh g, string hex, Vector3 from, Vector3 dir, float sx, float sy, float len)
+        {
+            var rot = Quaternion.LookRotation(dir, Mathf.Abs(dir.y) > .99f ? Vector3.forward : Vector3.up);
+            Add(g, Matrix4x4.TRS(from + dir * (len * .5f), rot, new Vector3(sx, sy, len)), MaterialLibrary.Hex(hex));
+        }
+
         /// <summary>THREE.CylinderGeometry(rTop, rBottom, h) tai (x,y,z). Dung ban kinh trung binh.</summary>
         public void Cylinder(string hex, float x, float y, float z, float rTop, float rBottom, float h)
         {

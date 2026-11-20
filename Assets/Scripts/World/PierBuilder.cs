@@ -45,7 +45,7 @@ namespace SereneIsle
             go.transform.localRotation = Quaternion.Euler(0, d.TownAngle * Mathf.Rad2Deg, 0);
             go.AddComponent<MeshFilter>().sharedMesh = b.ToMesh("PierMesh");
             var mr = go.AddComponent<MeshRenderer>();
-            mr.sharedMaterial = MaterialLibrary.Terrain;
+            mr.sharedMaterial = MaterialLibrary.Objects(false);
             return go;
         }
     }

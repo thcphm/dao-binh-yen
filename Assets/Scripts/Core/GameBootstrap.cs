@@ -39,6 +39,7 @@ namespace SereneIsle
             var env = FindAnyObjectByType<IslandEnvironment>();
             if (!env) env = new GameObject("Environment").AddComponent<IslandEnvironment>();
             env.advanceTime = false; // gio do GameSession dieu khien
+            if (!env.GetComponent<SkyRenderer>()) env.gameObject.AddComponent<SkyRenderer>();
 
             // ---- van choi (phai co truoc dia hinh de nhan vi tri leu) ----
             Session = FindAnyObjectByType<GameSession>();
