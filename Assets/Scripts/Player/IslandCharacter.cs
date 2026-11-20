@@ -23,7 +23,7 @@ namespace SereneIsle
         {
             ["eat"] = "Use_Item", ["drink"] = "Use_Item", ["axe"] = "Chopping", ["pick"] = "Pickaxing", ["shovel"] = "Digging",
             ["hoe"] = "Digging", ["can"] = "Use_Item", ["seed"] = "PickUp", ["rod"] = "Fishing_Cast", ["net"] = "Throw",
-            ["pickup"] = "PickUp", ["wave"] = "Waving", ["cheer"] = "Cheering", ["hammer"] = "Hammering", ["faint"] = "Death_A",
+            ["pickup"] = "PickUp", ["wave"] = "Waving", ["cheer"] = "Cheering", ["hammer"] = "Hammering", ["build"] = "PickUp", ["faint"] = "Death_A",
         };
 
         string _act;

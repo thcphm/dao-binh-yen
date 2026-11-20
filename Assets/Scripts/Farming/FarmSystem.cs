@@ -128,6 +128,7 @@ namespace SereneIsle
             var d = Data;
             why = null;
             if (d.Pier[k] != 0 || d.Solid[k] != 0) { why = "Không cuốc được ở đây."; return false; }
+            if (Placeables.Instance && Placeables.Instance.At(k) != null) { why = "Ô này đã lát đá. Nhặt đá lên bằng xẻng trước."; return false; }
             if (d.Fresh[k] != 0 || d.HT[k] < IslandData.SEA + .04f) { why = "Dưới nước thì không cuốc được."; return false; }
             if (d.HT[k] < TideClock.MaxLevel + .04f) { why = "Nước rong tràn tới ô này, cây sẽ chết mặn. Cuốc chỗ cao hơn."; return false; }
             return true;
@@ -232,10 +233,14 @@ namespace SereneIsle
             var date = LunarCalendar.Date(day);
             var prev = LunarCalendar.Date(Mathf.Max(1, day - 1));
             int died = 0, offSeason = 0;
+            var pl = Placeables.Instance;
             foreach (var p in _plots.Values)
             {
                 var c = Crops.Get(p.crop);
+                bool auto = pl && pl.Sprinkled(p.k);          // voi tuoi: tinh la da tuoi hom qua (ban web dong 1479)
+                if (auto) p.watered = true;
                 if (FarmRules.NewDay(p, c, date.Season)) { died++; if (p.deadReason == "trái mùa") offSeason++; }
+                if (auto && !p.dead) p.watered = true;         // va tuoi luon sang nay (dong 1482)
             }
             foreach (var k in _plots.Keys) Refresh(k);
             if (date.Season != prev.Season && day > 1) S.Say($"Sang mùa {LunarCalendar.SeasonName(date.Season)}.");

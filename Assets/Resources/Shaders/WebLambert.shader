@@ -76,6 +76,9 @@ Shader "SereneIsle/WebLambert"
             #pragma multi_compile_instancing
             #pragma multi_compile_local _ _SWAY
             #pragma multi_compile_local _ _ALPHATEST_ON
+            // den diem: lua trai, duoc (ban web: lightSrc + PointLight ban dem)
+            #pragma multi_compile _ _ADDITIONAL_LIGHTS_VERTEX _ADDITIONAL_LIGHTS
+            #pragma multi_compile _ _CLUSTER_LIGHT_LOOP
 
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
             #include "WebLighting.hlsl"
@@ -131,6 +134,19 @@ Shader "SereneIsle/WebLambert"
                 Light sun = GetMainLight(shadowCoord);
                 half ndl = saturate(dot(n, sun.direction));
                 half3 light = SI_Hemi(n) + sun.color * (ndl * sun.shadowAttenuation);
+
+            #if defined(_ADDITIONAL_LIGHTS) || defined(_ADDITIONAL_LIGHTS_VERTEX)
+                InputData inputData = (InputData)0;
+                inputData.positionWS = i.positionWS;
+                inputData.normalizedScreenSpaceUV = GetNormalizedScreenSpaceUV(i.positionCS);
+                uint lightCount = GetAdditionalLightsCount();
+                LIGHT_LOOP_BEGIN(lightCount)
+                    Light pl = GetAdditionalLight(lightIndex, i.positionWS);
+                    // nua Lambert: mat quay ngang van sang nhe, nhu anh lua hat len
+                    half w = saturate(dot(n, pl.direction) * .75 + .25);
+                    light += pl.color * (pl.distanceAttenuation * w);
+                LIGHT_LOOP_END
+            #endif
 
                 half3 lit = albedo * light;
                 half3 c = lerp(lit, SI_Fog(lit, i.positionWS), _FogScale);

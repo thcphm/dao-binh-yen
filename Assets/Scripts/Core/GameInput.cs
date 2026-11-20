@@ -25,6 +25,7 @@ namespace SereneIsle
         public static InputAction InventoryAction { get; private set; } // I / Tab / Y tay cam
         public static InputAction CancelAction { get; private set; }    // Esc / Start tay cam
         public static InputAction InteractAction { get; private set; }  // E / B tay cam: ngu, ban che tao, noi chuyen
+        public static InputAction CycleAction { get; private set; }     // R / D-pad len: doi mon dat (xay dung)
         public static InputAction SlotPrevAction { get; private set; }  // LB
         public static InputAction SlotNextAction { get; private set; }  // RB
         public static InputAction[] SlotActions { get; private set; }   // 1..9, 0
@@ -88,6 +89,8 @@ namespace SereneIsle
             InventoryAction.AddBinding("<Keyboard>/i"); InventoryAction.AddBinding("<Keyboard>/tab"); InventoryAction.AddBinding("<Gamepad>/buttonNorth");
             InteractAction = Map.AddAction("Interact", InputActionType.Button);
             InteractAction.AddBinding("<Keyboard>/e"); InteractAction.AddBinding("<Gamepad>/buttonEast");
+            CycleAction = Map.AddAction("Cycle", InputActionType.Button);
+            CycleAction.AddBinding("<Keyboard>/r"); CycleAction.AddBinding("<Gamepad>/dpad/up");
             CancelAction = Map.AddAction("Cancel", InputActionType.Button);
             CancelAction.AddBinding("<Keyboard>/escape"); CancelAction.AddBinding("<Gamepad>/start");
             SlotPrevAction = Map.AddAction("SlotPrev", InputActionType.Button, "<Gamepad>/leftShoulder");
@@ -134,6 +137,7 @@ namespace SereneIsle
         public static bool InventoryPressed { get { Ensure(); return InventoryAction.WasPressedThisFrame(); } }
         public static bool CancelPressed { get { Ensure(); return CancelAction.WasPressedThisFrame(); } }
         public static bool InteractPressed { get { Ensure(); return InteractAction.WasPressedThisFrame(); } }
+        public static bool CyclePressed { get { Ensure(); return CycleAction.WasPressedThisFrame(); } }
 
         /// <summary>O hotbar vua bam (0..9) hoac -1.</summary>
         public static int SlotPressed

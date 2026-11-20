@@ -1,4 +1,4 @@
-﻿// Giai doan 3: chat cay, moc lai, che tao, dap da, dao dat, cau ca, luu / tai, di ngu. Chup anh co HUD.
+// Giai doan 3: chat cay, moc lai, che tao, dap da, dao dat, cau ca, luu / tai, di ngu. Chup anh co HUD.
 using System.Collections;
 using System.IO;
 using NUnit.Framework;
@@ -202,7 +202,7 @@ namespace SereneIsle.Tests
         }
 
         /// <summary>Tim vat the loai 'type' gan thi tran co o trong ben canh de dung chat.</summary>
-        static bool FindTarget(IslandData d, WorldObjectType type, out int target, out Vector3 stand, out float face)
+        internal static bool FindTarget(IslandData d, WorldObjectType type, out int target, out Vector3 stand, out float face)
         {
             byte code = (byte)(type + 1);
             target = -1; stand = default; face = 0;
@@ -230,14 +230,14 @@ namespace SereneIsle.Tests
         }
 
         /// <summary>Cho het dong tac (may tai nang: bo dem dong tac bi gioi han 0.05 s / khung nen cham hon gio that).</summary>
-        static IEnumerator WaitAct(GameSession s, string act)
+        internal static IEnumerator WaitAct(GameSession s, string act)
         {
             yield return new WaitForSeconds(CharacterActions.DurationOf(act) + .1f);
             float t = Time.realtimeSinceStartup;
             while ((s.Body.Acting || ToolSystem.Instance.Busy) && Time.realtimeSinceStartup - t < 5) yield return null;
         }
 
-        static string Dir()
+        internal static string Dir()
         {
             string dir = System.Environment.GetEnvironmentVariable("SERENE_SHOT_DIR");
             if (string.IsNullOrEmpty(dir)) dir = Path.GetFullPath(Path.Combine(Application.dataPath, "..", "Logs", "shots"));
@@ -246,7 +246,7 @@ namespace SereneIsle.Tests
         }
 
         /// <summary>Chup camera + HUD (UI Toolkit ve vao RenderTexture rieng roi chong len).</summary>
-        static IEnumerator Shot(string path)
+        internal static IEnumerator Shot(string path)
         {
             const int W = 1280, H = 720;
             var cam = Camera.main;

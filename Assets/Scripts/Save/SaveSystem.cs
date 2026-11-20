@@ -34,6 +34,9 @@ namespace SereneIsle
         // vuon ruong (FarmSystem)
         public List<FarmPlot> farm = new List<FarmPlot>();
         public int canWater;
+        // do che tao da dat xuong dat (ban web: sv.pl)
+        public List<PlacedItem> placed = new List<PlacedItem>();
+        public string buildSel;
     }
 
     public static class SaveSystem
@@ -83,6 +86,8 @@ namespace SereneIsle
             }
             if (s.Body) d.outfit = s.Body.outfit;
             if (s.Farm) { d.farm = s.Farm.Snapshot(); d.canWater = s.Farm.CanWater; }
+            var pl = Placeables.Instance;
+            if (pl) { d.placed = pl.Snapshot(); d.buildSel = pl.Selected; }
             return d;
         }
 
@@ -144,6 +149,8 @@ namespace SereneIsle
         {
             var ts = ToolSystem.Instance;
             if (ts) ts.RestoreRemoved(d.removed);
+            var pl = Placeables.Instance;
+            if (pl) { pl.Restore(d.placed); pl.Selected = string.IsNullOrEmpty(d.buildSel) ? null : d.buildSel; }
             if (s.Farm && d.farm != null)
             {
                 // JsonUtility ghi null thanh "" -> tra lai null (o dat trong)

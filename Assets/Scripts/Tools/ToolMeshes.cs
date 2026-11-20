@@ -9,7 +9,7 @@ namespace SereneIsle
     {
         static readonly Dictionary<string, Mesh> _cache = new Dictionary<string, Mesh>();
 
-        public static bool Has(string id) => id == "axe" || id == "pick" || id == "hoe" || id == "shovel" || id == "can" || id == "rod" || id == "net" || id == "seed";
+        public static bool Has(string id) => id == "axe" || id == "pick" || id == "hoe" || id == "shovel" || id == "can" || id == "rod" || id == "net" || id == "seed" || id == "build";
 
         /// <summary>Goc nghieng cua dung cu trong tay (ban web: g.rotation.x = tilt).</summary>
         public static float Tilt(string id) => id switch { "can" => 0, "seed" => 0, "rod" => -.55f, "net" => -.2f, _ => .5f };
@@ -36,6 +36,7 @@ namespace SereneIsle
                     b.P(ProceduralMeshes.Sphere, "#eef2ea", 0, -.05f, .85f, .3f, .14f, .3f);
                     break;
                 case "seed": B(.16f, .18f, .13f, "#d8b27a", 0, -.08f, .02f); break;
+                case "build": B(.04f, .04f, .36f, wood, 0, 0, .13f); B(.06f, .18f, .08f, "#7d8890", 0, -.02f, .3f); break; // bua
                 default: return null;
             }
             m = b.ToMesh("Tool_" + key);

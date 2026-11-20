@@ -30,7 +30,7 @@ namespace SereneIsle
         readonly Dictionary<int, int> _nuts = new Dictionary<int, int>();
         readonly System.Random _rng = new System.Random();
         TileCursor _cursor;
-        bool _busy;
+        bool _busy, _townFire;
 
         GameSession S => GameSession.Instance;
         IslandData D => IslandTerrain.Instance ? IslandTerrain.Instance.Data : null;
@@ -44,13 +44,15 @@ namespace SereneIsle
             Instance = this;
             Fishing = gameObject.AddComponent<Fishing>();
             if (!Critters.Instance) gameObject.AddComponent<Critters>();
+            if (!Placeables.Instance) gameObject.AddComponent<Placeables>();
             _cursor = TileCursor.Create();
             _cursor.transform.SetParent(transform, false);
         }
 
         void OnDestroy() { if (Instance == this) Instance = null; }
 
-        static readonly HashSet<string> TargetTools = new HashSet<string> { "axe", "pick", "shovel", "hoe", "can", "seed" };
+        static readonly HashSet<string> TargetTools = new HashSet<string> { "axe", "pick", "shovel", "hoe", "can", "seed", "build" };
+        static Placeables P => Placeables.Instance;
 
         int Lv(string tool) => Levels.TryGetValue(tool, out var l) ? l : 1;
 
@@ -62,7 +64,17 @@ namespace SereneIsle
             Fishing.RodLevel = Lv("rod");
             if (Fishing.Busy && GameInput.CancelPressed) Fishing.Cancel();
 
+            // ban web: buildBench() -> own('build'). Ban che tao co san tu dau nen co luon dung cu xay dung.
+            if (HasBench && !s.OwnedTools.Contains("build")) s.Give("build", 1, true);
+            if (!_townFire && P) { _townFire = true; P.EnsureTownFire(); }
+
             string tool = s.Hotbar.SelectedId;
+            if (tool == "build" && P && (P.Selected == null || !P.Owns(P.Selected))) P.SelectFirstOwned();
+            if (tool == "build" && s.Active && GameInput.CyclePressed && P)
+            {
+                var sel = P.CycleSelected();
+                s.Say(sel != null ? $"Đặt: {s.Items.NameOf(sel)} (còn {s.Inventory.Count(sel)})" : "Chưa có đồ để đặt. Chế tạo ở bàn chế tạo trong làng.");
+            }
             if (s.Body) s.Body.SetTool(tool != null && s.OwnedTools.Contains(tool) ? tool : null, tool != null ? Lv(tool) : 1);
             int k = TargetIdx();
             if (s.Active && !Fishing.Busy && k >= 0 && tool != null && TargetTools.Contains(tool) && s.OwnedTools.Contains(tool))
@@ -97,10 +109,12 @@ namespace SereneIsle
         {
             var d = D;
             int o = d.ObjType[k];
+            if ((tool == "pick" || tool == "shovel") && P && P.At(k) != null) return true; // nhat lai do da dat
             switch (tool)
             {
                 case "axe": case "pick": return o != 0 && WorldObjects.Info((WorldObjectType)(o - 1)).tool == tool;
                 case "shovel": return d.Level[k] != 0 && d.Solid[k] == 0;
+                case "build": return P && P.Selected != null && P.CanPlace(k, P.Selected, out _);
                 case "hoe": case "can": case "seed":
                     var s = S;
                     return s.Farm && s.Farm.HintFor(s.Items.Get(tool)) != null; // FarmSystem biet o nao cuoc/tuoi/gieo duoc
@@ -135,6 +149,7 @@ namespace SereneIsle
                 case "shovel": UseShovel(k); return;
                 case "hoe": case "can": case "seed": s.Body.PlayAct(tool); return; // vuon ruong (FarmSystem) da xu ly truoc; den day = o khong hop le
                 case "net": UseNet(); return;
+                case "build": UseBuild(k); return;
                 default: s.Say($"{s.Items.NameOf(tool)}: chưa dùng được."); return;
             }
         }
@@ -151,6 +166,7 @@ namespace SereneIsle
         {
             var s = S; var d = D;
             s.Body.PlayAct(tool);
+            if (tool == "pick" && P && P.At(k) != null) { PickUp(k); return; }
             if (k < 0 || d.ObjType[k] == 0) return;
             var type = (WorldObjectType)(d.ObjType[k] - 1);
             var info = WorldObjects.Info(type);
@@ -273,10 +289,63 @@ namespace SereneIsle
             if (first) s.Say($"Mới trong sổ sưu tầm: {def.displayName}!");
         }
 
+        /// <summary>Xay dung (ban web dong 1430-1432): dat mon dang chon xuong o phia truoc.</summary>
+        void UseBuild(int k)
+        {
+            var s = S; var d = D; var pl = P;
+            if (!pl) return;
+            string id = pl.Selected;
+            if (id == null || !pl.Owns(id)) id = pl.SelectFirstOwned();
+            if (id == null) { s.Say("Chưa có đồ để đặt. Chế tạo ở bàn chế tạo trong làng."); return; }
+            if (!pl.CanPlace(k, id, out var why)) { s.Say(why); return; }
+            s.Inventory.Take(id);
+            s.Body.PlayAct("build");
+            float f = s.Player.Facing;
+            pl.Add(id, k, Mathf.Abs(Mathf.Sin(f)) > Mathf.Abs(Mathf.Cos(f)) ? Mathf.PI / 2 : 0);
+            Debris.Burst(new Vector3(k % d.N, d.HT[k] + .2f, k / d.N), MaterialLibrary.Hex("#c9a46e"), 8, 2);
+            if (!pl.Owns(id)) pl.SelectFirstOwned();
+        }
+
+        /// <summary>Nhat lai do da dat (cuoc chim / xeng).</summary>
+        void PickUp(int k)
+        {
+            var s = S; var d = D;
+            var item = P.At(k);
+            if (item == null) return;
+            P.Remove(k);
+            s.Give(item.type, 1, true);
+            ActionUI.Float($"+1 {s.Items.NameOf(item.type)}", new Vector3(k % d.N, d.HT[k] + 1, k / d.N));
+        }
+
+        /// <summary>Goi y tren HUD khi vuon ruong khong co goi y (ban web: toolHint).</summary>
+        public string HintFor(string tool)
+        {
+            var s = S;
+            if (!s || D == null || tool == null || !s.OwnedTools.Contains(tool)) return null;
+            int k = TargetIdx();
+            var pl = P;
+            if (pl && (tool == "pick" || tool == "shovel") && pl.At(k) != null) return $"Nhặt lại {s.Items.NameOf(pl.At(k).type)}";
+            if (tool == "build" && pl)
+            {
+                if (pl.Selected == null) return "Chưa có đồ để đặt · chế tạo ở bàn chế tạo";
+                string name = s.Items.NameOf(pl.Selected);
+                return pl.CanPlace(k, pl.Selected, out var why)
+                    ? $"Đặt {name} (còn {s.Inventory.Count(pl.Selected)}) · R đổi món"
+                    : $"{name}: {why}";
+            }
+            return null;
+        }
+
         void UseShovel(int k)
         {
             var s = S; var d = D;
             s.Body.PlayAct("shovel");
+            if (P && P.At(k) != null)
+            {
+                var placed = P.At(k);
+                StartCoroutine(AtImpact("shovel", .64f, () => { if (P.At(k) == placed) PickUp(k); }));
+                return;
+            }
             if (k < 0 || d.Level[k] == 0 || d.Solid[k] != 0) return;
             if (!s.Stats.UseEnergy(2)) return;
             StartCoroutine(AtImpact("shovel", .64f, () =>

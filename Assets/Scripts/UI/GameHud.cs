@@ -159,6 +159,7 @@ namespace SereneIsle
             _help.Add(L(null, null, "WASD đi · Shift chạy · Space nhảy"));
             _help.Add(L(null, null, "1–9, 0 hoặc lăn chuột: đổi ô · F / chuột trái: dùng"));
             _help.Add(L(null, null, "Cần câu: giữ F lấy lực, thả để quăng · E: ngủ, bàn chế tạo"));
+            _help.Add(L(null, null, "Xây dựng (9): F đặt đồ, R đổi món · cuốc chim / xẻng: nhặt lại"));
             _help.Add(L(null, null, "I: túi đồ · kéo chuột phải: xoay · Ctrl+lăn: zoom"));
             _help.Add(L(null, null, "H: ẩn hướng dẫn"));
             _hud.Add(_help);
@@ -248,6 +249,7 @@ namespace SereneIsle
         }
 
         void MarkDirty() { _dirtyHotbar = true; _dirtyPanel = true; }
+        string _lastBuildSel;
 
         // ================================================================== cap nhat
         void Update()
@@ -279,6 +281,9 @@ namespace SereneIsle
                 ? $"Nước lên · lớn lúc {TideClock.ClockLabel(TideClock.NextHigh(abs))}"
                 : $"Nước ròng · cạn lúc {TideClock.ClockLabel(TideClock.NextLow(abs))}";
             string hint = s.Active && s.Farm ? s.Farm.HintFor(DB.Get(s.Hotbar.SelectedId)) : null;
+            if (string.IsNullOrEmpty(hint) && s.Active && ToolSystem.Instance) hint = ToolSystem.Instance.HintFor(s.Hotbar.SelectedId);
+            var buildSel = Placeables.Instance ? Placeables.Instance.Selected : null;
+            if (buildSel != _lastBuildSel) { _lastBuildSel = buildSel; _dirtyHotbar = true; }
             _targetHint.style.display = string.IsNullOrEmpty(hint) ? DisplayStyle.None : DisplayStyle.Flex;
             if (!string.IsNullOrEmpty(hint)) _targetHint.text = hint;
             _sun.Icon = s.Clock.IsNight ? StatIcon.Moon : StatIcon.Sun;
@@ -330,6 +335,14 @@ namespace SereneIsle
                 v.icon.Set(d, locked);
                 v.label.text = locked ? "Chưa có" : d.displayName;
                 if (locked) v.root.AddToClassList("slot--lock");
+                // xay dung: hien mon dang chon + so luong (ban web dong 1628)
+                if (id == "build" && !locked && _lastBuildSel != null && DB.Get(_lastBuildSel))
+                {
+                    var sel = DB.Get(_lastBuildSel);
+                    v.icon.Set(sel);
+                    v.label.text = sel.displayName;
+                    v.count.text = s.Inventory.Count(_lastBuildSel).ToString();
+                }
                 if (!d.IsTool)
                 {
                     int n = s.Inventory.Count(id);
@@ -399,6 +412,7 @@ namespace SereneIsle
             if (d.IsTool) return locked ? $"{d.displayName} · chưa có" : $"{d.displayName} · dụng cụ (kéo xuống thanh nhanh)";
             var parts = new List<string> { d.displayName };
             if (d.IsFood) parts.Add(GameSession.EatText(d));
+            if (d.category == ItemCategory.Placeable) parts.Add("nhấp để đặt xuống đất");
             parts.Add($"{d.weight:0.##} kg");
             if (d.price > 0) parts.Add($"bán {d.price} xu");
             return string.Join(" · ", parts);
@@ -464,7 +478,20 @@ namespace SereneIsle
             {
                 // nhap chuot
                 if (d.fromSlot >= 0) s.SelectSlot(d.fromSlot);
-                else { var def = DB.Get(d.itemId); if (def && def.IsFood) s.Consume(d.itemId); }
+                else
+                {
+                    var def = DB.Get(d.itemId);
+                    if (def && def.IsFood) s.Consume(d.itemId);
+                    else if (def && def.category == ItemCategory.Placeable && Placeables.Instance && s.OwnedTools.Contains("build"))
+                    {
+                        // ban web dong 1613: chon mon de dat + cam dung cu xay dung
+                        Placeables.Instance.Selected = d.itemId;
+                        int slot = System.Array.IndexOf(s.Hotbar.ToArray(), "build");
+                        if (slot >= 0) s.Hotbar.Selected = slot;
+                        SetInventory(false);
+                        s.Say($"Đặt: {def.displayName}. Nhìn vào ô trống rồi bấm F.");
+                    }
+                }
                 return;
             }
             if (to < 0) return;

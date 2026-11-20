@@ -383,8 +383,12 @@ namespace SereneIsle
                 float h = WorldObjects.JumpHeight((WorldObjectType)(ObjType[k] - 1));
                 return h > 0 ? HT[k] + h * ObjScale[k] : 1e9f;
             }
+            if (PlacedTop.TryGetValue(k, out var t)) return HT[k] + t;
             return 1e9f;
         }
+
+        /// <summary>Do cao do nguoi choi dat (hang rao, lua trai...) de nhay qua (ban web: PLH).</summary>
+        public readonly Dictionary<int, float> PlacedTop = new Dictionary<int, float>();
 
         // ================= con nuoc =================
         /// <summary>Muc nuoc bien hien tai (con nuoc). Ao, ho, song ngot giu muc SEA.</summary>

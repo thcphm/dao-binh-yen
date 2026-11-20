@@ -54,6 +54,12 @@ namespace SereneIsle
             if (r.bag > 0) { s.Give(r.id, 1, true); return $"Đã làm {name}! Túi giờ chứa {s.Inventory.Capacity} ô."; }
             if (r.tool != null) { s.Give(r.tool, 1, true); return $"Đã làm {name}!"; }
             s.Give(r.id, 1, true);
+            var pl = Placeables.Instance;
+            if (pl && System.Array.IndexOf(Placeables.Types, r.id) >= 0)
+            {
+                if (pl.Selected == null || !pl.Owns(pl.Selected)) pl.Selected = r.id;
+                return $"Đã làm {name}. Cầm Xây dựng (phím 9) để đặt xuống đất, R đổi món.";
+            }
             return $"Đã làm {name}.";
         }
 

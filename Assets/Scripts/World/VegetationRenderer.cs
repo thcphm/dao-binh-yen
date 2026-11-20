@@ -154,6 +154,16 @@ namespace SereneIsle
             _dirty = true;
         }
 
+        /// <summary>An co / hoa trong o idx (ban web: hideTuft - dat do, lat da). Khong hien lai.</summary>
+        public void HideGrass(int idx)
+        {
+            int c = ChunkOf(idx), i = idx % _d.N, j = idx / _d.N;
+            bool any = false;
+            foreach (var e in _entries)
+                if (e.grass && e.chunks[c].RemoveAll(m => Mathf.Abs(m.m03 - i) <= .5f && Mathf.Abs(m.m23 - j) <= .5f) > 0) any = true;
+            if (any) _dirty = true;
+        }
+
         /// <summary>Rung vat the khi bi chat / dap (ban web: o.shake).</summary>
         public void Shake(int idx, float time = .25f) => _shakes[idx] = time;
 
