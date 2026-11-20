@@ -18,7 +18,7 @@ namespace SereneIsle
             return m;
         }
 
-        public static Mesh Box => Cached("Box", () => ProceduralMeshes.Primitive(PrimitiveType.Cube));
+        public static Mesh Box => ProceduralMeshes.Primitive(PrimitiveType.Cube); // mesh co san cua Unity, khong doi ten
         public static Mesh Ico0 => Cached("Ico0", () => Icosahedron(0));
         public static Mesh Ico1 => Cached("Ico1", () => Icosahedron(1));
         public static Mesh Dodeca => Cached("Dodeca", Dodecahedron);

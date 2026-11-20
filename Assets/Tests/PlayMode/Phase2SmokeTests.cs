@@ -1,5 +1,6 @@
 // Smoke test giai doan 2: HUD, hotbar, an uong, tui do, qua ngay luc 23h. Chup anh co ca HUD.
 using System.Collections;
+using System.Collections.Generic;
 using System.IO;
 using NUnit.Framework;
 using UnityEngine;
@@ -60,6 +61,30 @@ namespace SereneIsle.Tests
             string dir = ShotDir();
             yield return Shot(Path.Combine(dir, "p2_1_hud.png"));
 
+            // can nhan vat + lop quan ao rieng
+            var rig = Camera.main.GetComponent<OrbitCamera>();
+            float y0 = rig.yaw, p0 = rig.pitch, d0 = rig.distance;
+            rig.yaw = s.Player.Facing; rig.pitch = .22f; rig.distance = 3.6f; // nhin chinh dien
+            for (int i = 0; i < 40; i++) yield return null;
+            yield return Shot(Path.Combine(dir, "p2_5_nhan_vat.png"));
+            var body = s.Body;
+            CollectionAssert.IsSubsetOf(new[] { "shirt", "pants", "shoes", "hat" }, new List<string>(body.ClothingSlots));
+            body.SetClothingColor("shirt", "#d8452f");
+            body.SetClothingVisible("hat", false);
+            Assert.IsFalse(body.IsWearing("hat"));
+            yield return Shot(Path.Combine(dir, "p2_6_doi_ao.png"));
+            body.SetClothingVisible("hat", true);
+            body.SetClothingColor("shirt", "#3f7fb0");
+
+            // chan troi luc 17h: vom troi, mat troi, may
+            s.Clock.Minutes = 17 * 60;
+            rig.yaw = s.Player.Facing + Mathf.PI * .8f; rig.pitch = .07f; rig.distance = 9f;
+            for (int i = 0; i < 20; i++) yield return null;
+            yield return Shot(Path.Combine(dir, "p2_7_bau_troi.png"));
+            s.Clock.Minutes = 14 * 60;
+            rig.yaw = y0; rig.pitch = p0; rig.distance = d0;
+            for (int i = 0; i < 10; i++) yield return null;
+
             // mo tui do: thoi gian dung lai
             GameHud.Instance.SetInventory(true);
             float m0 = s.Clock.Minutes;
@@ -83,7 +108,7 @@ namespace SereneIsle.Tests
             Assert.AreEqual(0, s.Inventory.TotalItems, "23h chua ve leu -> mat het do");
             Assert.AreEqual(60, s.Stats.Energy, 1f);
             Assert.Less(Vector3.Distance(s.Player.transform.position, s.HomePosition), .5f, "duoc dua ve leu");
-            for (int i = 0; i < 30; i++) yield return null;
+            yield return new WaitForSecondsRealtime(1.3f); // cho man chuyen ngay tan het (.9s)
             yield return Shot(Path.Combine(dir, "p2_4_sang_ngay_2.png"));
         }
 

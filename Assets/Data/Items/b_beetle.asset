@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1e9a6876b7042064b965bcdd10808fc1, type: 3}
+  m_Name: b_beetle
+  m_EditorClassIdentifier: SereneIsle::SereneIsle.ItemDefinition
+  id: b_beetle
+  displayName: "B\u1ECD hung"
+  category: 3
+  price: 30
+  weight: 0.02
+  eatHp: 0
+  eatWater: 0
+  eatEnergy: 0
+  icon: 18
+  iconColor: {r: 0.23137255, g: 0.16470589, b: 0.10980392, a: 1}
+  iconColor2: {r: 0.41568628, g: 0.2901961, b: 0.16470589, a: 1}
+  sprite: {fileID: 0}
+  seedOf: 
+  bagLevel: 0
+  fishDifficulty: 0
+  habitats:
+  - 3
+  - 6
+  - 8
+  activeTime: day
+  description: 

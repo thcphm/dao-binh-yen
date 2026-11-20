@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1e9a6876b7042064b965bcdd10808fc1, type: 3}
+  m_Name: path
+  m_EditorClassIdentifier: SereneIsle::SereneIsle.ItemDefinition
+  id: path
+  displayName: "L\xE1t \u0111\xE1"
+  category: 8
+  price: 4
+  weight: 2
+  eatHp: 0
+  eatWater: 0
+  eatEnergy: 0
+  icon: 44
+  iconColor: {r: 0.7411765, g: 0.7058824, b: 0.6392157, a: 1}
+  iconColor2: {r: 0.5411765, g: 0.5176471, b: 0.47058824, a: 1}
+  sprite: {fileID: 0}
+  seedOf: 
+  bagLevel: 0
+  fishDifficulty: 0
+  habitats: []
+  activeTime: 
+  description: 

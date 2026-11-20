@@ -73,6 +73,7 @@ namespace SereneIsle
             look = newLook;
             if (_root) Destroy(_root.gameObject);
             _rest.Clear();
+            _clothes.Clear();
             _poseInit = false;
             Build();
         }
@@ -100,8 +101,43 @@ namespace SereneIsle
             var mr = go.AddComponent<MeshRenderer>();
             mr.sharedMaterial = MaterialLibrary.Solid(color);
             mr.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.On;
+            if (_layer != null)
+            {
+                if (!_clothes.TryGetValue(_layer, out var list)) _clothes[_layer] = list = new List<ClothPart>();
+                list.Add(new ClothPart { renderer = mr, tint = _tint });
+                go.name = _layer + "_" + name;
+            }
             return go.transform;
         }
+
+        // ---- lop quan ao (dac ta: quan ao la lop rieng, khong dinh vao da) ----
+        struct ClothPart { public Renderer renderer; public bool tint; }
+        readonly Dictionary<string, List<ClothPart>> _clothes = new Dictionary<string, List<ClothPart>>();
+        string _layer;   // dang dung mon nao (null = than nguoi)
+        bool _tint;      // phan nay lay mau chinh cua mon do (that lung, de giay thi khong)
+
+        /// <summary>Cac mon dang mac: shirt, pants, shoes, hat.</summary>
+        public IEnumerable<string> ClothingSlots => _clothes.Keys;
+
+        /// <summary>Doi mau 1 mon (ma hex sRGB). Chi doi phan mau chinh, giu chi tiet (that lung, de giay...).</summary>
+        public void SetClothingColor(string slot, string hex)
+        {
+            if (!_clothes.TryGetValue(slot, out var list)) return;
+            var m = MaterialLibrary.Solid(hex);
+            foreach (var p in list) if (p.tint && p.renderer) p.renderer.sharedMaterial = m;
+        }
+
+        /// <summary>Mac / coi 1 mon. Coi ra thi lo than nguoi ben duoi (khong bi thung).</summary>
+        public void SetClothingVisible(string slot, bool visible)
+        {
+            if (!_clothes.TryGetValue(slot, out var list)) return;
+            foreach (var p in list) if (p.renderer) p.renderer.enabled = visible;
+        }
+
+        public bool IsWearing(string slot) => _clothes.TryGetValue(slot, out var l) && l.Count > 0 && l[0].renderer && l[0].renderer.enabled;
+
+        void Wear(string slot, bool tint = true) { _layer = slot; _tint = tint; }
+        void Skin() { _layer = null; }
 
         /// <summary>Elip: r = ban kinh 3 truc (SphereGeometry(1) scale r trong ban web).</summary>
         Transform Ellipsoid(Transform bone, string color, float x, float y, float z, float rx, float ry, float rz,
@@ -161,25 +197,41 @@ namespace SereneIsle
                 if (side < 0) { _shL = sh; _elL = el; _hnL = hn; _thL = th; _knL = kn; _ftL = ft; }
                 else { _shR = sh; _elR = el; _hnR = hn; _thR = th; _knR = kn; _ftR = ft; }
 
-                // tay: ong tay ao nua tren, canh tay, cang tay, ban tay (BODY_SEG sh/el/hn)
+                // ---- than nguoi (da): tay, chan, ban chan tran - luon day du ----
                 Vector3 a0 = new Vector3(s * .26f, .72f, 0), a1 = new Vector3(s * .33f, .6f, 0), a2 = new Vector3(s * .37f, .49f, 0);
+                Skin();
                 Capsule(sh, skin, a0, a1, .062f);
-                Capsule(sh, shirt, a0, Vector3.Lerp(a0, a1, .55f), .074f);
                 Capsule(el, skin, a1, a2, .054f);
                 Ellipsoid(hn, skin, s * .378f, .45f, 0, .062f, .066f, .062f);
-
-                // chan: ong quan, cang chan, tat, giay + de
-                Capsule(th, pants, new Vector3(s * .115f, .43f, 0), new Vector3(s * .115f, .28f, 0), .09f);
+                Capsule(th, skin, new Vector3(s * .115f, .43f, 0), new Vector3(s * .115f, .25f, 0), .08f);
                 Capsule(kn, skin, new Vector3(s * .115f, .25f, 0), new Vector3(s * .115f, .1f, 0), .066f);
+                Ellipsoid(ft, skin, s * .115f, .045f, .03f, .066f, .046f, .105f);
+
+                // ---- quan ao (lop rieng phu ngoai) ----
+                Wear("shirt");
+                Capsule(sh, shirt, a0, Vector3.Lerp(a0, a1, .55f), .074f);          // ong tay ao
+                Wear("pants");
+                Capsule(th, pants, new Vector3(s * .115f, .43f, 0), new Vector3(s * .115f, .28f, 0), .09f); // ong quan
+                Wear("shoes", false);
                 Cylinder(kn, sock, new Vector3(s * .115f, .125f, 0), .07f, .06f);
+                Wear("shoes");
                 Ellipsoid(ft, shoe, s * .115f, .052f, .035f, .088f, .062f, .132f);
+                Wear("shoes", false);
                 Ellipsoid(ft, "#2e1e14", s * .115f, .01f, .035f, .09f, .018f, .136f);
+                Skin();
             }
 
-            // ---- than ----
+            // ---- than nguoi (da) ----
+            Capsule(_hips, skin, new Vector3(0, .36f, 0), new Vector3(0, .47f, 0), .168f);
+            Capsule(_spine, skin, new Vector3(0, .5f, 0), new Vector3(0, .76f, 0), .188f);
+            // ---- quan ao ----
+            Wear("pants");
             Capsule(_hips, pants, new Vector3(0, .36f, 0), new Vector3(0, .47f, 0), .18f);
-            Cylinder(_hips, "#5a3d22", new Vector3(0, .49f, 0), .2f, .03f);
+            Wear("pants", false);
+            Cylinder(_hips, "#5a3d22", new Vector3(0, .49f, 0), .212f, .034f); // that lung (rong hon ao de khong chong mat)
+            Wear("shirt");
             Capsule(_spine, shirt, new Vector3(0, .5f, 0), new Vector3(0, .76f, 0), .2f);
+            Skin();
 
             // ---- dau (elip .3/.285/.28 tai H0) ----
             const float H0 = 1.06f;
@@ -240,10 +292,13 @@ namespace SereneIsle
             // vanh mu: di mat duoi ra ngoai roi mat tren vao trong -> ca 2 mat huong ra ngoai
             var brim = new[] { new Vector2(.12f, -.012f), new Vector2(.2f, -.018f), new Vector2(.27f, -.042f), new Vector2(.285f, -.044f),
                                new Vector2(.268f, -.028f), new Vector2(.2f, -.004f), new Vector2(.12f, .004f) };
+            Wear("hat");
             HatPart(hatRoot, ProceduralMeshes.Lathe(crown, 20, "HatCrown"), o.hat, Vector3.zero, Vector3.one);
             HatPart(hatRoot, ProceduralMeshes.Lathe(brim, 28, "HatBrim"), o.hat, Vector3.zero, Vector3.one);
+            Wear("hat", false);
             HatPart(hatRoot, ProceduralMeshes.Cylinder, string.IsNullOrEmpty(o.band) ? "#3a2715" : o.band,
                     new Vector3(0, .018f, 0), new Vector3(.272f, .015f, .272f));
+            Skin();
         }
 
         void HatPart(Transform parent, Mesh mesh, string color, Vector3 localPos, Vector3 scale)
@@ -253,7 +308,13 @@ namespace SereneIsle
             go.transform.localPosition = localPos;
             go.transform.localScale = scale;
             go.AddComponent<MeshFilter>().sharedMesh = mesh;
-            go.AddComponent<MeshRenderer>().sharedMaterial = MaterialLibrary.Solid(color);
+            var mr = go.AddComponent<MeshRenderer>();
+            mr.sharedMaterial = MaterialLibrary.Solid(color);
+            if (_layer != null)
+            {
+                if (!_clothes.TryGetValue(_layer, out var list)) _clothes[_layer] = list = new List<ClothPart>();
+                list.Add(new ClothPart { renderer = mr, tint = _tint });
+            }
         }
 
         /// <summary>Chi tiet dan sat mat dau (ban web: decal tren elip .3/.285/.28).</summary>

@@ -123,6 +123,7 @@ namespace SereneIsle
         }
 
         public static bool ZoomModifier { get { Ensure(); return ZoomModifierAction.IsPressed(); } }
+        public static bool OrbitPressed { get { Ensure(); return OrbitAction.WasPressedThisFrame(); } }
         public static bool UsePressed { get { Ensure(); return UseAction.WasPressedThisFrame(); } }
         public static bool UseHeld { get { Ensure(); return UseAction.IsPressed(); } }
         /// <summary>Chuot trai vua bam (de UI biet lan bam nay co trung giao dien khong).</summary>

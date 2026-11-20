@@ -7,10 +7,10 @@ namespace SereneIsle
     public class SkyRenderer : MonoBehaviour
     {
         [Header("May")]
-        public int cloudCount = 34;
-        public float cloudHeightMin = 48, cloudHeightMax = 70;
+        public int cloudCount = 70;
+        public float cloudHeightMin = 38, cloudHeightMax = 58;
         public float windSpeed = 1.2f;
-        [Range(0, 1)] public float cloudFog = .35f;
+        [Range(0, 1)] public float cloudFog = .2f;
 
         Transform _dome;
         readonly List<Transform> _clouds = new List<Transform>();

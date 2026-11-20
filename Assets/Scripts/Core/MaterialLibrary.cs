@@ -59,7 +59,7 @@ namespace SereneIsle
         {
             if (_clouds) return _clouds;
             _clouds = new Material(Lambert) { name = "SI_Clouds" };
-            _clouds.SetColor("_BaseColor", Color.white);
+            _clouds.SetColor("_BaseColor", new Color(1.3f, 1.3f, 1.32f, 1)); // sang hon trang de mat duoi khong xam
             _clouds.SetFloat("_VertexColorWeight", 1f);
             _clouds.SetFloat("_FogScale", fogScale);
             return _clouds;

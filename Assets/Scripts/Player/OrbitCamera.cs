@@ -51,7 +51,7 @@ namespace SereneIsle
 
             // Luu y: Unity dung he toa do tay trai -> chieu yaw nguoc ban web de keo phai = nhin sang phai nhu cu.
             // bat dau keo tren giao dien (vd chuot phai xoa o hotbar) thi khong xoay
-            if (GameInput.OrbitAction.WasPressedThisFrame()) _dragFromUi = GameHud.PointerOverUI;
+            if (GameInput.OrbitPressed) _dragFromUi = GameHud.PointerOverUI;
             if (GameInput.OrbitHeld && !_dragFromUi && !GameHud.BlocksCamera)
             {
                 Vector2 d = GameInput.MouseDelta;

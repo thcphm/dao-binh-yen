@@ -46,7 +46,7 @@ Shader "SereneIsle/Sky"
                 float h = saturate(d.y);
                 half3 horizon = _SI_FogColor.rgb;
                 half3 top = _SI_SkyTop.w > .5 ? _SI_SkyTop.rgb : horizon * .8;
-                half3 c = lerp(horizon, top, pow(h, .55));
+                half3 c = lerp(horizon, top, pow(h, .32));
                 // mat troi
                 Light sun = GetMainLight();
                 float s = dot(d, sun.direction);

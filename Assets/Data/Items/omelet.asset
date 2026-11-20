@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1e9a6876b7042064b965bcdd10808fc1, type: 3}
+  m_Name: omelet
+  m_EditorClassIdentifier: SereneIsle::SereneIsle.ItemDefinition
+  id: omelet
+  displayName: "Tr\u1EE9ng chi\xEAn"
+  category: 1
+  price: 60
+  weight: 0.3
+  eatHp: 8
+  eatWater: 0
+  eatEnergy: 25
+  icon: 31
+  iconColor: {r: 1, g: 0.827451, b: 0.3019608, a: 1}
+  iconColor2: {r: 0.9647059, g: 0.9411765, b: 0.8784314, a: 1}
+  sprite: {fileID: 0}
+  seedOf: 
+  bagLevel: 0
+  fishDifficulty: 0
+  habitats: []
+  activeTime: 
+  description: 

@@ -115,9 +115,10 @@ namespace SereneIsle
             Shader.SetGlobalVector(idFogC, new Vector4(sky.r, sky.g, sky.b, 1));
             Shader.SetGlobalVector(idFogP, new Vector4(fogNear, fogFar, 1, 0));
             // vom troi: dinh troi dam hon chan troi; dia mat troi tat sau 19h36 (mat troi da lan)
-            var top = new Color(sky.r * .62f, sky.g * .78f, Mathf.Min(1, sky.b * 1.02f));
+            float sunUp = h < 19.6f ? Mathf.Clamp01((h - 5.6f) / .6f) * Mathf.Clamp01((19.6f - h) / .8f) : 0;
+            // ban ngay dinh troi luon xanh (hoang hon: chan troi cam, tren cao van xanh); dem: toi hon chan troi
+            var top = Color.Lerp(new Color(sky.r * .62f, sky.g * .7f, sky.b * .9f), MaterialLibrary.Hex("#5a9fe0"), .55f * sunUp);
             Shader.SetGlobalVector(idSkyTop, new Vector4(top.r, top.g, top.b, 1));
-            float sunUp = h < 19.6f ? Mathf.Clamp01((h - 5.6f) / .6f) : 0;
             Shader.SetGlobalVector(idSunDisc, new Vector4(Mathf.Lerp(sunC.r, 1, .5f), Mathf.Lerp(sunC.g, 1, .5f), Mathf.Lerp(sunC.b, 1, .5f), sunUp));
 
             // cho shader khac (URP Lit...) cung co ambient tuong tu

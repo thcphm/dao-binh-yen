@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1e9a6876b7042064b965bcdd10808fc1, type: 3}
+  m_Name: hotpot
+  m_EditorClassIdentifier: SereneIsle::SereneIsle.ItemDefinition
+  id: hotpot
+  displayName: "L\u1EA9u c\xE1 chua"
+  category: 1
+  price: 220
+  weight: 1.2
+  eatHp: 25
+  eatWater: 20
+  eatEnergy: 60
+  icon: 28
+  iconColor: {r: 0.84705883, g: 0.27058825, b: 0.18431373, a: 1}
+  iconColor2: {r: 0.49019608, g: 0.53333336, b: 0.5647059, a: 1}
+  sprite: {fileID: 0}
+  seedOf: 
+  bagLevel: 0
+  fishDifficulty: 0
+  habitats: []
+  activeTime: 
+  description: 

@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1e9a6876b7042064b965bcdd10808fc1, type: 3}
+  m_Name: f_parrot
+  m_EditorClassIdentifier: SereneIsle::SereneIsle.ItemDefinition
+  id: f_parrot
+  displayName: "C\xE1 m\xF3 xanh"
+  category: 2
+  price: 72
+  weight: 2
+  eatHp: 0
+  eatWater: 0
+  eatEnergy: 0
+  icon: 9
+  iconColor: {r: 0.24705882, g: 0.7529412, b: 0.627451, a: 1}
+  iconColor2: {r: 0.9098039, g: 0.41568628, b: 0.627451, a: 1}
+  sprite: {fileID: 0}
+  seedOf: 
+  bagLevel: 0
+  fishDifficulty: 3
+  habitats:
+  - trop
+  activeTime: day
+  description: 
