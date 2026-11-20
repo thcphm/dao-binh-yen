@@ -1,18 +1,22 @@
-// Lambert kieu ban web: mau dinh (vertex color sRGB) x _BaseColor, den ban cau + mat troi + bong do URP.
-// Dung cho dia hinh (_VertexColorWeight = 1), cay/da/nha (mau dinh) va nhan vat (mau don, _VertexColorWeight = 0).
+// Lambert kieu ban web: mau dinh (vertex color sRGB) x texture x _BaseColor, den ban cau + mat troi + bong do URP.
+// Dung cho dia hinh (_VertexColorWeight = 1), cay/da/nha (mau dinh), nhan vat va cay Quaternius (texture).
 // Them (ban web makeObjMat, dong 408-428):
 //   _SWAY          : cay co lay theo gio (dinh cay dung dua, goc dung yen) - ho tro GPU instancing.
 //   _OcclusionFade : vat nam giua camera va nhan vat thi thua dan bang luoi diem Bayer 4x4.
+//   _ALPHATEST_ON  : la cay dang tam phang co texture cat alpha (Quaternius); di kem _Cull = Off (ve 2 mat).
 Shader "SereneIsle/WebLambert"
 {
     Properties
     {
         [MainColor] _BaseColor ("Base Color", Color) = (1, 1, 1, 1)
-        [MainTexture] _BaseMap ("Base Map (bang mau nhan vat)", 2D) = "white" {}
+        [MainTexture] _BaseMap ("Base Map", 2D) = "white" {}
         _VertexColorWeight ("Vertex Color Weight", Range(0, 1)) = 1
         [Toggle(_SWAY)] _Sway ("Lay theo gio", Float) = 0
         _OcclusionFade ("Thua khi che nhan vat", Range(0, 1)) = 0
         _FogScale ("Muc anh huong suong mu", Range(0, 1)) = 1
+        [Toggle(_ALPHATEST_ON)] _AlphaClip ("Cat alpha (la cay)", Float) = 0
+        _Cutoff ("Nguong cat alpha", Range(0, 1)) = .5
+        [Enum(UnityEngine.Rendering.CullMode)] _Cull ("Cull", Float) = 2
     }
 
     SubShader
@@ -32,6 +36,9 @@ Shader "SereneIsle/WebLambert"
             half _Sway;
             half _OcclusionFade;
             half _FogScale;
+            half _AlphaClip;
+            half _Cutoff;
+            half _Cull;
         CBUFFER_END
 
         // gio: dich chuyen trong khong gian vat the, phase theo vi tri goc cua tung cay
@@ -46,12 +53,20 @@ Shader "SereneIsle/WebLambert"
         #endif
             return posOS;
         }
+
+        void SI_AlphaClip(float2 uv)
+        {
+        #if defined(_ALPHATEST_ON)
+            clip(SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, uv).a - _Cutoff);
+        #endif
+        }
         ENDHLSL
 
         Pass
         {
             Name "ForwardLit"
             Tags { "LightMode" = "UniversalForward" }
+            Cull [_Cull]
 
             HLSLPROGRAM
             #pragma vertex vert
@@ -60,6 +75,7 @@ Shader "SereneIsle/WebLambert"
             #pragma multi_compile_fragment _ _SHADOWS_SOFT _SHADOWS_SOFT_LOW _SHADOWS_SOFT_MEDIUM _SHADOWS_SOFT_HIGH
             #pragma multi_compile_instancing
             #pragma multi_compile_local _ _SWAY
+            #pragma multi_compile_local _ _ALPHATEST_ON
 
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
             #include "WebLighting.hlsl"
@@ -97,15 +113,19 @@ Shader "SereneIsle/WebLambert"
                 return o;
             }
 
-            half4 frag(Varyings i) : SV_Target
+            half4 frag(Varyings i, FRONT_FACE_TYPE face : FRONT_FACE_SEMANTIC) : SV_Target
             {
                 UNITY_SETUP_INSTANCE_ID(i);
+                half4 texc = SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, i.uv);
+            #if defined(_ALPHATEST_ON)
+                clip(texc.a - _Cutoff);
+            #endif
                 SI_OcclusionClip(i.positionWS, i.positionCS.xy, _OcclusionFade);
 
-                float3 n = normalize(i.normalWS);
+                // mat sau cua la (ve 2 mat): lat phap tuyen de khong bi den
+                float3 n = normalize(i.normalWS) * IS_FRONT_VFACE(face, 1.0, -1.0);
                 // texture sRGB duoc GPU doi sang linear khi lay mau -> doi nguoc ve sRGB de tinh nhu ban web
-                half3 tex = SI_ToSRGB(SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, i.uv).rgb);
-                half3 albedo = i.color * tex * SI_ToSRGB(_BaseColor.rgb);
+                half3 albedo = i.color * SI_ToSRGB(texc.rgb) * SI_ToSRGB(_BaseColor.rgb);
 
                 float4 shadowCoord = TransformWorldToShadowCoord(i.positionWS);
                 Light sun = GetMainLight(shadowCoord);
@@ -126,6 +146,7 @@ Shader "SereneIsle/WebLambert"
             ZWrite On
             ZTest LEqual
             ColorMask 0
+            Cull [_Cull]
 
             HLSLPROGRAM
             #pragma vertex vert
@@ -133,6 +154,7 @@ Shader "SereneIsle/WebLambert"
             #pragma multi_compile_instancing
             #pragma multi_compile_vertex _ _CASTING_PUNCTUAL_LIGHT_SHADOW
             #pragma multi_compile_local _ _SWAY
+            #pragma multi_compile_local _ _ALPHATEST_ON
 
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Shadows.hlsl"
 
@@ -143,11 +165,15 @@ Shader "SereneIsle/WebLambert"
             {
                 float4 positionOS : POSITION;
                 float3 normalOS   : NORMAL;
+                float2 uv         : TEXCOORD0;
                 UNITY_VERTEX_INPUT_INSTANCE_ID
             };
 
-            float4 vert(Attributes input) : SV_POSITION
+            struct Varyings { float4 positionCS : SV_POSITION; float2 uv : TEXCOORD0; };
+
+            Varyings vert(Attributes input)
             {
+                Varyings o;
                 UNITY_SETUP_INSTANCE_ID(input);
                 float3 positionWS = TransformObjectToWorld(SI_ApplySway(input.positionOS.xyz));
                 float3 normalWS = TransformObjectToWorldNormal(input.normalOS);
@@ -162,10 +188,12 @@ Shader "SereneIsle/WebLambert"
             #else
                 positionCS.z = max(positionCS.z, UNITY_NEAR_CLIP_VALUE);
             #endif
-                return positionCS;
+                o.positionCS = positionCS;
+                o.uv = TRANSFORM_TEX(input.uv, _BaseMap);
+                return o;
             }
 
-            half4 frag() : SV_Target { return 0; }
+            half4 frag(Varyings i) : SV_Target { SI_AlphaClip(i.uv); return 0; }
             ENDHLSL
         }
 
@@ -175,22 +203,28 @@ Shader "SereneIsle/WebLambert"
             Tags { "LightMode" = "DepthOnly" }
             ZWrite On
             ColorMask R
+            Cull [_Cull]
 
             HLSLPROGRAM
             #pragma vertex vert
             #pragma fragment frag
             #pragma multi_compile_instancing
             #pragma multi_compile_local _ _SWAY
+            #pragma multi_compile_local _ _ALPHATEST_ON
 
-            struct Attributes { float4 positionOS : POSITION; UNITY_VERTEX_INPUT_INSTANCE_ID };
+            struct Attributes { float4 positionOS : POSITION; float2 uv : TEXCOORD0; UNITY_VERTEX_INPUT_INSTANCE_ID };
+            struct Varyings { float4 positionCS : SV_POSITION; float2 uv : TEXCOORD0; };
 
-            float4 vert(Attributes input) : SV_POSITION
+            Varyings vert(Attributes input)
             {
+                Varyings o;
                 UNITY_SETUP_INSTANCE_ID(input);
-                return TransformObjectToHClip(SI_ApplySway(input.positionOS.xyz));
+                o.positionCS = TransformObjectToHClip(SI_ApplySway(input.positionOS.xyz));
+                o.uv = TRANSFORM_TEX(input.uv, _BaseMap);
+                return o;
             }
 
-            half4 frag() : SV_Target { return 0; }
+            half4 frag(Varyings i) : SV_Target { SI_AlphaClip(i.uv); return 0; }
             ENDHLSL
         }
 
@@ -199,15 +233,17 @@ Shader "SereneIsle/WebLambert"
             Name "DepthNormals"
             Tags { "LightMode" = "DepthNormals" }
             ZWrite On
+            Cull [_Cull]
 
             HLSLPROGRAM
             #pragma vertex vert
             #pragma fragment frag
             #pragma multi_compile_instancing
             #pragma multi_compile_local _ _SWAY
+            #pragma multi_compile_local _ _ALPHATEST_ON
 
-            struct Attributes { float4 positionOS : POSITION; float3 normalOS : NORMAL; UNITY_VERTEX_INPUT_INSTANCE_ID };
-            struct Varyings { float4 positionCS : SV_POSITION; float3 normalWS : TEXCOORD0; };
+            struct Attributes { float4 positionOS : POSITION; float3 normalOS : NORMAL; float2 uv : TEXCOORD0; UNITY_VERTEX_INPUT_INSTANCE_ID };
+            struct Varyings { float4 positionCS : SV_POSITION; float3 normalWS : TEXCOORD0; float2 uv : TEXCOORD1; };
 
             Varyings vert(Attributes input)
             {
@@ -215,10 +251,11 @@ Shader "SereneIsle/WebLambert"
                 UNITY_SETUP_INSTANCE_ID(input);
                 o.positionCS = TransformObjectToHClip(SI_ApplySway(input.positionOS.xyz));
                 o.normalWS = TransformObjectToWorldNormal(input.normalOS);
+                o.uv = TRANSFORM_TEX(input.uv, _BaseMap);
                 return o;
             }
 
-            half4 frag(Varyings i) : SV_Target { return half4(normalize(i.normalWS), 0); }
+            half4 frag(Varyings i) : SV_Target { SI_AlphaClip(i.uv); return half4(normalize(i.normalWS), 0); }
             ENDHLSL
         }
     }
