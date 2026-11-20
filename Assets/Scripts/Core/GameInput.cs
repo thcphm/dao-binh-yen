@@ -23,7 +23,8 @@ namespace SereneIsle
         public static InputAction ZoomModifierAction { get; private set; } // Ctrl/Alt + lan chuot = zoom (ban web)
         public static InputAction UseAction { get; private set; }       // F / chuot trai / X tay cam
         public static InputAction InventoryAction { get; private set; } // I / Tab / Y tay cam
-        public static InputAction CancelAction { get; private set; }    // Esc / B tay cam
+        public static InputAction CancelAction { get; private set; }    // Esc / Start tay cam
+        public static InputAction InteractAction { get; private set; }  // E / B tay cam: ngu, ban che tao, noi chuyen
         public static InputAction SlotPrevAction { get; private set; }  // LB
         public static InputAction SlotNextAction { get; private set; }  // RB
         public static InputAction[] SlotActions { get; private set; }   // 1..9, 0
@@ -85,6 +86,8 @@ namespace SereneIsle
             UseAction.AddBinding("<Keyboard>/f"); UseAction.AddBinding("<Mouse>/leftButton"); UseAction.AddBinding("<Gamepad>/buttonWest");
             InventoryAction = Map.AddAction("Inventory", InputActionType.Button);
             InventoryAction.AddBinding("<Keyboard>/i"); InventoryAction.AddBinding("<Keyboard>/tab"); InventoryAction.AddBinding("<Gamepad>/buttonNorth");
+            InteractAction = Map.AddAction("Interact", InputActionType.Button);
+            InteractAction.AddBinding("<Keyboard>/e"); InteractAction.AddBinding("<Gamepad>/buttonEast");
             CancelAction = Map.AddAction("Cancel", InputActionType.Button);
             CancelAction.AddBinding("<Keyboard>/escape"); CancelAction.AddBinding("<Gamepad>/start");
             SlotPrevAction = Map.AddAction("SlotPrev", InputActionType.Button, "<Gamepad>/leftShoulder");
@@ -130,6 +133,7 @@ namespace SereneIsle
         public static bool UsePressedByMouse { get { Ensure(); return UseAction.WasPressedThisFrame() && UseAction.activeControl?.device is Mouse; } }
         public static bool InventoryPressed { get { Ensure(); return InventoryAction.WasPressedThisFrame(); } }
         public static bool CancelPressed { get { Ensure(); return CancelAction.WasPressedThisFrame(); } }
+        public static bool InteractPressed { get { Ensure(); return InteractAction.WasPressedThisFrame(); } }
 
         /// <summary>O hotbar vua bam (0..9) hoac -1.</summary>
         public static int SlotPressed

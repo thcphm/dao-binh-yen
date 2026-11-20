@@ -39,6 +39,8 @@ namespace SereneIsle
         Transform[] _rootBones;
 
         public bool Acting => _swing > 0;
+        /// <summary>Tu the giu nguyen khi dung yen (vd. "Fishing_Idle" luc cho ca). null = dung binh thuong.</summary>
+        public string HoldPose { get; set; }
         public string CurrentAct => _swing > 0 ? _act : null;
 
         void Awake()
@@ -189,6 +191,32 @@ namespace SereneIsle
             Play(clipName, .12f, speed, true);
         }
 
+        // ---- dung cu cam tay (ban web: refreshToolMesh) ----
+        [Tooltip("Xoay dung cu so voi handslot.r cua KayKit (do). Ban web: can huong +z, luoi -y.")]
+        public Vector3 toolAlign = new Vector3(-90, 0, 0);
+        GameObject _tool;
+        string _toolId;
+        int _toolLevel;
+
+        /// <summary>Cam dung cu dang chon tren thanh nhanh (null = tay khong). Goi moi khung, chi dung lai khi doi.</summary>
+        public void SetTool(string id, int level = 1)
+        {
+            if (!ToolMeshes.Has(id ?? "")) id = null;
+            if (id == _toolId && level == _toolLevel) { if (_tool) _tool.SetActive(!_held); return; }
+            _toolId = id; _toolLevel = level;
+            if (_tool) Destroy(_tool);
+            _tool = null;
+            if (id == null || !Hand) return;
+            _tool = new GameObject("tool_" + id);
+            _tool.transform.SetParent(Hand, false);
+            _tool.transform.localRotation = Quaternion.Euler(toolAlign) * Quaternion.Euler(ToolMeshes.Tilt(id) * Mathf.Rad2Deg, 0, 0);
+            _tool.transform.localScale = Vector3.one * (.85f / Mathf.Max(.01f, Scale));
+            _tool.AddComponent<MeshFilter>().sharedMesh = ToolMeshes.Get(id, level);
+            var mr = _tool.AddComponent<MeshRenderer>();
+            mr.sharedMaterial = MaterialLibrary.Objects(false);
+            _tool.SetActive(!_held);
+        }
+
         void ShowHeld(ItemDefinition it)
         {
             if (_held) Destroy(_held);
@@ -216,7 +244,8 @@ namespace SereneIsle
                 else { Anim.Update(dt); return; }
             }
 
-            if (s.prep > 0) Play("Jump_Start", .05f, 3f);
+            if (HoldPose != null && !s.air && s.amp < .05f) Play(HoldPose, .2f);
+            else if (s.prep > 0) Play("Jump_Start", .05f, 3f);
             else if (s.air) Play("Jump_Idle", .12f);
             else if (s.land > .05f) Play("Jump_Land", .06f, 2f);
             else if (s.amp < .05f) Play("Idle_A", .25f);

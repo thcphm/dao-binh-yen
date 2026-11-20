@@ -16,13 +16,13 @@ namespace SereneIsle.Tests
                 if (go && go.transform.parent == null) Object.Destroy(go);
         }
 
-        [UnityTest]
+        [UnityTest, Timeout(600000)] // may 8 GB, co the dang chay Unity khac
         public IEnumerator CanhVat_Quaternius()
         {
             Assert.IsNotNull(NatureKit.Instance, "phai co Resources/NatureKit");
             var boot = new GameObject("Bootstrap");
             boot.SetActive(false);
-            boot.AddComponent<GameBootstrap>().seed = 424242;
+            var bs = boot.AddComponent<GameBootstrap>(); bs.seed = 424242; bs.saveSlot = -1;
             boot.SetActive(true);
             float t0 = Time.realtimeSinceStartup;
             while (!(IslandTerrain.Instance && IslandTerrain.Instance.IsReady))

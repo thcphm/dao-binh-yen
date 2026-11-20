@@ -21,6 +21,12 @@ namespace SereneIsle
         public ItemDatabase Items => ItemDatabase.Instance;
         public int Coins { get; set; } = 30;
         public readonly HashSet<string> OwnedTools = new HashSet<string>();
+        /// <summary>Ca / bo da tung bat (so suu tam - ban web: G.caught).</summary>
+        public readonly HashSet<string> Caught = new HashSet<string>();
+        /// <summary>O luu tu dong (moi sang ngay moi). &lt; 0 = khong luu (test).</summary>
+        public int SaveSlot { get; set; } = -1;
+        /// <summary>Sau khi sang ngay moi (da tinh chi so, cay moc lai, da luu).</summary>
+        public event Action<NewDayReason> DayStarted;
 
         public PlayerController Player { get; set; }
         public IslandCharacter Body { get; set; }
@@ -53,13 +59,17 @@ namespace SereneIsle
 
         void OnDestroy() { if (Instance == this) Instance = null; }
 
+        /// <summary>Thoat game giua chung: luu lai (ban web luu thuong xuyen vao localStorage).</summary>
+        void OnApplicationQuit() { if (Running && !Transitioning) SaveNow(); }
+
         public void SetHome(Vector3 pos, float facing) { HomePosition = pos; HomeFacing = facing; HasHome = true; }
 
         public void Say(string msg) => Toast?.Invoke(msg);
 
         void Update()
         {
-            if (Player) Player.InputLocked = !Active;
+            var tools = ToolSystem.Instance;
+            if (Player) Player.InputLocked = !Active || (tools && tools.Fishing && tools.Fishing.Busy);
             if (!Running) return;
             if (starterKit && !_kitGiven) GiveStarterKit();
 
@@ -139,8 +149,8 @@ namespace SereneIsle
             if (!d) return;
             if (d.IsTool)
             {
-                if (!OwnedTools.Contains(id)) Say($"Chưa có {d.displayName}.");
-                else Say($"{d.displayName}: sẽ dùng được ở giai đoạn 3.");
+                if (!OwnedTools.Contains(id)) Say($"Chưa có {d.displayName}. Làm ở bàn chế tạo trong làng.");
+                else if (ToolSystem.Instance) ToolSystem.Instance.Use(id);
                 return;
             }
             if (d.IsFood) Consume(id);
@@ -192,14 +202,31 @@ namespace SereneIsle
             return true;
         }
 
+        /// <summary>Da tai van choi: khong phat do khoi dau nua.</summary>
+        public void MarkKitGiven() => _kitGiven = true;
+
         void GiveStarterKit()
         {
             _kitGiven = true;
             Give("coconut", 2, true); Give("bottle", 2, true); Give("berry", 6, true); Give("bread", 1, true);
             Give("wood", 6, true); Give("stone", 4, true);
+            // ban web: ong Bay trao riu va xeng trong phan huong dan (giai doan 4) - tam thoi co san
+            Give("axe", 1, true); Give("shovel", 1, true);
             Hotbar.Assign(9, "bottle");
             Hotbar.Selected = 9;
-            Say("Đồ khởi đầu: dừa, nước, quả mọng, bánh mì. Bấm 0 hoặc F để uống nước.");
+            Say("Đồ khởi đầu: rìu, xẻng, dừa, nước, quả mọng, bánh mì. Bấm 1 cầm rìu, F để chặt cây.");
+        }
+
+        /// <summary>Di ngu o leu (sau khi xac nhan): sang ngay moi, tu luu.</summary>
+        public void Sleep()
+        {
+            if (!Transitioning) StartCoroutine(NewDay(NewDayReason.Sleep));
+        }
+
+        public bool SaveNow()
+        {
+            if (SaveSlot < 0) return false;
+            return SaveSystem.Save(this, SaveSlot);
         }
 
         // ---------------------------------------------------------------- qua ngay
@@ -217,6 +244,9 @@ namespace SereneIsle
             _warn22 = _warn225 = false;
             if (HasHome && Player) Player.PlaceAt(HomePosition, HomeFacing);
             if (Environment) Environment.hour = Clock.Hour;
+            if (ToolSystem.Instance) ToolSystem.Instance.Regrow(Clock.Day);
+            if (SaveNow()) msgs.Add("Đã lưu game.");
+            DayStarted?.Invoke(reason);
 
             yield return new WaitForSecondsRealtime(1.6f);
             FadeHidden?.Invoke();

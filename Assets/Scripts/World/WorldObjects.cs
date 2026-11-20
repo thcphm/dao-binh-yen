@@ -43,6 +43,35 @@ namespace SereneIsle
         };
 
         public static WorldObjectInfo Info(WorldObjectType t) => _info[(int)t];
+
+        /// <summary>Do roi khi chat do / dap vo (ban web: OT[type].drops, dong 501-516). Chua co giay phep mo -> bo phan thuong mo.</summary>
+        public static List<(string id, int n)> Drops(WorldObjectType t, System.Random r)
+        {
+            int ri(int a, int b) => r.Next(a, b + 1);
+            var d = new List<(string, int)>();
+            switch (t)
+            {
+                case WorldObjectType.Gum: case WorldObjectType.Pine: d.Add(("wood", ri(3, 5))); break;
+                case WorldObjectType.Palm: d.Add(("wood", ri(2, 3))); break;
+                case WorldObjectType.Spin: case WorldObjectType.Reeds: d.Add(("fiber", ri(1, 3))); break;
+                case WorldObjectType.Fern: d.Add(("fiber", ri(1, 2))); break;
+                case WorldObjectType.Rock: d.Add(("stone", ri(2, 4))); break;
+                case WorldObjectType.RedRock: d.Add(("stone", ri(3, 5))); if (r.NextDouble() < .25) d.Add(("ore", 1)); break;
+                case WorldObjectType.Ore: d.Add(("ore", ri(1, 3))); d.Add(("stone", 1)); break;
+                case WorldObjectType.Bush: d.Add(("wood", 1)); break;
+                case WorldObjectType.JungleTree: case WorldObjectType.Baobab: d.Add(("wood", ri(4, 6))); break;
+                case WorldObjectType.Acacia: d.Add(("wood", ri(2, 4))); break;
+                case WorldObjectType.ScrewPine: d.Add(("fiber", ri(2, 3))); d.Add(("wood", 1)); break;
+                case WorldObjectType.Mangrove: d.Add(("wood", ri(3, 4))); break;
+                case WorldObjectType.Mound: d.Add(("stone", ri(2, 3))); if (r.NextDouble() < .2) d.Add(("ore", 1)); break;
+            }
+            return d;
+        }
+
+        /// <summary>
+        /// So ngay de vat the moc lai (thiet ke gameplay muc 5: cay 3-7 ngay; mo da tu lap lai moi thang = 28 ngay).
+        /// </summary>
+        public static int RegrowDays(WorldObjectType t, System.Random r) => Info(t).tool == "pick" ? 28 : r.Next(3, 8);
         public static float JumpHeight(WorldObjectType t) => _info[(int)t].jump;
 
         // ================================================================== hinh hoc

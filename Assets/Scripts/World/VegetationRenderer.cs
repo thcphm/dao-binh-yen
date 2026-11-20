@@ -102,19 +102,81 @@ namespace SereneIsle
                 }
                 if (info.big) { lod[t] = NewEntry(type + "_lod", WorldObjects.BuildLod(type, lodSource, lodColor), vegMat, null); lod[t].lodOnly = true; }
             }
-            foreach (var p in objects)
-            {
-                int i = p.idx % d.N, j = p.idx / d.N, c = (j / CH) * _cn + i / CH;
-                var m = Matrix4x4.TRS(new Vector3(i, d.HT[p.idx], j), Quaternion.Euler(0, p.rot * Mathf.Rad2Deg, 0), Vector3.one * p.scale);
-                int t = (int)p.type;
-                int v = variantOf[t] > 1 ? Mathf.Min(variantOf[t] - 1, (int)(IslandNoise.Hash2(p.idx, 41, d.Seed) * variantOf[t])) : 0;
-                foreach (var e in full[t]) if (e.variant == v) e.chunks[c].Add(m);
-                lod[t]?.chunks[c].Add(m);
-            }
+            _full = full; _lod = lod; _variantOf = variantOf;
+            foreach (var p in objects) AddObject(p.idx, p.type, p.rot, p.scale, false);
             TotalObjects = objects.Count;
 
             BuildGrass();
             Refresh(true);
+        }
+
+        // ================================================================== them / bot / rung (chat cay, dap da, moc lai)
+        List<Entry>[] _full;
+        Entry[] _lod;
+        int[] _variantOf;
+        readonly Dictionary<int, float> _shakes = new Dictionary<int, float>();
+        bool _dirty;
+
+        int ChunkOf(int idx) { int i = idx % _d.N, j = idx / _d.N; return (j / CH) * _cn + i / CH; }
+
+        Matrix4x4 MatrixOf(int idx, float rot, float scale, float tilt = 0, float tiltDir = 0)
+        {
+            int i = idx % _d.N, j = idx / _d.N;
+            var q = Quaternion.Euler(0, rot * Mathf.Rad2Deg, 0);
+            if (tilt != 0) q = Quaternion.AngleAxis(tilt, new Vector3(Mathf.Cos(tiltDir), 0, Mathf.Sin(tiltDir))) * q;
+            return Matrix4x4.TRS(new Vector3(i, _d.HT[idx], j), q, Vector3.one * scale);
+        }
+
+        IEnumerable<Entry> EntriesOf(int idx, WorldObjectType type)
+        {
+            int t = (int)type;
+            int v = _variantOf[t] > 1 ? Mathf.Min(_variantOf[t] - 1, (int)(IslandNoise.Hash2(idx, 41, _d.Seed) * _variantOf[t])) : 0;
+            foreach (var e in _full[t]) if (e.variant == v) yield return e;
+            if (_lod[t] != null) yield return _lod[t];
+        }
+
+        /// <summary>Them vat the (luc khoi tao, khi cay moc lai, khi tai game).</summary>
+        public void AddObject(int idx, WorldObjectType type, float rot, float scale, bool refresh = true)
+        {
+            var m = MatrixOf(idx, rot, scale);
+            int c = ChunkOf(idx);
+            foreach (var e in EntriesOf(idx, type)) e.chunks[c].Add(m);
+            if (refresh) _dirty = true;
+        }
+
+        /// <summary>Bo vat the khoi o idx (chat do, dap vo).</summary>
+        public void RemoveObject(int idx, WorldObjectType type)
+        {
+            int c = ChunkOf(idx), i = idx % _d.N, j = idx / _d.N;
+            foreach (var e in EntriesOf(idx, type))
+                e.chunks[c].RemoveAll(m => m.m03 == i && m.m23 == j);
+            _shakes.Remove(idx);
+            _dirty = true;
+        }
+
+        /// <summary>Rung vat the khi bi chat / dap (ban web: o.shake).</summary>
+        public void Shake(int idx, float time = .25f) => _shakes[idx] = time;
+
+        void UpdateShakes(float dt)
+        {
+            if (_shakes.Count == 0) return;
+            var keys = new List<int>(_shakes.Keys);
+            foreach (int idx in keys)
+            {
+                if (_d.ObjType[idx] == 0) { _shakes.Remove(idx); continue; }
+                var type = (WorldObjectType)(_d.ObjType[idx] - 1);
+                float t = _shakes[idx] - dt;
+                float tilt = t > 0 ? Mathf.Sin(t * 60) * 5f * (t / .25f) : 0;
+                var m = MatrixOf(idx, _d.ObjRot[idx], _d.ObjScale[idx], tilt, _d.ObjRot[idx]);
+                int c = ChunkOf(idx), i = idx % _d.N, j = idx / _d.N;
+                foreach (var e in EntriesOf(idx, type))
+                {
+                    var list = e.chunks[c];
+                    for (int n = 0; n < list.Count; n++) if (list[n].m03 == i && list[n].m23 == j) list[n] = m;
+                }
+                if (t <= 0) _shakes.Remove(idx); else _shakes[idx] = t;
+                _dirty = true;
+            }
         }
 
         Entry NewEntry(string name, Mesh mesh, Material mat, MaterialPropertyBlock props)
@@ -201,7 +263,9 @@ namespace SereneIsle
             if (_d == null) return;
             var cam = Camera.main;
             if (!cam) return;
-            Refresh(false);
+            UpdateShakes(Time.deltaTime);
+            Refresh(_dirty);
+            _dirty = false;
             Draw();
         }
 

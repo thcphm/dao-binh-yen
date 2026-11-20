@@ -54,3 +54,6 @@ crashlytics-build.properties
 # OS
 .DS_Store
 Thumbs.db
+
+# File luu game khi chay trong Editor
+/[Ss]aves/

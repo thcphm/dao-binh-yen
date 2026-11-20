@@ -86,10 +86,12 @@ namespace SereneIsle
             PierBuilder.Build(data, transform);
             TentBuilder.Build(data, transform, out var home, out var homeFacing);
             if (GameSession.Instance) GameSession.Instance.SetHome(home, homeFacing);
+            BenchBuilder.Build(data, transform, out var bench);
+            if (ToolSystem.Instance) { ToolSystem.Instance.BenchPosition = bench; ToolSystem.Instance.HasBench = true; }
             Vegetation = gameObject.AddComponent<VegetationRenderer>();
             Vegetation.Init(data, objects);
 
-            Debug.Log($"[SereneIsle] Dao seed={s}, {size}x{size} o, {chunks.Length} manh, {Vegetation.TotalObjects} cay/da, {Vegetation.TotalGrass} bui co, " +
+            Debug.Log($"[SereneIsle] Dao seed={s}, {size}x{size} o, {chunks.Length} manh, {Vegetation.TotalObjects} cay/da ({Vegetation.KitTypes} loai Quaternius), {Vegetation.TotalGrass} bui co, " +
                       $"thi tran ({data.CX},{data.CZ}) huong {data.TDIR}, {(Time.realtimeSinceStartup - t0):F2}s");
             Progress = 1;
             IsReady = true;

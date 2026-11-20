@@ -150,6 +150,7 @@ namespace SereneIsle
             _help = E("help", "chip", true);
             _help.Add(L(null, null, "WASD đi · Shift chạy · Space nhảy"));
             _help.Add(L(null, null, "1–9, 0 hoặc lăn chuột: đổi ô · F / chuột trái: dùng"));
+            _help.Add(L(null, null, "Cần câu: giữ F lấy lực, thả để quăng · E: ngủ, bàn chế tạo"));
             _help.Add(L(null, null, "I: túi đồ · kéo chuột phải: xoay · Ctrl+lăn: zoom"));
             _help.Add(L(null, null, "H: ẩn hướng dẫn"));
             _hud.Add(_help);

@@ -1,4 +1,4 @@
-// Nhan vat KayKit trong game: dung, di, chay, nhay, dong tac + 2 nhan vat dung canh nhau. Chup anh de duyet.
+﻿// Nhan vat KayKit trong game: dung, di, chay, nhay, dong tac + 2 nhan vat dung canh nhau. Chup anh de duyet.
 using System.Collections;
 using System.IO;
 using NUnit.Framework;
@@ -17,13 +17,13 @@ namespace SereneIsle.Tests
                 if (go && go.transform.parent == null) Object.Destroy(go);
         }
 
-        [UnityTest]
+        [UnityTest, Timeout(600000)] // may 8 GB, co the dang chay Unity khac
         public IEnumerator NhanVat_DiChay_DongTac()
         {
             Assert.IsNotNull(CharacterLibrary.Instance, "phai co Resources/CharacterLibrary");
             var boot = new GameObject("Bootstrap");
             boot.SetActive(false);
-            boot.AddComponent<GameBootstrap>().seed = 424242;
+            var bs = boot.AddComponent<GameBootstrap>(); bs.seed = 424242; bs.saveSlot = -1;
             boot.SetActive(true);
             float t0 = Time.realtimeSinceStartup;
             while (!(IslandTerrain.Instance && IslandTerrain.Instance.IsReady))

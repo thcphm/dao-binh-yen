@@ -1,0 +1,42 @@
+/* Giao dien viec lam (giai doan 3): nhac phim, chu noi, hop thoai, ban che tao, cau ca. Dung bien mau trong Hud.uss (.hud-root). */
+#floats { position: absolute; left: 0; top: 0; right: 0; bottom: 0; }
+.float-text { position: absolute; translate: -50% -50%; font-size: 20px; -unity-font-style: bold; white-space: nowrap;
+              -unity-text-outline-width: 1.5px; -unity-text-outline-color: rgba(58, 39, 21, .85); }
+
+#prompt { position: absolute; bottom: 112px; left: 50%; translate: -50% 0; padding: 4px 16px; font-size: 18px; -unity-font-style: bold; }
+
+/* ---------- cau ca ---------- */
+#power { position: absolute; bottom: 120px; left: 50%; translate: -50% 0; padding: 6px 14px 10px 14px; width: 300px; }
+.power-label { font-size: 14px; -unity-font-style: bold; color: var(--ink-2); -unity-text-align: middle-center; }
+.power-track { height: 16px; margin-top: 4px; border-radius: 8px; border-width: 2px; border-color: var(--bark); background-color: #e7d3a6; overflow: hidden; }
+#power-fill { position: absolute; left: 0; top: 0; bottom: 0; width: 0; background-color: #6cbf3f; }
+
+#reel { position: absolute; right: 60px; top: 50%; translate: 0 -50%; padding: 10px 14px 12px 14px; align-items: center; }
+.reel-name { font-size: 15px; -unity-font-style: bold; color: #b9661c; margin-bottom: 6px; }
+.reel-row { flex-direction: row; }
+#reel-bar { width: 46px; height: 300px; border-radius: 12px; border-width: 3px; border-color: var(--bark); background-color: #3d7fa8; overflow: hidden; }
+#reel-zone { position: absolute; left: 3px; right: 3px; border-radius: 8px; background-color: rgba(255, 255, 255, .35); border-width: 2px; border-color: rgba(255, 255, 255, .7); }
+#reel-zone.reel-zone--on { background-color: rgba(140, 230, 120, .55); border-color: #c8ff9a; }
+#reel-fish { position: absolute; left: 50%; width: 26px; height: 16px; translate: -50% 50%; border-radius: 8px; background-color: #ffcf4a; border-width: 2px; border-color: #8a4f12; }
+#reel-prog-track { width: 14px; height: 300px; margin-left: 8px; border-radius: 7px; border-width: 2px; border-color: var(--bark); background-color: #e7d3a6; overflow: hidden; }
+#reel-prog { position: absolute; left: 0; right: 0; bottom: 0; height: 30%; background-color: #e8b02f; }
+.reel-hint { font-size: 12px; color: var(--ink-2); margin-top: 8px; -unity-text-align: middle-center; white-space: normal; max-width: 160px; }
+
+/* ---------- hop thoai ---------- */
+#dialog-overlay, #craft-overlay { position: absolute; left: 0; top: 0; right: 0; bottom: 0; background-color: rgba(26, 18, 10, .45); align-items: center; justify-content: center; }
+#dialog { width: 460px; background-color: var(--paper); border-width: 4px; border-bottom-width: 8px; border-color: var(--bark); border-radius: 20px; padding: 18px 20px 16px 20px; }
+.dialog-text { font-size: 16px; white-space: normal; margin-top: 4px; }
+#dialog-buttons { flex-direction: row; justify-content: flex-end; }
+#dialog-buttons .btn { margin-left: 10px; }
+
+/* ---------- ban che tao ---------- */
+#craft { width: 640px; max-height: 86%; background-color: var(--paper); border-width: 4px; border-bottom-width: 8px; border-color: var(--bark); border-radius: 20px; padding: 18px 20px 16px 20px; }
+#craft-scroll { flex-shrink: 1; }
+.craft-row { flex-direction: row; align-items: center; padding: 6px 8px; margin-bottom: 6px; border-radius: 12px; background-color: var(--paper-2); }
+.craft-row .item-icon { width: 40px; height: 40px; margin-right: 10px; }
+.craft-text { flex-grow: 1; flex-shrink: 1; }
+.craft-name { font-size: 16px; -unity-font-style: bold; }
+.craft-desc { font-size: 13px; color: var(--ink-2); white-space: normal; }
+.craft-req { font-size: 13px; color: #8a4f12; white-space: normal; }
+.craft-btn { margin-top: 0; min-width: 84px; }
+.craft-btn:disabled { opacity: .45; }

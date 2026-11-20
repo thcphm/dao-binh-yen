@@ -1,4 +1,4 @@
-// Smoke test giai doan 2: HUD, hotbar, an uong, tui do, qua ngay luc 23h. Chup anh co ca HUD.
+﻿// Smoke test giai doan 2: HUD, hotbar, an uong, tui do, qua ngay luc 23h. Chup anh co ca HUD.
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -31,7 +31,7 @@ namespace SereneIsle.Tests
             var boot = new GameObject("Bootstrap");
             boot.SetActive(false);
             var b = boot.AddComponent<GameBootstrap>();
-            b.seed = 424242;
+            b.seed = 424242; b.saveSlot = -1;
             boot.SetActive(true);
 
             float t0 = Time.realtimeSinceStartup;

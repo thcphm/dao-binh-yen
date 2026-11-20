@@ -56,6 +56,9 @@ namespace SereneIsle
             if (cameraRig) cameraRig.SnapBehind(facingRad);
         }
 
+        /// <summary>Quay mat (radian) - vd. quay lung ve camera khi quang can.</summary>
+        public void Face(float facingRad) { _rot = facingRad; SyncTransform(); }
+
         public void PlaceAtArrival()
         {
             var d = Data;

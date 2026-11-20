@@ -1,4 +1,4 @@
-// Smoke test giai doan 1: dung scene bang GameBootstrap nhu khi bam Play, cho dao sinh xong,
+﻿// Smoke test giai doan 1: dung scene bang GameBootstrap nhu khi bam Play, cho dao sinh xong,
 // kiem tra nhan vat/camera, va chup anh tu camera game ra <project>/Temp/phase1/ de xem bang mat.
 using System.Collections;
 using System.IO;
@@ -25,7 +25,7 @@ namespace SereneIsle.Tests
             _boot = new GameObject("Bootstrap");
             _boot.SetActive(false);
             var b = _boot.AddComponent<GameBootstrap>();
-            b.seed = 424242;
+            b.seed = 424242; b.saveSlot = -1;
             b.islandSize = 800;
             _boot.SetActive(true);
 

@@ -20,6 +20,12 @@ namespace SereneIsle
         [Tooltip("Tat post-processing tren camera (tone mapping se lam lech mau so voi ban web).")]
         public bool disablePostProcessing = true;
 
+        [Header("Luu game")]
+        [Tooltip("O luu (0-3). < 0 = khong tai, khong luu (test).")]
+        public int saveSlot = 0;
+        [Tooltip("Mo game thi tai lai o luu neu co (menu chinh o giai doan 5).")]
+        public bool loadSave = true;
+
         [Header("Thu nghiem")]
         [Tooltip("Cho vai mon do de thu tui do / an uong (giai doan 2).")]
         public bool starterKit = true;
@@ -45,14 +51,17 @@ namespace SereneIsle
             Session = FindAnyObjectByType<GameSession>();
             if (!Session) Session = new GameObject("GameSession").AddComponent<GameSession>();
             Session.starterKit = starterKit;
+            Session.SaveSlot = saveSlot;
+            if (!ToolSystem.Instance) Session.gameObject.AddComponent<ToolSystem>();
+            var save = saveSlot >= 0 && loadSave ? SaveSystem.Load(saveSlot) : null;
 
             // ---- dia hinh (Start chay sau Awake -> kip gan seed/size) ----
             Terrain = FindAnyObjectByType<IslandTerrain>();
             if (!Terrain)
             {
                 Terrain = new GameObject("Island").AddComponent<IslandTerrain>();
-                Terrain.seed = seed;
-                Terrain.size = islandSize;
+                Terrain.seed = save != null ? save.seed : seed;
+                Terrain.size = save != null ? save.size : islandSize;
             }
 
             // ---- camera ----
@@ -79,7 +88,8 @@ namespace SereneIsle
                 var pgo = new GameObject("Player");
                 pgo.SetActive(false);
                 var body = pgo.AddComponent<IslandCharacter>();
-                body.outfit = female ? CharacterOutfit.Female() : CharacterOutfit.Male();
+                body.outfit = save?.outfit != null && !string.IsNullOrEmpty(save.outfit.model) ? save.outfit
+                            : female ? CharacterOutfit.Female() : CharacterOutfit.Male();
                 Player = pgo.AddComponent<PlayerController>();
                 pgo.SetActive(true);
             }
@@ -93,9 +103,21 @@ namespace SereneIsle
             // ---- giao dien ----
             Hud = FindAnyObjectByType<GameHud>();
             if (!Hud) Hud = new GameObject("HUD").AddComponent<GameHud>();
+            if (!Hud.GetComponent<ActionUI>()) Hud.gameObject.AddComponent<ActionUI>();
 
-            if (Terrain.IsReady) Player.PlaceAtArrival();
-            else Terrain.Ready += _ => Player.PlaceAtArrival();
+            if (save != null)
+            {
+                SaveSystem.ApplyState(save, Session);
+                Session.MarkKitGiven();
+                Debug.Log($"[SereneIsle] Tai o luu {saveSlot}: ngay {save.day}, luu luc {save.savedAt}");
+            }
+            void Place()
+            {
+                if (save != null) SaveSystem.ApplyWorld(save, Session);
+                else Player.PlaceAtArrival();
+            }
+            if (Terrain.IsReady) Place();
+            else Terrain.Ready += _ => Place();
         }
     }
 }
