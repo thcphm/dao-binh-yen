@@ -306,6 +306,27 @@ namespace SereneIsle
                     g.Circle(20, 26, 13).Fill(A(c2, .3f)); g.Circle(20, 27, 7).Fill(A(c2, .85f));
                     g.Ellipse(13, 15, 6, 4).Fill(A(White, .6f)); g.Ellipse(27, 15, 6, 4).Fill(A(White, .6f));
                     g.Ellipse(20, 19, 4, 8).Fill(c1); g.Circle(20, 10, 3.5f).Fill(c1); break;
+                case IconShape.Dragonfly:
+                    g.Ellipse(11, 13, 9, 3.2f).FillStroke(A(c2, .85f), c1, 1.2f); g.Ellipse(29, 13, 9, 3.2f).FillStroke(A(c2, .85f), c1, 1.2f);
+                    g.Ellipse(12, 19, 8, 2.8f).FillStroke(A(c2, .85f), c1, 1.2f); g.Ellipse(28, 19, 8, 2.8f).FillStroke(A(c2, .85f), c1, 1.2f);
+                    g.M(20, 12).L(20, 37); g.Stroke(c1, 3);
+                    g.Circle(20, 9, 3.6f).Fill(Dark(c1, .8f)); break;
+                case IconShape.Bee:
+                    g.Ellipse(13, 12, 7, 5).FillStroke(A(c2, .8f), Dark(c1, .5f), 1.2f); g.Ellipse(27, 12, 7, 5).FillStroke(A(c2, .8f), Dark(c1, .5f), 1.2f);
+                    g.Ellipse(20, 23, 10, 12).FillStroke(c1, Dark(c1, .5f), 1.8f);
+                    for (int i = 0; i < 3; i++) g.Line(11, 19 + i * 6, 29, 19 + i * 6, Ink, 2.4f);
+                    g.Circle(20, 10, 4).Fill(Ink); break;
+                case IconShape.Mantis:
+                    g.M(20, 36).L(21, 16); g.Stroke(c1, 4);
+                    g.M(21, 16).L(15, 10).L(11, 16); g.Stroke(c1, 2.2f); g.M(21, 16).L(27, 10).L(30, 15); g.Stroke(c1, 2.2f);
+                    g.M(20, 30).L(11, 36); g.Stroke(Dark(c1, .7f), 1.6f); g.M(20, 30).L(29, 36); g.Stroke(Dark(c1, .7f), 1.6f);
+                    g.Ellipse(20, 27, 4.5f, 8).Fill(A(c2, .9f));
+                    g.M(17, 8).L(21, 4).L(25, 8).Z().Fill(c1); break;
+                case IconShape.Cicada:
+                    g.M(20, 13).L(6, 34).L(17, 30).Z().FillStroke(A(c2, .75f), Dark(c1, .6f), 1.2f);
+                    g.M(20, 13).L(34, 34).L(23, 30).Z().FillStroke(A(c2, .75f), Dark(c1, .6f), 1.2f);
+                    g.Ellipse(20, 20, 6, 11).FillStroke(c1, Dark(c1, .55f), 1.6f);
+                    g.Circle(15, 10, 2.6f).Fill(Ink); g.Circle(25, 10, 2.6f).Fill(Ink); break;
 
                 // ---------------- linh tinh ----------------
                 case IconShape.Worm:

@@ -113,6 +113,43 @@ namespace SereneIsle.Tests
                                                      $"dang dien {s.Body.Acting} {s.Body.CurrentAct}, chon {s.Hotbar.SelectedId})");
             yield return WaitAct(s, "shovel");
 
+            // ---- con trung + vot ----
+            var bugs = Critters.Instance;
+            Assert.IsNotNull(bugs, "phai co Critters");
+            bugs.spawnEnabled = false;
+            bugs.Clear();
+            Critters.Bug natural = null;
+            for (int i = 0; i < 20 && natural == null; i++) natural = bugs.Spawn();
+            Assert.IsNotNull(natural, "con trung phai tu sinh quanh nguoi choi (ban ngay)");
+            Assert.AreEqual(ItemCategory.Bug, s.Items.Get(natural.id).category);
+            Assert.IsNotNull(Recipes.Craft(Recipes.Get("net"), s), "lam vot");
+            s.Hotbar.Selected = s.Hotbar.IndexOf("net");
+            var pp = s.Player.transform.position;
+            var fwd = new Vector3(Mathf.Sin(face), 0, Mathf.Cos(face));
+            var side = new Vector3(fwd.z, 0, -fwd.x);
+            // nhieu loai khac nhau quanh nguoi choi (bo bo duoi dat tu bam mat dat)
+            foreach (var (id, off) in new[] {
+                         ("b_fly", fwd * 1.2f + Vector3.up * 1f), ("b_dragonfly", fwd * 1.8f + side * .9f + Vector3.up * 1.1f),
+                         ("b_birdwing", fwd * 2.2f - side * 1.2f + Vector3.up * 1.3f), ("b_bee", fwd * 1.4f - side * .6f + Vector3.up * .7f),
+                         ("b_grasshopper", fwd * 1.3f + side * 1.1f), ("b_ladybug", fwd * .9f - side * 1f),
+                         ("b_mantis", fwd * 1.9f + side * .2f), ("b_stag", fwd * 2.4f - side * .4f) })
+                bugs.SpawnAt(id, pp + off);
+            rig.yaw = face + Mathf.PI + .5f; rig.pitch = .35f; rig.distance = 3.6f;
+            for (int i = 0; i < 20; i++) yield return null;
+            yield return Shot(Path.Combine(dir, "p3_6_con_trung.png"));
+            // dua con buom ra ngay truoc mat roi vung vot
+            var fly = bugs.Bugs.Find(b => b.id == "b_fly");
+            // vong bay: x = hx + sin(.7t)*1.4..., z = hz + cos(.5t)*1.4 -> t = 0 thi lech z +1.4
+            fly.hx = pp.x + fwd.x * 1.1f; fly.hz = pp.z + fwd.z * 1.1f - 1.4f; fly.t = 0;
+            yield return null;
+            int bugs0 = bugs.Bugs.Count;
+            s.Stats.Energy = 100;
+            s.UseSelected();
+            Assert.AreEqual(bugs0 - 1, bugs.Bugs.Count, "vot phai bat duoc 1 con");
+            Assert.IsTrue(s.Caught.Count > 0);
+            yield return WaitAct(s, "net");
+            bugs.Clear();
+
             // ---- cau ca o dau cau tau ----
             var arrive = d.ArrivalPoint(out float toTown);
             s.Player.PlaceAt(arrive, toTown + Mathf.PI);

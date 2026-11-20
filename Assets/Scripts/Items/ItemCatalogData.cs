@@ -111,6 +111,26 @@ namespace SereneIsle
             Bug("b_firefly", "Đom đóm", 45, "night", "2,3,5,7,6", IconShape.Firefly, "#2d2a10", "#e8ff7a");
             Bug("b_moth", "Bướm đêm", 36, "night", "2,3,4,8,9", IconShape.Butterfly, "#7a6a55", "#d9c7a3");
             Bug("b_jewel", "Bọ rùa ngọc", 160, "any", "3,4,6", IconShape.Beetle, "#1f8f6a", "#3fe0b0");
+            // con trung Viet Nam theo vung (biome: 1 bai bien, 2 bui, 3 rung, 4 hoang mac, 5 lang, 6 rung mua,
+            // 7 rung duoc, 8 nui, 9 thao nguyen, 10 dong co)
+            Bug("b_dragonfly", "Chuồn chuồn ớt", 28, "day", "1,2,5,7,10", IconShape.Dragonfly, "#c9341f", "#f4dcd4");
+            Bug("b_damsel", "Chuồn chuồn kim", 32, "day", "6,7", IconShape.Dragonfly, "#2f8fd6", "#e0f2ff");
+            Bug("b_grasshopper", "Châu chấu", 18, "day", "2,9,10", IconShape.Cricket, "#5f9a2e", "#8cc04a");
+            Bug("b_locust", "Cào cào", 22, "day", "4,9,10", IconShape.Cricket, "#9a8a3a", "#c8b45a");
+            Bug("b_fieldcricket", "Dế mèn", 40, "night", "2,5,10", IconShape.Cricket, "#3a2a1a", "#6a4a2a");
+            Bug("b_molecricket", "Dế trũi", 34, "night", "7,10", IconShape.Cricket, "#6a4a2a", "#8a6a4a");
+            Bug("b_sandcricket", "Dế cát", 26, "night", "1,4", IconShape.Cricket, "#c8a870", "#e6cfa0");
+            Bug("b_cicada", "Ve sầu", 30, "day", "3,5,6", IconShape.Cicada, "#4a5a3a", "#d4e6d6");
+            Bug("b_ladybug", "Bọ rùa", 15, "day", "2,5,10", IconShape.Beetle, "#1a1a1a", "#d83a2a");
+            Bug("b_shieldbug", "Bọ xít", 12, "day", "2,3,8", IconShape.Beetle, "#5a3218", "#8a5a2a");
+            Bug("b_stag", "Kẹp kìm", 120, "night", "3,6", IconShape.Beetle, "#2a160c", "#5a3a22");
+            Bug("b_rhino", "Bọ hung sừng", 90, "night", "3,6", IconShape.Beetle, "#3a2414", "#6a4228");
+            Bug("b_mantis", "Bọ ngựa", 55, "day", "2,6,10", IconShape.Mantis, "#5fa83a", "#9ad06a");
+            Bug("b_birdwing", "Bướm phượng", 140, "day", "3,6", IconShape.Butterfly, "#1a1a1a", "#f0c020");
+            Bug("b_cabbage", "Bướm cải trắng", 16, "day", "5,10", IconShape.Butterfly, "#3a3a3a", "#f4f4ea");
+            Bug("b_orangebf", "Bướm đốm cam", 34, "day", "8,3", IconShape.Butterfly, "#3a2414", "#f08a2a");
+            Bug("b_bee", "Ong mật", 26, "day", "2,5,10", IconShape.Bee, "#e0a020", "#eef4f8");
+            Bug("b_giantbug", "Cà cuống", 150, "night", "7", IconShape.Beetle, "#5a4a2e", "#8a7a5a");
 
             // ---- ca (FISH: gia, do kho, noi song, gio) ----
             Fish("f_trout", "Cá mú san hô", 90, 3, "trop", "any", IconShape.TropicalFish, "#e86a4a", "#ffd0a0");

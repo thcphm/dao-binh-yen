@@ -43,6 +43,7 @@ namespace SereneIsle
         {
             Instance = this;
             Fishing = gameObject.AddComponent<Fishing>();
+            if (!Critters.Instance) gameObject.AddComponent<Critters>();
             _cursor = TileCursor.Create();
             _cursor.transform.SetParent(transform, false);
         }
@@ -130,7 +131,7 @@ namespace SereneIsle
                 case "axe": case "pick": UseAxePick(tool, k); return;
                 case "shovel": UseShovel(k); return;
                 case "hoe": case "can": case "seed": s.Say($"{s.Items.NameOf(tool)} sẽ dùng được khi có vườn ruộng."); return;
-                case "net": s.Say("Vợt sẽ dùng được khi có côn trùng trên đảo."); return;
+                case "net": UseNet(); return;
                 default: s.Say($"{s.Items.NameOf(tool)}: chưa dùng được."); return;
             }
         }
@@ -245,6 +246,28 @@ namespace SereneIsle
                 if (d.ObjType[r.idx] == (byte)(r.type + 1)) RemoveObject(r.idx, (WorldObjectType)r.type, r.regrowDay);
                 else RemovedObjects.Add(r);
             }
+        }
+
+        /// <summary>Vot (ban web dong 1427-1429): bat con trung gan nhat phia truoc, tam 1.9 o (vot tot: 2.6).</summary>
+        void UseNet()
+        {
+            var s = S;
+            s.Body.PlayAct("net");
+            if (!s.Stats.UseEnergy(1)) return;
+            var c = Critters.Instance;
+            if (!c) return;
+            var best = c.Nearest(s.Player.transform.position, s.Player.Facing, Lv("net") > 1 ? 2.6f : 1.9f);
+            if (best == null) return;
+            string id = best.id;
+            var at = best.Position;
+            c.Remove(best);
+            s.Give(id, 1, true);
+            bool first = s.Caught.Add(id);
+            var def = s.Items.Get(id);
+            ActionUI.Float($"{def.displayName}!", s.Player.transform.position + Vector3.up * 2.2f, new Color(.78f, 1f, .6f));
+            Debris.Burst(at, def.iconColor2, 5, 1.2f);
+            s.Say($"Bắt được {def.displayName} ({def.price} xu)");
+            if (first) s.Say($"Mới trong sổ sưu tầm: {def.displayName}!");
         }
 
         void UseShovel(int k)

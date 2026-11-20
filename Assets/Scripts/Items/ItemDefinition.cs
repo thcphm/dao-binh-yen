@@ -16,6 +16,8 @@ namespace SereneIsle
         Worm, Shell, Coin, Backpack, Chick, Goat, Cow,
         Campfire, Torch, Fence, PathTile, Sprinkler, Scarecrow,
         ToolShovel, ToolAxe, ToolPick, ToolHoe, ToolCan, ToolSeed, ToolRod, ToolNet, ToolBuild,
+        // them sau (giu thu tu cu vi asset luu so thu tu)
+        Dragonfly, Bee, Mantis, Cicada,
     }
 
     [CreateAssetMenu(menuName = "Serene Isle/Item", fileName = "Item")]
