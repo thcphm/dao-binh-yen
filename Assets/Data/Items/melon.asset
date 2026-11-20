@@ -21,12 +21,12 @@ MonoBehaviour:
   eatWater: 30
   eatEnergy: 18
   icon: 24
-  iconColor: {r: 0.24705882, g: 0.5411765, b: 0.22745098, a: 1}
-  iconColor2: {r: 0.84705883, g: 0.27058825, b: 0.18431373, a: 1}
+  iconColor: {r: 0.22745098, g: 0.47843137, b: 0.19607843, a: 1}
+  iconColor2: {r: 0.24705882, g: 0.5411765, b: 0.22745098, a: 1}
   sprite: {fileID: 0}
   seedOf: 
   bagLevel: 0
   fishDifficulty: 0
   habitats: []
   activeTime: 
-  description: 
+  description: "M\xF9a H\u1EA1, \u0110\xF4ng."

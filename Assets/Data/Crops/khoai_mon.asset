@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d997ac2ebbe8d1b47a5adad6b571302b, type: 3}
+  m_Name: khoai_mon
+  m_EditorClassIdentifier: SereneIsle::SereneIsle.CropDefinition
+  id: khoai_mon
+  displayName: "Khoai m\xF4n"
+  produce: khoai_mon
+  kind: 1
+  seasons: 4
+  perennial: 0
+  growDays: 18
+  regrowDays: 0
+  soils: 10
+  needsPaddy: 0
+  trellis: 0
+  yieldMin: 1
+  yieldMax: 2
+  leafColor: {r: 0.24705882, g: 0.5411765, b: 0.2901961, a: 1}
+  produceColor: {r: 0.72156864, g: 0.627451, b: 0.78431374, a: 1}

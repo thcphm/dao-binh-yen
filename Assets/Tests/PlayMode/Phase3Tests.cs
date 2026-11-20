@@ -75,6 +75,7 @@ namespace SereneIsle.Tests
             s.Player.PlaceAt(stand, face);
 
             // ---- che tao: cuoc chim, can cau ----
+            s.Inventory.BagLevel = 2; // tui da: 24 o, 60 kg - de nhet du vat lieu cho test (tui dau chi 25 kg)
             s.Give("wood", 10, true); s.Give("stone", 6, true); s.Give("fiber", 6, true);
             s.Player.PlaceAt(ts.BenchPosition + new Vector3(1.2f, 0, 0), Mathf.Atan2(-1.2f, 0));
             for (int i = 0; i < 5; i++) yield return null;

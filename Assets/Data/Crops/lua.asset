@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d997ac2ebbe8d1b47a5adad6b571302b, type: 3}
+  m_Name: lua
+  m_EditorClassIdentifier: SereneIsle::SereneIsle.CropDefinition
+  id: lua
+  displayName: "L\xFAa"
+  produce: lua
+  kind: 6
+  seasons: 5
+  perennial: 0
+  growDays: 24
+  regrowDays: 0
+  soils: 10
+  needsPaddy: 1
+  trellis: 0
+  yieldMin: 4
+  yieldMax: 6
+  leafColor: {r: 0.6039216, g: 0.72156864, b: 0.2901961, a: 1}
+  produceColor: {r: 0.8784314, g: 0.7529412, b: 0.3764706, a: 1}

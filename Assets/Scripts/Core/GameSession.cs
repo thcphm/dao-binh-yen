@@ -25,8 +25,6 @@ namespace SereneIsle
         public readonly HashSet<string> Caught = new HashSet<string>();
         /// <summary>O luu tu dong (moi sang ngay moi). &lt; 0 = khong luu (test).</summary>
         public int SaveSlot { get; set; } = -1;
-        /// <summary>Sau khi sang ngay moi (da tinh chi so, cay moc lai, da luu).</summary>
-        public event Action<NewDayReason> DayStarted;
 
         public PlayerController Player { get; set; }
         public IslandCharacter Body { get; set; }
@@ -46,6 +44,13 @@ namespace SereneIsle
         public event Action<string> Toast;
         public event Action<int, string> FadeShown;
         public event Action FadeHidden;
+        /// <summary>Sau khi sang ngay moi (truoc khi man hinh sang lai). Tham so: so ngay.</summary>
+        public event Action<int> DayStarted;
+
+        /// <summary>Vuon ruong, con nuoc (giai doan 3, Docs/ThietKeGameplay.md).</summary>
+        public FarmSystem Farm { get; private set; }
+        public TideSystem Tide { get; private set; }
+        public LunarDate Date => LunarCalendar.Date(Clock.Day);
 
         bool _warn22, _warn225, _kitGiven;
         float _fullToastTime = -10;
@@ -55,6 +60,8 @@ namespace SereneIsle
             Instance = this;
             Inventory = new Inventory(Items);
             Stats.Warning += m => Toast?.Invoke(m);
+            Farm = gameObject.AddComponent<FarmSystem>();
+            Tide = gameObject.AddComponent<TideSystem>();
         }
 
         void OnDestroy() { if (Instance == this) Instance = null; }
@@ -150,9 +157,11 @@ namespace SereneIsle
             if (d.IsTool)
             {
                 if (!OwnedTools.Contains(id)) Say($"Chưa có {d.displayName}. Làm ở bàn chế tạo trong làng.");
-                else if (ToolSystem.Instance) ToolSystem.Instance.Use(id);
+                else if (Farm && Farm.TryUse(d)) { }                         // vuon ruong: cuoc, tuoi, gieo, thu hoach
+                else if (ToolSystem.Instance) ToolSystem.Instance.Use(id);   // riu, cuoc chim, xeng, can cau, vot
                 return;
             }
+            if (d.category == ItemCategory.Seed && Farm && Farm.TryUse(d)) return;
             if (d.IsFood) Consume(id);
         }
 
@@ -208,13 +217,18 @@ namespace SereneIsle
         void GiveStarterKit()
         {
             _kitGiven = true;
-            Give("coconut", 2, true); Give("bottle", 2, true); Give("berry", 6, true); Give("bread", 1, true);
+            // tui ban dau chi 8 o: de trong 2 o cho do nhat duoc (chat cay, dao dat) -> bo dua, banh mi
+            Give("bottle", 2, true); Give("berry", 6, true);
             Give("wood", 6, true); Give("stone", 4, true);
             // ban web: ong Bay trao riu va xeng trong phan huong dan (giai doan 4) - tam thoi co san
             Give("axe", 1, true); Give("shovel", 1, true);
             Hotbar.Assign(9, "bottle");
             Hotbar.Selected = 9;
-            Say("Đồ khởi đầu: rìu, xẻng, dừa, nước, quả mọng, bánh mì. Bấm 1 cầm rìu, F để chặt cây.");
+            // vuon ruong (thu nghiem giai doan 3): cuoc, binh tuoi, tui hat + hat giong mua Xuan
+            Give("hoe", 1, true); Give("can", 1, true); Give("seed", 1, true);
+            Give("seed_cai_be", 6, true); Give("seed_dua_leo", 3, true);
+            if (Farm) Farm.CanWater = FarmSystem.CanCapacity;
+            Say("Đồ khởi đầu: rìu, xẻng, cuốc, bình tưới, hạt giống, nước, quả mọng. Bấm 1 cầm rìu, F để chặt cây.");
         }
 
         /// <summary>Di ngu o leu (sau khi xac nhan): sang ngay moi, tu luu.</summary>
@@ -227,6 +241,21 @@ namespace SereneIsle
         {
             if (SaveSlot < 0) return false;
             return SaveSystem.Save(this, SaveSlot);
+        }
+
+        /// <summary>Toi man hinh, chay apply (tra ve cac dong thong bao), roi sang lai. Dung cho cuu nan, chuyen canh.</summary>
+        public IEnumerator Cutscene(string subtitle, Func<List<string>> apply)
+        {
+            if (Transitioning) yield break;
+            Transitioning = true;
+            FadeShown?.Invoke(Clock.Day, subtitle);
+            yield return new WaitForSecondsRealtime(1.3f);
+            var msgs = apply?.Invoke() ?? new List<string>();
+            yield return new WaitForSecondsRealtime(1.2f);
+            FadeHidden?.Invoke();
+            Transitioning = false;
+            yield return new WaitForSecondsRealtime(.6f);
+            foreach (var m in msgs) Say(m);
         }
 
         // ---------------------------------------------------------------- qua ngay
@@ -242,11 +271,15 @@ namespace SereneIsle
             Coins = coins;
             Clock.StartNewDay();
             _warn22 = _warn225 = false;
+            DayStarted?.Invoke(Clock.Day);
+            var date = Date;
+            string fest = LunarCalendar.Festival(date);
+            if (fest != null) msgs.Add($"Hôm nay là {fest}!");
+            if (date.IsMarketDay) msgs.Add(LunarCalendar.IsBigMarket(date) ? "Hôm nay có phiên chợ lớn." : "Hôm nay có phiên chợ.");
             if (HasHome && Player) Player.PlaceAt(HomePosition, HomeFacing);
             if (Environment) Environment.hour = Clock.Hour;
             if (ToolSystem.Instance) ToolSystem.Instance.Regrow(Clock.Day);
-            if (SaveNow()) msgs.Add("Đã lưu game.");
-            DayStarted?.Invoke(reason);
+            if (SaveNow()) msgs.Add("Đã lưu game."); // sau DayStarted: luu ca vuon ruong da qua ngay
 
             yield return new WaitForSecondsRealtime(1.6f);
             FadeHidden?.Invoke();

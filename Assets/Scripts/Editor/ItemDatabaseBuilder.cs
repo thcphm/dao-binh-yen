@@ -53,6 +53,46 @@ namespace SereneIsle.EditorTools
             EditorUtility.SetDirty(db);
             AssetDatabase.SaveAssets();
             Debug.Log($"[SereneIsle] Da tao {list.Count} item trong {ItemDir} va {DbPath}");
+            BuildCrops();
+        }
+
+        const string CropDir = "Assets/Data/Crops";
+        const string CropDbPath = "Assets/Resources/CropDatabase.asset";
+
+        /// <summary>Giong cay 4 mua: Assets/Data/Crops/&lt;id&gt;.asset + Assets/Resources/CropDatabase.asset.</summary>
+        public static void BuildCrops()
+        {
+            Directory.CreateDirectory(CropDir);
+            AssetDatabase.Refresh();
+            var list = new List<CropDefinition>();
+            foreach (var src in CropCatalogData.CreateAll())
+            {
+                string path = $"{CropDir}/{src.id}.asset";
+                var existing = AssetDatabase.LoadAssetAtPath<CropDefinition>(path);
+                if (existing)
+                {
+                    EditorUtility.CopySerialized(src, existing);
+                    existing.name = src.id;
+                    EditorUtility.SetDirty(existing);
+                    list.Add(existing);
+                    Object.DestroyImmediate(src);
+                }
+                else
+                {
+                    AssetDatabase.CreateAsset(src, path);
+                    list.Add(src);
+                }
+            }
+            var db = AssetDatabase.LoadAssetAtPath<CropDatabase>(CropDbPath);
+            if (!db)
+            {
+                db = ScriptableObject.CreateInstance<CropDatabase>();
+                AssetDatabase.CreateAsset(db, CropDbPath);
+            }
+            db.crops = list;
+            EditorUtility.SetDirty(db);
+            AssetDatabase.SaveAssets();
+            Debug.Log($"[SereneIsle] Da tao {list.Count} giong cay trong {CropDir} va {CropDbPath}");
         }
     }
 }

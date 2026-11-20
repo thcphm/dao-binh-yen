@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: pumpkin
   m_EditorClassIdentifier: SereneIsle::SereneIsle.ItemDefinition
   id: pumpkin
-  displayName: "B\xED ng\xF4"
+  displayName: "B\xED \u0111\u1ECF"
   category: 4
   price: 115
   weight: 4
@@ -29,4 +29,4 @@ MonoBehaviour:
   fishDifficulty: 0
   habitats: []
   activeTime: 
-  description: 
+  description: "M\xF9a Xu\xE2n."

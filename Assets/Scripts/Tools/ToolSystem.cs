@@ -101,6 +101,9 @@ namespace SereneIsle
             {
                 case "axe": case "pick": return o != 0 && WorldObjects.Info((WorldObjectType)(o - 1)).tool == tool;
                 case "shovel": return d.Level[k] != 0 && d.Solid[k] == 0;
+                case "hoe": case "can": case "seed":
+                    var s = S;
+                    return s.Farm && s.Farm.HintFor(s.Items.Get(tool)) != null; // FarmSystem biet o nao cuoc/tuoi/gieo duoc
                 default: return false;
             }
         }
@@ -130,7 +133,7 @@ namespace SereneIsle
             {
                 case "axe": case "pick": UseAxePick(tool, k); return;
                 case "shovel": UseShovel(k); return;
-                case "hoe": case "can": case "seed": s.Say($"{s.Items.NameOf(tool)} sẽ dùng được khi có vườn ruộng."); return;
+                case "hoe": case "can": case "seed": s.Body.PlayAct(tool); return; // vuon ruong (FarmSystem) da xu ly truoc; den day = o khong hop le
                 case "net": UseNet(); return;
                 default: s.Say($"{s.Items.NameOf(tool)}: chưa dùng được."); return;
             }

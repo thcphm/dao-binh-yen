@@ -31,6 +31,9 @@ namespace SereneIsle
         public List<ToolSystem.Removed> removed = new List<ToolSystem.Removed>();
         public CharacterOutfit outfit;
         public bool kitGiven;
+        // vuon ruong (FarmSystem)
+        public List<FarmPlot> farm = new List<FarmPlot>();
+        public int canWater;
     }
 
     public static class SaveSystem
@@ -79,6 +82,7 @@ namespace SereneIsle
                 d.px = p.x; d.pz = p.z; d.facing = s.Player.Facing;
             }
             if (s.Body) d.outfit = s.Body.outfit;
+            if (s.Farm) { d.farm = s.Farm.Snapshot(); d.canWater = s.Farm.CanWater; }
             return d;
         }
 
@@ -132,6 +136,7 @@ namespace SereneIsle
             s.Hotbar.Selected = Mathf.Clamp(d.selected, 0, Hotbar.Size - 1);
             var ts = ToolSystem.Instance;
             if (ts) foreach (var c in d.toolLevels) ts.Levels[c.id] = c.n;
+            if (s.Farm) s.Farm.CanWater = d.canWater;
         }
 
         /// <summary>Ap dung phan can dia hinh (vat the da chat, vi tri nguoi choi) - goi khi dao san sang.</summary>
@@ -139,6 +144,12 @@ namespace SereneIsle
         {
             var ts = ToolSystem.Instance;
             if (ts) ts.RestoreRemoved(d.removed);
+            if (s.Farm && d.farm != null)
+            {
+                // JsonUtility ghi null thanh "" -> tra lai null (o dat trong)
+                foreach (var p in d.farm) { if (string.IsNullOrEmpty(p.crop)) p.crop = null; if (string.IsNullOrEmpty(p.deadReason)) p.deadReason = null; }
+                s.Farm.Restore(d.farm);
+            }
             if (s.Player) s.Player.PlaceAt(new Vector3(d.px, 0, d.pz), d.facing);
         }
     }
