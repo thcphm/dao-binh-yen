@@ -40,6 +40,7 @@ namespace SereneIsle
         public float prep;       // 0..1 ngoi lay da truoc khi nhay
         public float land;       // 0..1 nhun khi tiep dat
         public float time;       // T
+        public float speed;      // toc do di chuyen that (o/giay) - de khop buoc chan animation
         public bool old;
     }
 

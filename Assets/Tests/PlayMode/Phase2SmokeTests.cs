@@ -68,13 +68,14 @@ namespace SereneIsle.Tests
             for (int i = 0; i < 40; i++) yield return null;
             yield return Shot(Path.Combine(dir, "p2_5_nhan_vat.png"));
             var body = s.Body;
-            CollectionAssert.IsSubsetOf(new[] { "shirt", "pants", "shoes", "hat" }, new List<string>(body.ClothingSlots));
-            body.SetClothingColor("shirt", "#d8452f");
-            body.SetClothingVisible("hat", false);
-            Assert.IsFalse(body.IsWearing("hat"));
+            CollectionAssert.IsSubsetOf(new[] { "shirt", "pants", "shoes", "hair" }, new List<string>(body.ClothingSlots));
+            Assert.IsNotNull(body.Hand, "phai co diem cam do (handslot.r)");
+            var o0 = body.outfit.Clone();
+            var o = body.outfit.Clone();
+            o.shirt = "#e46a4e"; o.shorts = !o.shorts; o.longSleeve = !o.longSleeve;
+            body.ApplyOutfit(o);
             yield return Shot(Path.Combine(dir, "p2_6_doi_ao.png"));
-            body.SetClothingVisible("hat", true);
-            body.SetClothingColor("shirt", "#3f7fb0");
+            body.ApplyOutfit(o0);
 
             // chan troi luc 17h: vom troi, mat troi, may
             s.Clock.Minutes = 17 * 60;

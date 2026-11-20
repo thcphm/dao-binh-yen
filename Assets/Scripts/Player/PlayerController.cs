@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace SereneIsle
 {
-    [RequireComponent(typeof(ChibiCharacter))]
+    [RequireComponent(typeof(IslandCharacter))]
     public class PlayerController : MonoBehaviour
     {
         [Header("Toc do (o/giay, giong ban web)")]
@@ -33,7 +33,7 @@ namespace SereneIsle
         /// <summary>He so toc do khi het nang luong (ban web: x0.6).</summary>
         public float SpeedMultiplier { get; set; } = 1f;
 
-        ChibiCharacter _body;
+        IslandCharacter _body;
         float _x, _y, _z, _vy, _rot, _prep, _land, _landAmt, _walk, _speed, _time;
         bool _ground = true, _placed;
 
@@ -41,7 +41,7 @@ namespace SereneIsle
 
         void Awake()
         {
-            _body = GetComponent<ChibiCharacter>();
+            _body = GetComponent<IslandCharacter>();
         }
 
         /// <summary>Dat nhan vat len dao (ban web: arriveStart).</summary>
@@ -127,6 +127,7 @@ namespace SereneIsle
                 prep = _prep > 0 ? 1 - _prep / jumpPrep : 0,
                 land = _land > 0 ? Mathf.Sin(_land / .24f * Mathf.PI) * _landAmt : 0,
                 time = _time,
+                speed = Moving ? _speed : 0,
             });
         }
 

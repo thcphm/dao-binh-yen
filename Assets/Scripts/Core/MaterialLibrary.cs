@@ -92,6 +92,16 @@ namespace SereneIsle
 
         public static Material Solid(string hex) => Solid(Hex(hex));
 
+        /// <summary>Material moi dung texture bang mau (nhan vat KayKit). Moi nhan vat 1 cai vi bang mau rieng.</summary>
+        public static Material Textured(Texture2D tex, string name)
+        {
+            var m = new Material(Lambert) { name = name };
+            m.SetColor("_BaseColor", Color.white);
+            m.SetTexture("_BaseMap", tex);
+            m.SetFloat("_VertexColorWeight", 0f);
+            return m;
+        }
+
         public static Material NewWater()
         {
             var m = new Material(WaterShader) { name = "SI_Water" };

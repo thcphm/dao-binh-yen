@@ -78,8 +78,8 @@ namespace SereneIsle
             {
                 var pgo = new GameObject("Player");
                 pgo.SetActive(false);
-                var body = pgo.AddComponent<ChibiCharacter>();
-                body.look = female ? CharacterLook.Female() : CharacterLook.Male();
+                var body = pgo.AddComponent<IslandCharacter>();
+                body.outfit = female ? CharacterOutfit.Female() : CharacterOutfit.Male();
                 Player = pgo.AddComponent<PlayerController>();
                 pgo.SetActive(true);
             }
@@ -87,7 +87,7 @@ namespace SereneIsle
             CameraRig.target = Player.transform;
             env.followTarget = Player.transform;
             Session.Player = Player;
-            Session.Body = Player.GetComponent<ChibiCharacter>();
+            Session.Body = Player.GetComponent<IslandCharacter>();
             Session.Environment = env;
 
             // ---- giao dien ----

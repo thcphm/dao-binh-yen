@@ -23,7 +23,7 @@ namespace SereneIsle
         public readonly HashSet<string> OwnedTools = new HashSet<string>();
 
         public PlayerController Player { get; set; }
-        public ChibiCharacter Body { get; set; }
+        public IslandCharacter Body { get; set; }
         public IslandEnvironment Environment { get; set; }
 
         public Vector3 HomePosition { get; private set; }

@@ -8,6 +8,7 @@ Shader "SereneIsle/WebLambert"
     Properties
     {
         [MainColor] _BaseColor ("Base Color", Color) = (1, 1, 1, 1)
+        [MainTexture] _BaseMap ("Base Map (bang mau nhan vat)", 2D) = "white" {}
         _VertexColorWeight ("Vertex Color Weight", Range(0, 1)) = 1
         [Toggle(_SWAY)] _Sway ("Lay theo gio", Float) = 0
         _OcclusionFade ("Thua khi che nhan vat", Range(0, 1)) = 0
@@ -21,7 +22,11 @@ Shader "SereneIsle/WebLambert"
         HLSLINCLUDE
         #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
 
+        TEXTURE2D(_BaseMap);
+        SAMPLER(sampler_BaseMap);
+
         CBUFFER_START(UnityPerMaterial)
+            float4 _BaseMap_ST;
             half4 _BaseColor;
             half _VertexColorWeight;
             half _Sway;
@@ -64,6 +69,7 @@ Shader "SereneIsle/WebLambert"
                 float4 positionOS : POSITION;
                 float3 normalOS   : NORMAL;
                 half4  color      : COLOR;
+                float2 uv         : TEXCOORD0;
                 UNITY_VERTEX_INPUT_INSTANCE_ID
             };
 
@@ -72,6 +78,7 @@ Shader "SereneIsle/WebLambert"
                 float4 positionCS : SV_POSITION;
                 float3 positionWS : TEXCOORD0;
                 float3 normalWS   : TEXCOORD1;
+                float2 uv         : TEXCOORD2;
                 half3  color      : COLOR;
                 UNITY_VERTEX_INPUT_INSTANCE_ID
             };
@@ -86,6 +93,7 @@ Shader "SereneIsle/WebLambert"
                 o.positionWS = p.positionWS;
                 o.normalWS = TransformObjectToWorldNormal(input.normalOS);
                 o.color = lerp(half3(1, 1, 1), input.color.rgb, _VertexColorWeight);
+                o.uv = TRANSFORM_TEX(input.uv, _BaseMap);
                 return o;
             }
 
@@ -95,7 +103,9 @@ Shader "SereneIsle/WebLambert"
                 SI_OcclusionClip(i.positionWS, i.positionCS.xy, _OcclusionFade);
 
                 float3 n = normalize(i.normalWS);
-                half3 albedo = i.color * SI_ToSRGB(_BaseColor.rgb);
+                // texture sRGB duoc GPU doi sang linear khi lay mau -> doi nguoc ve sRGB de tinh nhu ban web
+                half3 tex = SI_ToSRGB(SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, i.uv).rgb);
+                half3 albedo = i.color * tex * SI_ToSRGB(_BaseColor.rgb);
 
                 float4 shadowCoord = TransformWorldToShadowCoord(i.positionWS);
                 Light sun = GetMainLight(shadowCoord);

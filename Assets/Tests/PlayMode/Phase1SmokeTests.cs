@@ -48,8 +48,8 @@ namespace SereneIsle.Tests
             Assert.AreEqual(data.GroundHeight(p.x, p.z), p.y, .01f, "nhan vat phai cham mat cau tau");
             Assert.IsTrue(player.Grounded);
 
-            var renderers = player.GetComponentsInChildren<MeshRenderer>();
-            Assert.Greater(renderers.Length, 30, "nhan vat chibi phai duoc dung tu nhieu khoi");
+            var renderers = player.GetComponentsInChildren<SkinnedMeshRenderer>();
+            Assert.GreaterOrEqual(renderers.Length, 6, "nhan vat KayKit: than, dau, 2 tay, 2 chan (skinned)");
             foreach (var r in renderers) Assert.AreEqual("SereneIsle/WebLambert", r.sharedMaterial.shader.name);
 
             var chunks = IslandTerrain.Instance.GetComponentsInChildren<MeshRenderer>();
