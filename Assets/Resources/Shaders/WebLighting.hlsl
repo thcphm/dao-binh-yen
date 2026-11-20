@@ -27,6 +27,8 @@ void SI_OcclusionClip(float3 wpos, float2 pixel, half enabled)
     float r = _SI_FadeR > 0 ? _SI_FadeR : 2.2;
     float f = (1 - smoothstep(r * .55, r, d)) * smoothstep(0, .12, t) * (1 - smoothstep(.86, .97, t))
             * smoothstep(_SI_Player.y - .5, _SI_Player.y + .4, wpos.y);
+    // camera lot vao tan cay (cay Quaternius cao ngang tam camera): thua dan phan nam sat camera
+    f = max(f, 1 - smoothstep(1.8, 3.5, length(wpos - _SI_Cam.xyz)));
     if (f > 0)
     {
         float2 q = fmod(floor(pixel), 4.0);

@@ -21,6 +21,8 @@ namespace SereneIsle
         {
             public string name;
             public Mesh mesh;
+            public int submesh;       // mo hinh Quaternius: than (vo cay) va la la 2 submesh
+            public int variant;       // bien the mo hinh (CommonTree_1..5...)
             public Material mat;
             public MaterialPropertyBlock props;
             public bool lodOnly;      // chi ve o tier 1 (LOD cay to)
@@ -38,6 +40,11 @@ namespace SereneIsle
         byte[] _tier;   // 0 an, 1 LOD, 2 day du, 3 day du + bong
         bool[] _grassOn;
 
+        [Tooltip("Dung mo hinh Quaternius (Resources/NatureKit) cho cac loai co san")]
+        public bool useNatureKit = true;
+
+        /// <summary>So loai cay/da dang dung mo hinh Quaternius.</summary>
+        public int KitTypes { get; private set; }
         public int VisibleInstances { get; private set; }
         public int TotalObjects { get; private set; }
         public int TotalGrass { get; private set; }
@@ -54,23 +61,55 @@ namespace SereneIsle
             var objMat = MaterialLibrary.Objects(false);
             var vegMat = MaterialLibrary.Objects(true);
 
-            // ---- cay, da ----
-            var full = new Entry[WorldObjects.Count];
+            // ---- cay, da: mo hinh Quaternius neu co (NatureKit), con lai dung mo hinh tu dung cua ban web ----
+            var kit = useNatureKit ? NatureKit.Instance : null;
+            var full = new List<Entry>[WorldObjects.Count];   // [loai] -> cac entry cua tung bien the (moi submesh 1 entry)
+            var variantOf = new int[WorldObjects.Count];      // so bien the
             var lod = new Entry[WorldObjects.Count];
+            KitTypes = 0;
             for (int t = 0; t < WorldObjects.Count; t++)
             {
                 var type = (WorldObjectType)t;
                 var info = WorldObjects.Info(type);
                 var mesh = WorldObjects.BuildMesh(type);
-                full[t] = NewEntry(type.ToString(), mesh, info.sway ? vegMat : objMat, null);
-                if (info.big) { lod[t] = NewEntry(type + "_lod", WorldObjects.BuildLod(type, mesh), vegMat, null); lod[t].lodOnly = true; }
+                full[t] = new List<Entry>();
+                var set = kit ? kit.Get(type) : null;
+                Mesh lodSource = mesh;
+                Color? lodColor = null;
+                if (set != null)
+                {
+                    float h = mesh.bounds.max.y * set.heightScale;
+                    for (int v = 0; v < set.models.Count; v++)
+                    {
+                        var built = kit.Build(set.models[v], h, info.sway, set.textureOverride, set.tintOverride);
+                        if (built == null) continue;
+                        for (int s = 0; s < built.mesh.subMeshCount; s++)
+                        {
+                            var e = NewEntry($"{type}_{v}_{s}", built.mesh, built.materials[s], null);
+                            e.submesh = s; e.variant = variantOf[t];
+                            full[t].Add(e);
+                        }
+                        if (v == 0) lodSource = built.mesh;
+                        variantOf[t]++;
+                    }
+                    lodColor = set.lodColor;
+                    if (variantOf[t] > 0) KitTypes++;
+                }
+                if (full[t].Count == 0)
+                {
+                    variantOf[t] = 1;
+                    full[t].Add(NewEntry(type.ToString(), mesh, info.sway ? vegMat : objMat, null));
+                }
+                if (info.big) { lod[t] = NewEntry(type + "_lod", WorldObjects.BuildLod(type, lodSource, lodColor), vegMat, null); lod[t].lodOnly = true; }
             }
             foreach (var p in objects)
             {
                 int i = p.idx % d.N, j = p.idx / d.N, c = (j / CH) * _cn + i / CH;
                 var m = Matrix4x4.TRS(new Vector3(i, d.HT[p.idx], j), Quaternion.Euler(0, p.rot * Mathf.Rad2Deg, 0), Vector3.one * p.scale);
-                full[(int)p.type].chunks[c].Add(m);
-                lod[(int)p.type]?.chunks[c].Add(m);
+                int t = (int)p.type;
+                int v = variantOf[t] > 1 ? Mathf.Min(variantOf[t] - 1, (int)(IslandNoise.Hash2(p.idx, 41, d.Seed) * variantOf[t])) : 0;
+                foreach (var e in full[t]) if (e.variant == v) e.chunks[c].Add(m);
+                lod[t]?.chunks[c].Add(m);
             }
             TotalObjects = objects.Count;
 
@@ -227,7 +266,7 @@ namespace SereneIsle
                 matProps = e.props,
             };
             for (int s = 0; s < count; s += MaxBatch)
-                Graphics.RenderMeshInstanced(rp, e.mesh, 0, buf, Mathf.Min(MaxBatch, count - s), s);
+                Graphics.RenderMeshInstanced(rp, e.mesh, e.submesh, buf, Mathf.Min(MaxBatch, count - s), s);
         }
     }
 }

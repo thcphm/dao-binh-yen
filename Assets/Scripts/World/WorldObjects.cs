@@ -225,12 +225,12 @@ namespace SereneIsle
         }
 
         /// <summary>lodGeo: than tru + tan da giac theo kich thuoc that cua cay (cho cay o xa).</summary>
-        public static Mesh BuildLod(WorldObjectType t, Mesh full)
+        public static Mesh BuildLod(WorldObjectType t, Mesh full, Color? leafColor = null)
         {
             var bb = full.bounds;
             float hy = bb.max.y, w = Mathf.Max(bb.size.x, bb.size.z) / 2, cx = bb.center.x, cz = bb.center.z;
             string tc = t == WorldObjectType.Gum ? "#5e4029" : t == WorldObjectType.Baobab ? "#b49a7a" : t == WorldObjectType.ScrewPine ? "#7a6a4a" : "#6b5038";
-            var cc = MaterialLibrary.Hex(Info(t).fx);
+            var cc = leafColor ?? MaterialLibrary.Hex(Info(t).fx);
             var b = new MeshBuilder();
             b.P(Cyl(.09f, .14f, hy * .75f, 5), tc, cx * .3f, hy * .37f, cz * .3f);
             b.Add(IC, Matrix4x4.TRS(new Vector3(cx, hy * .8f, cz), Quaternion.identity, new Vector3(w * .85f, hy * .24f, w * .85f)), cc);
