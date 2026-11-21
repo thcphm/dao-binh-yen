@@ -22,6 +22,12 @@ namespace SereneIsle
         public string deadReason;
         public int fruitTimer;        // cay an trai: dem ngay ra trai
         public bool hasFruit;
+        // ruong nuoc, dat trung, phan bon (muc 4.3 - 4.6)
+        public bool ditch;            // o nay la muong dan nuoc (khong trong cay)
+        public bool lowland;          // dat trung: nuoc rong co the tran toi
+        public bool dike;             // da dap bo bao ngan man
+        public int saltDays;          // con man bao nhieu ngay nua
+        public bool fertilized;       // da bon phan vu nay
 
         public bool Empty => crop == null;
         public bool Wilting => crop != null && !dead && dryDays > 0;
@@ -30,6 +36,9 @@ namespace SereneIsle
     public static class FarmRules
     {
         public const float OffSoilGrowth = .5f;
+        public const float FertilizerBonus = .5f;    // bon phan: lon them nua ngay moi ngay tuoi
+        public const int SaltDays = 7;               // dat nhiem man 7 ngay (rua bang nuoc ngot thi nhanh gap doi)
+        public const int DikeStones = 2;
         public static readonly string[] QualityNames = { "thường", "ngon", "đặc sản" };
 
         public static bool SoilOk(FarmPlot p, CropDefinition c) => Soils.In(c.soils, p.soil);
@@ -51,16 +60,19 @@ namespace SereneIsle
         public static int Quality(FarmPlot p, CropDefinition c)
         {
             bool soil = SoilOk(p, c), care = !p.everDry;
-            return soil && care ? 2 : soil || care ? 1 : 0;
+            int q = soil && care ? 2 : soil || care ? 1 : 0;
+            return p.fertilized ? Math.Max(q, 1) : q;   // bon phan: it nhat hang ngon
         }
 
-        /// <summary>Kiem tra gieo duoc khong. Tra ve loi (tieng Viet) hoac null.</summary>
-        public static string CanPlant(FarmPlot p, CropDefinition c, Season s)
+        /// <summary>Kiem tra gieo duoc khong. flooded: o ke muong / nguon nuoc ngot (ruong nuoc). Tra ve loi hoac null.</summary>
+        public static string CanPlant(FarmPlot p, CropDefinition c, Season s, bool flooded = false)
         {
             if (c == null) return "Hạt này chưa trồng được.";
             if (p == null) return "Gieo hạt trên ô đất đã cuốc.";
+            if (p.ditch) return "Đây là mương nước, gieo ở ô ruộng bên cạnh.";
             if (!p.Empty) return "Ô này đã có cây.";
-            if (c.needsPaddy) return $"{c.displayName} cần ruộng nước (sẽ có ở giai đoạn sau).";
+            if (p.saltDays > 0) return $"Đất còn mặn {p.saltDays} ngày. Tưới nước ngọt để rửa mặn nhanh hơn.";
+            if (c.needsPaddy && !flooded) return $"{c.displayName} cần ruộng ngập nước: cuốc mương dẫn nước ngọt tới sát ô này.";
             if (!c.perennial && !c.InSeason(s))
                 return $"{c.displayName} gieo mùa {CropCatalogData.SeasonText(c.seasons)}, bây giờ là mùa {LunarCalendar.SeasonName(s)}.";
             return null;
@@ -69,13 +81,13 @@ namespace SereneIsle
         public static void Plant(FarmPlot p, CropDefinition c)
         {
             p.crop = c.id; p.growth = 0; p.dryDays = 0; p.everDry = false; p.dead = false; p.deadReason = null;
-            p.fruitTimer = 0; p.hasFruit = false;
+            p.fruitTimer = 0; p.hasFruit = false; p.fertilized = false;
         }
 
         public static void Clear(FarmPlot p)
         {
             p.crop = null; p.growth = 0; p.dryDays = 0; p.everDry = false; p.dead = false; p.deadReason = null;
-            p.fruitTimer = 0; p.hasFruit = false;
+            p.fruitTimer = 0; p.hasFruit = false; p.fertilized = false;
         }
 
         /// <summary>Qua 1 ngay. rained: troi mua (tu tuoi). Tra ve true neu cay vua chet.</summary>
@@ -83,11 +95,13 @@ namespace SereneIsle
         {
             bool wet = p.watered || rained;
             p.watered = false;
+            // dat man nhat dan; tuoi nuoc ngot thi rua nhanh gap doi
+            if (p.saltDays > 0) p.saltDays = Math.Max(0, p.saltDays - (wet ? 2 : 1));
             if (p.Empty || p.dead || c == null) return false;
 
             if (!c.perennial && !c.InSeason(s)) return Kill(p, "trái mùa");
 
-            float step = SoilOk(p, c) ? 1f : OffSoilGrowth;
+            float step = (SoilOk(p, c) ? 1f : OffSoilGrowth) + (p.fertilized ? FertilizerBonus : 0);
             if (c.kind == CropKind.Tree && Mature(p, c))
             {
                 // cay an trai da lon: khong can tuoi, ra trai dung mua
@@ -122,6 +136,76 @@ namespace SereneIsle
             else if (c.regrowDays > 0) { p.growth = Math.Max(0, c.growDays - c.regrowDays); p.everDry = false; p.dryDays = 0; }
             else Clear(p);
             return n;
+        }
+
+        // ------------------------------------------------------------ dat trung, nuoc man (muc 4.6)
+        /// <summary>Muc nuoc cao nhat trong ngay tran toi o dat trung chua dap bo bao: cay chet man, dat man 7 ngay.
+        /// Tra ve true neu o vua bi man.</summary>
+        public static bool SaltFlood(FarmPlot p, float tileHeight, float dayHigh)
+        {
+            if (!p.lowland || p.dike || p.ditch || dayHigh < tileHeight - .02f) return false;
+            p.saltDays = SaltDays;
+            if (!p.Empty && !p.dead) Kill(p, "nhiễm mặn");
+            return true;
+        }
+
+        /// <summary>Bon phan: chi khi o dang co cay song va chua bon vu nay.</summary>
+        public static string CanFertilize(FarmPlot p)
+        {
+            if (p == null || p.ditch) return "Bón phân cho ô đang có cây.";
+            if (p.Empty || p.dead) return "Ô này chưa có cây để bón.";
+            if (p.fertilized) return "Ô này bón phân rồi.";
+            return null;
+        }
+    }
+
+    /// <summary>Mang muong dan nuoc ngot (muc 4.3): muong co nuoc khi noi lien (4 huong) toi o nuoc ngot;
+    /// o ruong canh muong co nuoc hoac canh nuoc ngot thi ngap nuoc (trong lua, sen duoc va tu tuoi moi ngay).</summary>
+    public static class FarmWater
+    {
+        static IEnumerable<int> Neighbors(int k, int n)
+        {
+            int i = k % n, j = k / n;
+            if (i > 0) yield return k - 1;
+            if (i < n - 1) yield return k + 1;
+            if (j > 0) yield return k - n;
+            if (j < n - 1) yield return k + n;
+        }
+
+        /// <summary>Cac o muong dang co nuoc. isFresh(k): o k la nuoc ngot (song, ao, ho).</summary>
+        public static HashSet<int> WetDitches(ICollection<int> ditches, int n, Func<int, bool> isFresh)
+        {
+            var wet = new HashSet<int>();
+            var stack = new Stack<int>();
+            foreach (int k in ditches)
+            {
+                if (wet.Contains(k)) continue;
+                bool source = false;
+                foreach (int q in Neighbors(k, n)) if (isFresh(q)) { source = true; break; }
+                if (!source) continue;
+                wet.Add(k); stack.Push(k);
+                while (stack.Count > 0)
+                {
+                    int c = stack.Pop();
+                    foreach (int q in Neighbors(c, n))
+                        if (ditches.Contains(q) && wet.Add(q)) stack.Push(q);
+                }
+            }
+            return wet;
+        }
+
+        /// <summary>O k ngap nuoc: ke muong co nuoc hoac ke nuoc ngot.</summary>
+        public static bool Flooded(int k, int n, ICollection<int> wetDitches, Func<int, bool> isFresh)
+        {
+            foreach (int q in Neighbors(k, n)) if (wetDitches.Contains(q) || isFresh(q)) return true;
+            return false;
+        }
+
+        /// <summary>Dao muong duoc o k: ke nuoc ngot hoac ke muong khac.</summary>
+        public static bool CanDig(int k, int n, ICollection<int> ditches, Func<int, bool> isFresh)
+        {
+            foreach (int q in Neighbors(k, n)) if (ditches.Contains(q) || isFresh(q)) return true;
+            return false;
         }
     }
 }
