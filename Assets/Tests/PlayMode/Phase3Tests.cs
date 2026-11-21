@@ -70,7 +70,8 @@ namespace SereneIsle.Tests
 
             // ---- cay moc lai sau vai ngay ----
             s.Player.PlaceAt(stand + (stand - new Vector3(tree % d.N, 0, tree / d.N)).normalized * 2, face);
-            Assert.AreEqual(1, ts.Regrow(s.Clock.Day + 8), "cay phai moc lai");
+            // 3-7 ngay, gap doi neu vung chua hoi sinh (suc song < 50) -> toi da 14 ngay
+            Assert.AreEqual(1, ts.Regrow(s.Clock.Day + 15), "cay phai moc lai");
             Assert.AreEqual((byte)(treeType + 1), d.ObjType[tree]);
             s.Player.PlaceAt(stand, face);
 
