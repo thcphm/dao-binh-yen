@@ -109,6 +109,7 @@ namespace SereneIsle
             if (!Hud.GetComponent<MarketUI>()) Hud.gameObject.AddComponent<MarketUI>();
 
             // ---- lang chai: dung truoc khi tai do da dat tu file luu (nha chiem cho truoc) ----
+            if (!Animals.Instance) Session.gameObject.AddComponent<Animals>();
             var village = Village.Instance ? Village.Instance : Session.gameObject.AddComponent<Village>();
             if (Terrain.IsReady) village.Build();
             else Terrain.Ready += _ => village.Build();

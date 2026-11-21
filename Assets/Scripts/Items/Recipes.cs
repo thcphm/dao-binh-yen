@@ -30,6 +30,8 @@ namespace SereneIsle
             R("path", "Lát nền đá, đi lại đẹp", ("stone", 2)),
             R("scarecrow", "Đứng canh ruộng", ("wood", 4), ("fiber", 3)),
             R("sprinkler", "Mỗi sáng tưới 8 ô quanh nó", ("ore", 3), ("stone", 4)),
+            R("chuong_ga", "Nuôi được 4 con gà (mua giống ở Bác Chín Đò)", ("wood", 20), ("fiber", 8)),
+            R("chuong_trau", "Nuôi được 2 con trâu, bò hoặc dê", ("wood", 40), ("stone", 12)),
         };
 
         public static Recipe Get(string id) => All.FirstOrDefault(r => r.id == id);

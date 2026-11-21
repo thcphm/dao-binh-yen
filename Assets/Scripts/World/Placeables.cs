@@ -14,12 +14,12 @@ namespace SereneIsle
         public static Placeables Instance { get; private set; }
 
         /// <summary>Thu tu R doi mon (ban web: PLACEABLES).</summary>
-        public static readonly string[] Types = { "campfire", "torch", "fence", "path", "sprinkler", "scarecrow" };
+        public static readonly string[] Types = { "campfire", "torch", "fence", "path", "sprinkler", "scarecrow", "chuong_ga", "chuong_trau" };
 
         /// <summary>Do cao de nhay qua (ban web: PLH). Bu nhin = khong nhay qua duoc.</summary>
         public static float JumpTop(string type) => type switch
         {
-            "fence" => .9f, "campfire" => .55f, "torch" => 1.05f, "path" => 0, "sprinkler" => .45f, _ => 9f,
+            "fence" => .9f, "campfire" => .55f, "torch" => 1.05f, "path" => 0, "sprinkler" => .45f, _ => 9f, // bu nhin, chuong: khong nhay qua
         };
 
         /// <summary>So den diem bat cung luc (gan nguoi choi nhat). URP Forward: 4 den / vat the.</summary>
@@ -299,6 +299,30 @@ namespace SereneIsle
                     b.P(LowPolyShapes.Cylinder(.15f, .17f, .14f, 10), "#9a6534", 0, 1.74f, 0);
                     b.Box("#e6c25a", -.52f, 1.0f, 0, .1f, .18f, .1f);
                     b.Box("#e6c25a", .52f, 1.0f, 0, .1f, .18f, .1f);
+                    break;
+                case "chuong_ga":
+                    // chuong ga san: 4 chan, san tre, vach nan, mai la, cau thang ga
+                    foreach (var (x, z) in new[] { (-.38f, -.32f), (.38f, -.32f), (-.38f, .32f), (.38f, .32f) }) b.Box("#7a5232", x, .35f, z, .06f, .7f, .06f);
+                    b.Box("#a8803a", 0, .42f, 0, .86f, .05f, .74f);
+                    for (int k = 0; k < 6; k++) b.Box(k % 2 == 1 ? "#c8a06a" : "#b8904a", -.36f + k * .144f, .66f, -.34f, .12f, .44f, .04f);
+                    b.Box("#c8a06a", -.42f, .66f, 0, .04f, .44f, .7f);
+                    b.Box("#c8a06a", .42f, .66f, 0, .04f, .44f, .7f);
+                    b.Box("#c8a06a", -.22f, .66f, .35f, .4f, .44f, .04f);
+                    b.Box("#3a2a1a", .2f, .62f, .36f, .22f, .26f, .02f);                        // cua chuong
+                    b.Add(ProceduralMeshes.Prism(3, 1, 1, "TentPrism"), Matrix4x4.TRS(new Vector3(0, 1.02f, 0), Quaternion.Euler(0, 90, 0) * Quaternion.Euler(-90, 0, 0), new Vector3(.6f, 1.05f, .32f)), MaterialLibrary.Hex("#b5523a"));
+                    b.Box("#8a6038", .2f, .22f, .62f, .16f, .04f, .55f, -.75f, 0, 0);            // cau thang
+                    b.P(LowPolyShapes.Cylinder(.12f, .1f, .08f, 8), "#8a6a40", -.25f, .04f, .55f); // mang an
+                    break;
+                case "chuong_trau":
+                    // mai che (chuong trau bo): 4 cot, mai la doc, mang co, rom
+                    foreach (var (x, z) in new[] { (-.45f, -.4f), (.45f, -.4f), (-.45f, .4f), (.45f, .4f) }) b.Box("#6b4a2a", x, .75f, z, .08f, 1.5f, .08f);
+                    b.Box("#b89a5a", 0, 1.55f, 0, 1.15f, .06f, 1.05f, .18f, 0, 0);
+                    b.Box("#a8884a", 0, 1.6f, -.1f, 1.2f, .04f, .7f, .18f, 0, 0);
+                    b.Box("#7a5232", 0, .28f, -.38f, .9f, .22f, .22f);                             // mang co
+                    b.Box("#9ab85a", 0, .4f, -.38f, .82f, .05f, .16f);
+                    b.Box("#d8c070", -.2f, .08f, .1f, .5f, .16f, .4f, 0, .3f, 0);                   // rom
+                    b.Box("#e0c878", .25f, .07f, .18f, .4f, .14f, .3f, 0, -.2f, 0);
+                    b.P(LowPolyShapes.Cylinder(.14f, .14f, .3f, 10), "#5a8aa8", .38f, .15f, -.05f); // thung nuoc
                     break;
                 default:
                     b.Box("#c9a46e", 0, .2f, 0, .4f, .4f, .4f);
