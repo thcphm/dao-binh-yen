@@ -277,6 +277,111 @@ namespace SereneIsle.Tests
             GameHud.Instance.SetInventory(false);
         }
 
+        [UnityTest, Timeout(600000)]
+        public IEnumerator RuongNuoc_Muong_BoBao_BonPhan()
+        {
+            yield return Boot();
+            var s = GameSession.Instance;
+            var d = IslandTerrain.Instance.Data;
+            var farm = s.Farm;
+            int[] DX = { 1, -1, 0, 0 }, DZ = { 0, 0, 1, -1 };
+            bool Land(int i, int j) => d.InBounds(i, j) && farm.CanTill(d.Idx(i, j), out _) && d.HT[d.Idx(i, j)] >= TideClock.MaxLevel + .04f;
+            bool Stand(int i, int j) => d.InBounds(i, j) && d.Solid[d.Idx(i, j)] == 0 && d.Walkable(i, j, d.HT[d.Idx(i, j)]);
+
+            // suoi / ao gan thi tran nhat co 2 o dat lien thang hang (A sat nuoc, B sau A)
+            int fa = -1, fb = -1, sa = -1, sb = -1; float best = 1e9f;
+            for (int k = 0; k < d.N * d.N; k++)
+            {
+                if (d.Fresh[k] == 0) continue;
+                int i = k % d.N, j = k / d.N;
+                float dist = Vector2.Distance(new Vector2(i, j), new Vector2(d.CX, d.CZ));
+                if (dist >= best) continue;
+                for (int q = 0; q < 4; q++)
+                {
+                    int ai = i + DX[q], aj = j + DZ[q], bi = ai + DX[q], bj = aj + DZ[q];
+                    int pi = DZ[q], pj = DX[q];                         // huong vuong goc de dung
+                    if (!Land(ai, aj) || !Land(bi, bj) || !Stand(ai + pi, aj + pj) || !Stand(bi + pi, bj + pj)) continue;
+                    if (Mathf.Abs(d.HT[d.Idx(ai, aj)] - d.HT[d.Idx(bi, bj)]) > .3f) continue;
+                    best = dist; fa = d.Idx(ai, aj); fb = d.Idx(bi, bj); sa = d.Idx(ai + pi, aj + pj); sb = d.Idx(bi + pi, bj + pj);
+                    break;
+                }
+            }
+            Assert.GreaterOrEqual(fa, 0, "khong tim duoc cho lam ruong canh suoi");
+            Vector3 P(int k) => new Vector3(k % d.N, d.HT[k], k / d.N);
+
+            s.Inventory.Clear(); s.Inventory.BagLevel = 2;
+            s.Give("seed_lua", 3, true); s.Give("rong_bien", 2, true); s.Give("stone", 4, true); s.Give("seed_cai_be", 4, true);
+            var hoe = s.Items.Get("hoe");
+            // A: cuoc 2 lan -> muong co nuoc
+            Face(s, P(sa), fa); yield return null;
+            Assert.IsTrue(farm.TryUse(hoe)); yield return WaitAct(s);
+            Assert.IsTrue(farm.TryUse(hoe)); yield return WaitAct(s);
+            Assert.IsTrue(farm.PlotAt(fa).ditch, "cuoc lai o canh suoi thanh muong");
+            Assert.IsTrue(farm.DitchWet(fa), "muong noi suoi co nuoc");
+            // B: o ruong sat muong -> ngap nuoc, gieo lua duoc
+            Face(s, P(sb), fb); yield return null;
+            Assert.IsTrue(farm.TryUse(hoe)); yield return WaitAct(s);
+            Assert.IsTrue(farm.Flooded(fb), "o sat muong ngap nuoc");
+            Assert.IsTrue(farm.TryUse(s.Items.Get("seed_lua"))); yield return WaitAct(s);
+            var pb = farm.PlotAt(fb);
+            Assert.AreEqual("lua", pb.crop);
+            Assert.IsTrue(farm.TryUse(s.Items.Get("rong_bien"))); yield return WaitAct(s);
+            Assert.IsTrue(pb.fertilized);
+            Assert.AreEqual(1, s.Inventory.Count("rong_bien"));
+
+            // dat trung ven bien: 2 o canh nhau, 1 o dap bo bao
+            int la = -1, lb = -1; best = 1e9f;
+            for (int k = 0; k < d.N * d.N; k++)
+            {
+                int i = k % d.N, j = k / d.N;
+                if (i + 1 >= d.N || j < 1) continue;
+                int k2 = d.Idx(i + 1, j);
+                bool Low(int q) => farm.CanTill(q, out _) && d.HT[q] > IslandData.SEA + .08f && d.HT[q] < TideClock.MaxLevel - .05f && d.Solid[q] == 0;
+                if (!Low(k) || !Low(k2) || !Stand(i, j - 1) || !Stand(i + 1, j - 1)) continue;
+                float dist = Vector2.Distance(new Vector2(i, j), new Vector2(d.CX, d.CZ));
+                if (dist < best) { best = dist; la = k; lb = k2; }
+            }
+            Assert.GreaterOrEqual(la, 0, "khong co dat trung");
+            foreach (int k in new[] { la, lb })
+            {
+                Face(s, P(k - d.N), k); yield return null;
+                Assert.IsTrue(farm.TryUse(hoe)); yield return WaitAct(s);
+                Assert.IsTrue(farm.PlotAt(k).lowland, "dat trung");
+                Assert.IsTrue(farm.TryUse(s.Items.Get("seed_cai_be"))); yield return WaitAct(s);
+            }
+            Face(s, P(lb - d.N), lb); yield return null;
+            int stones = s.Inventory.Count("stone");
+            Assert.IsTrue(farm.TryUse(s.Items.Get("shovel"))); yield return WaitAct(s);
+            Assert.IsTrue(farm.PlotAt(lb).dike, "dap bo bao");
+            Assert.AreEqual(stones - FarmRules.DikeStones, s.Inventory.Count("stone"));
+            farm.PlotAt(la).watered = farm.PlotAt(lb).watered = true;
+
+            // anh truoc khi ngu
+            var rig = Camera.main.GetComponent<OrbitCamera>();
+            s.Player.PlaceAt(P(sb), 0);
+            rig.pitch = .6f; rig.distance = 6f;
+            s.Clock.Minutes = 9 * 60;
+            for (int i = 0; i < 20; i++) yield return null;
+            yield return GameplayShots.Shot(Path.Combine(ShotDir(), "p3_8_ruong_nuoc.png"));
+
+            // qua ngay 1 -> 2 (nuoc rong): lua tu tuoi (+1.5 vi bon phan), o trung khong bo bao chet man
+            yield return Sleep(s);
+            var lua = CropDatabase.Instance.Get("lua"); var cai = CropDatabase.Instance.Get("cai_be");
+            Assert.AreEqual((FarmRules.SoilOk(pb, lua) ? 1f : .5f) + FarmRules.FertilizerBonus, pb.growth, .001f, "ruong ngap nuoc tu tuoi + bon phan");
+            Assert.IsFalse(pb.Wilting);
+            Assert.IsTrue(farm.PlotAt(la).dead, "dat trung khong bo bao: nuoc rong tran vao");
+            Assert.AreEqual("nhiễm mặn", farm.PlotAt(la).deadReason);
+            Assert.AreEqual(FarmRules.SaltDays, farm.PlotAt(la).saltDays);
+            Assert.IsFalse(farm.PlotAt(lb).dead, "co bo bao thi song");
+            Assert.AreEqual(FarmRules.SoilOk(farm.PlotAt(lb), cai) ? 1f : .5f, farm.PlotAt(lb).growth, .001f);
+
+            Face(s, P(la - d.N), la); yield return null;
+            s.Player.PlaceAt(P(la - d.N + 1), Mathf.PI * .25f);
+            rig.yaw = Mathf.PI; rig.pitch = .6f; rig.distance = 6f;
+            for (int i = 0; i < 20; i++) yield return null;
+            yield return GameplayShots.Shot(Path.Combine(ShotDir(), "p3_9_dat_trung_bo_bao.png"));
+        }
+
         static Renderer FindChunkRenderer(RestorationModel.Region reg, RestorationSystem rs)
         {
             var root = IslandTerrain.Instance.transform.Find("TerrainChunks");

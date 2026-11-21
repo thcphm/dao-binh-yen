@@ -166,7 +166,7 @@ namespace SereneIsle
                 else if (ToolSystem.Instance) ToolSystem.Instance.Use(id);   // riu, cuoc chim, xeng, can cau, vot
                 return;
             }
-            if (d.category == ItemCategory.Seed && Farm && Farm.TryUse(d)) return;
+            if ((d.category == ItemCategory.Seed || FarmSystem.IsFertilizer(d)) && Farm && Farm.TryUse(d)) return;   // gieo hat, bon phan
             if (d.IsFood) Consume(id);
         }
 

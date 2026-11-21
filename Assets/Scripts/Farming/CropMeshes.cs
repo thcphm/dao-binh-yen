@@ -150,6 +150,38 @@ namespace SereneIsle
             return b.ToMesh("crop");
         }
 
+        static Mesh _water, _dike;
+
+        /// <summary>Lop nuoc mong phu kin o (muong co nuoc / ruong ngap nuoc).</summary>
+        public static Mesh WaterSheet
+        {
+            get
+            {
+                if (_water) return _water;
+                var b = new MeshBuilder();
+                P(b, LowPolyShapes.Box, Color.white, Vector3.zero, new Vector3(.94f, .02f, .94f));
+                _water = b.ToMesh("WaterSheet");
+                return _water;
+            }
+        }
+
+        /// <summary>Bo bao: 4 go dat thap quanh o.</summary>
+        public static Mesh DikeRim
+        {
+            get
+            {
+                if (_dike) return _dike;
+                var b = new MeshBuilder();
+                for (int s = 0; s < 4; s++)
+                {
+                    var rot = Quaternion.Euler(0, s * 90, 0);
+                    b.Add(LowPolyShapes.Box, Matrix4x4.TRS(rot * new Vector3(0, .06f, .45f), rot, new Vector3(1f, .14f, .1f)), Color.white);
+                }
+                _dike = b.ToMesh("DikeRim");
+                return _dike;
+            }
+        }
+
         static Mesh _soil;
         /// <summary>O dat da cuoc: khoi .94 x .22 x .94, mat tren cao hon mat dat .04 (ban web: soilIM).</summary>
         public static Mesh Soil
