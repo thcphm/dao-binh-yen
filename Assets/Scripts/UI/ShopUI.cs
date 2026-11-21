@@ -105,8 +105,10 @@ namespace SereneIsle
                 if (!d) continue;
                 var offer = o;
                 var row = Row(d, $"{o.price} xu", d.description);
-                Btn(row, "Mua 1", s.Coins >= o.price && s.Inventory.RoomFor(o.id) > 0, () => Do(Shops.Buy(s, offer, 1, out _)));
-                Btn(row, "Mua 5", s.Coins >= o.price * 5 && s.Inventory.RoomFor(o.id) >= 5, () => Do(Shops.Buy(s, offer, 5, out _)));
+                bool animal = d.category == ItemCategory.Animal;
+                Btn(row, "Mua 1", s.Coins >= o.price && (animal || s.Inventory.RoomFor(o.id) > 0), () => Do(Shops.Buy(s, offer, 1, out _)));
+                if (d.category != ItemCategory.Animal)
+                    Btn(row, "Mua 5", s.Coins >= o.price * 5 && s.Inventory.RoomFor(o.id) >= 5, () => Do(Shops.Buy(s, offer, 5, out _)));
                 _buyList.Add(row);
             }
 

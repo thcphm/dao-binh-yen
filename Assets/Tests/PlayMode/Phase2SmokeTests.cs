@@ -99,7 +99,9 @@ namespace SereneIsle.Tests
             // 23h ma dang o cau tau (xa leu) -> ngat, mat het do, ve leu
             s.Stats.Water = 100;
             s.Clock.Minutes = DayClock.DayEnd - .01f;
-            yield return null; yield return null;
+            // khung hinh nhanh (may ranh) thi 2 khung chua qua 23 gio -> cho toi da 2 giay
+            float tq = Time.realtimeSinceStartup;
+            while (!s.Transitioning && Time.realtimeSinceStartup - tq < 2) yield return null;
             Assert.IsTrue(s.Transitioning, $"phai bat dau chuyen ngay (ui {s.UiOpen}, active {s.Active}, running {s.Running}, phut {s.Clock.Minutes}, ngay {s.Clock.Day})");
             yield return Shot(Path.Combine(dir, "p2_3_chuyen_ngay.png"));
             float t1 = Time.realtimeSinceStartup;

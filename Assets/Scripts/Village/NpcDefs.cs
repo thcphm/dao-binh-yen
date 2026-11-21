@@ -49,7 +49,7 @@ namespace SereneIsle
             },
             new NpcDef
             {
-                id = "chin", name = "Bác Chín Đò", building = "chinhut", wander = 3.5f, fromHour = 5.5f, toHour = 20,
+                id = "chin", name = "Bác Chín Đò", building = "chinhut", shop = Shops.ConGiong, wander = 3.5f, fromHour = 5.5f, toHour = 20,
                 outfit = new CharacterOutfit { model = "Ranger", shirt = "#4f86a6", pants = "#2f3640", shoe = "#5a3a22", skin = "#b07a50", hair = "#2a2422", shorts = true, noBelt = true },
                 hat = true,
                 lines = new[]
@@ -58,6 +58,8 @@ namespace SereneIsle
                     "Ghe thúng này bác đan hồi còn trai tráng đó, chắc lắm.",
                     "Nước lớn là cá vô gần bờ, quăng câu ngay đầu cầu là dính.",
                     "Mỗi tháng bác chạy ghe thư vô đất liền một chuyến. Ai gởi gì thì gởi nghen.",
+                    "Muốn nuôi gà, nuôi trâu thì làm chuồng trước, bác chở giống từ đất liền ra cho.",
+                    "Con trâu là đầu cơ nghiệp đó con. Có trâu thì có phân chuồng bón ruộng.",
                 },
             },
             new NpcDef

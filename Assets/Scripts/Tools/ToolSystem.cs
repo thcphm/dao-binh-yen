@@ -132,6 +132,11 @@ namespace SereneIsle
                 var talk = Village.Instance.NearbyAction(p, out label);
                 if (talk != null) return talk;
             }
+            if (Animals.Instance)
+            {
+                var pet = Animals.Instance.NearbyAction(p, s.Player.Facing, out label);
+                if (pet != null || label != null) return pet ?? (() => { });
+            }
             if (s.HasHome && Flat(p, s.HomePosition) < 2.2f) { label = "E: Đi ngủ"; return () => ActionUI.Instance.AskSleep(); }
             if (HasBench && Flat(p, BenchPosition) < 1.9f) { label = "E: Bàn chế tạo"; return () => ActionUI.Instance.OpenCrafting(); }
             return null;

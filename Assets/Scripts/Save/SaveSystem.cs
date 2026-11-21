@@ -44,6 +44,10 @@ namespace SereneIsle
         public List<ItemCount> crafts = new List<ItemCount>();
         public float marketRep;
         public List<StallSlot> stall = new List<StallSlot>();
+        // thu (giai doan 4c)
+        public PetData pet;
+        public List<FarmAnimal> farmAnimals = new List<FarmAnimal>();
+        public List<string> seenAnimals = new List<string>();
     }
 
     public static class SaveSystem
@@ -83,6 +87,8 @@ namespace SereneIsle
             d.flags.AddRange(s.Flags);
             if (Village.Instance) foreach (var kv in Village.Instance.CraftLevels) d.crafts.Add(new ItemCount { id = kv.Key, n = kv.Value });
             if (Market.Instance) { d.marketRep = Market.Instance.Reputation; d.stall = Market.Instance.Snapshot(); }
+            var an = Animals.Instance;
+            if (an) { d.pet = an.Pet; d.farmAnimals.AddRange(an.Farm); d.seenAnimals.AddRange(an.Seen); }
             var ts = ToolSystem.Instance;
             if (ts)
             {
@@ -152,6 +158,7 @@ namespace SereneIsle
             if (d.flags != null) foreach (var f in d.flags) s.Flags.Add(f);
             if (Village.Instance && d.crafts != null) foreach (var c in d.crafts) Village.Instance.SetCraftLevel(c.id, c.n);
             if (Market.Instance) Market.Instance.Restore(d.stall, d.marketRep);
+            if (Animals.Instance) Animals.Instance.Restore(d.pet, d.farmAnimals, d.seenAnimals);
             if (d.hotbar != null && d.hotbar.Length == Hotbar.Size) s.Hotbar.Load(d.hotbar);
             s.Hotbar.Selected = Mathf.Clamp(d.selected, 0, Hotbar.Size - 1);
             var ts = ToolSystem.Instance;

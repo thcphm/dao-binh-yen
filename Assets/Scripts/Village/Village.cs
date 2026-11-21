@@ -254,7 +254,7 @@ namespace SereneIsle
             if (n.def.shop != null)
             {
                 var shop = n.def.shop;
-                buttons.Add((shop == Shops.TapHoa ? "Mua bán" : "Mua hạt giống", () => OpenShop(n, shop)));
+                buttons.Add((shop == Shops.TapHoa ? "Mua bán" : shop == Shops.ConGiong ? "Mua con giống" : "Mua hạt giống", () => OpenShop(n, shop)));
             }
             if (ApprenticeUI.Instance && System.Linq.Enumerable.Any(Crafts.TaughtBy(n.def.id)))
                 buttons.Add(("Học nghề", () => { _talking = n; n.Talking = true; ApprenticeUI.Instance.Open(n.def.id); }));

@@ -1,0 +1,80 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: af7a99ab2c82d3c46b3bb13f3804bbdb, type: 3}
+  m_Name: AnimalLibrary
+  m_EditorClassIdentifier: SereneIsle::SereneIsle.AnimalLibrary
+  models:
+  - id: Bull
+    prefab: {fileID: 919132149155446097, guid: d5648cb07f4d09641a51ed6d39d835bd, type: 3}
+    avatar: {fileID: 9000000, guid: d5648cb07f4d09641a51ed6d39d835bd, type: 3}
+    clips:
+    - {fileID: -3818105308243361847, guid: d5648cb07f4d09641a51ed6d39d835bd, type: 3}
+    - {fileID: 5845618705403835542, guid: d5648cb07f4d09641a51ed6d39d835bd, type: 3}
+    - {fileID: 7370985682789098114, guid: d5648cb07f4d09641a51ed6d39d835bd, type: 3}
+    - {fileID: 9013133730026320192, guid: d5648cb07f4d09641a51ed6d39d835bd, type: 3}
+    - {fileID: 9203789705941672436, guid: d5648cb07f4d09641a51ed6d39d835bd, type: 3}
+    - {fileID: 4740071466891634567, guid: d5648cb07f4d09641a51ed6d39d835bd, type: 3}
+    - {fileID: 4119872625232273396, guid: d5648cb07f4d09641a51ed6d39d835bd, type: 3}
+    - {fileID: -34225311753368521, guid: d5648cb07f4d09641a51ed6d39d835bd, type: 3}
+    - {fileID: -5105944257485555118, guid: d5648cb07f4d09641a51ed6d39d835bd, type: 3}
+    - {fileID: -4864718358596981803, guid: d5648cb07f4d09641a51ed6d39d835bd, type: 3}
+    - {fileID: -8735307935826674370, guid: d5648cb07f4d09641a51ed6d39d835bd, type: 3}
+    - {fileID: -7666980397028532464, guid: d5648cb07f4d09641a51ed6d39d835bd, type: 3}
+  - id: Cow
+    prefab: {fileID: 919132149155446097, guid: 0e1502b71a52ccd4684f319f401792f8, type: 3}
+    avatar: {fileID: 9000000, guid: 0e1502b71a52ccd4684f319f401792f8, type: 3}
+    clips:
+    - {fileID: 5845618705403835542, guid: 0e1502b71a52ccd4684f319f401792f8, type: 3}
+    - {fileID: -8735307935826674370, guid: 0e1502b71a52ccd4684f319f401792f8, type: 3}
+    - {fileID: -7666980397028532464, guid: 0e1502b71a52ccd4684f319f401792f8, type: 3}
+    - {fileID: -5105944257485555118, guid: 0e1502b71a52ccd4684f319f401792f8, type: 3}
+    - {fileID: -4864718358596981803, guid: 0e1502b71a52ccd4684f319f401792f8, type: 3}
+    - {fileID: -3818105308243361847, guid: 0e1502b71a52ccd4684f319f401792f8, type: 3}
+    - {fileID: -34225311753368521, guid: 0e1502b71a52ccd4684f319f401792f8, type: 3}
+    - {fileID: 4119872625232273396, guid: 0e1502b71a52ccd4684f319f401792f8, type: 3}
+    - {fileID: 4740071466891634567, guid: 0e1502b71a52ccd4684f319f401792f8, type: 3}
+    - {fileID: 9203789705941672436, guid: 0e1502b71a52ccd4684f319f401792f8, type: 3}
+    - {fileID: 9013133730026320192, guid: 0e1502b71a52ccd4684f319f401792f8, type: 3}
+    - {fileID: 7370985682789098114, guid: 0e1502b71a52ccd4684f319f401792f8, type: 3}
+  - id: Deer
+    prefab: {fileID: 919132149155446097, guid: befa2176a673dec4ca92bf34a9a0b2d2, type: 3}
+    avatar: {fileID: 9000000, guid: befa2176a673dec4ca92bf34a9a0b2d2, type: 3}
+    clips:
+    - {fileID: -5105944257485555118, guid: befa2176a673dec4ca92bf34a9a0b2d2, type: 3}
+    - {fileID: -7666980397028532464, guid: befa2176a673dec4ca92bf34a9a0b2d2, type: 3}
+    - {fileID: -8735307935826674370, guid: befa2176a673dec4ca92bf34a9a0b2d2, type: 3}
+    - {fileID: -34225311753368521, guid: befa2176a673dec4ca92bf34a9a0b2d2, type: 3}
+    - {fileID: -4864718358596981803, guid: befa2176a673dec4ca92bf34a9a0b2d2, type: 3}
+    - {fileID: -3818105308243361847, guid: befa2176a673dec4ca92bf34a9a0b2d2, type: 3}
+    - {fileID: 5845618705403835542, guid: befa2176a673dec4ca92bf34a9a0b2d2, type: 3}
+    - {fileID: 7370985682789098114, guid: befa2176a673dec4ca92bf34a9a0b2d2, type: 3}
+    - {fileID: 4740071466891634567, guid: befa2176a673dec4ca92bf34a9a0b2d2, type: 3}
+    - {fileID: 4119872625232273396, guid: befa2176a673dec4ca92bf34a9a0b2d2, type: 3}
+    - {fileID: -3992859531268994507, guid: befa2176a673dec4ca92bf34a9a0b2d2, type: 3}
+    - {fileID: 9013133730026320192, guid: befa2176a673dec4ca92bf34a9a0b2d2, type: 3}
+    - {fileID: 9203789705941672436, guid: befa2176a673dec4ca92bf34a9a0b2d2, type: 3}
+  - id: ShibaInu
+    prefab: {fileID: 919132149155446097, guid: f5d8e84a6c41cd74caed3d663f41ed0a, type: 3}
+    avatar: {fileID: 9000000, guid: f5d8e84a6c41cd74caed3d663f41ed0a, type: 3}
+    clips:
+    - {fileID: 9203789705941672436, guid: f5d8e84a6c41cd74caed3d663f41ed0a, type: 3}
+    - {fileID: 9013133730026320192, guid: f5d8e84a6c41cd74caed3d663f41ed0a, type: 3}
+    - {fileID: 8400692634799720655, guid: f5d8e84a6c41cd74caed3d663f41ed0a, type: 3}
+    - {fileID: -7984107131484065872, guid: f5d8e84a6c41cd74caed3d663f41ed0a, type: 3}
+    - {fileID: 7370985682789098114, guid: f5d8e84a6c41cd74caed3d663f41ed0a, type: 3}
+    - {fileID: 5845618705403835542, guid: f5d8e84a6c41cd74caed3d663f41ed0a, type: 3}
+    - {fileID: 4656682715372376308, guid: f5d8e84a6c41cd74caed3d663f41ed0a, type: 3}
+    - {fileID: -3818105308243361847, guid: f5d8e84a6c41cd74caed3d663f41ed0a, type: 3}
+    - {fileID: -3992859531268994507, guid: f5d8e84a6c41cd74caed3d663f41ed0a, type: 3}
+    - {fileID: -4864718358596981803, guid: f5d8e84a6c41cd74caed3d663f41ed0a, type: 3}
+    - {fileID: -5105944257485555118, guid: f5d8e84a6c41cd74caed3d663f41ed0a, type: 3}
+    - {fileID: -7666980397028532464, guid: f5d8e84a6c41cd74caed3d663f41ed0a, type: 3}

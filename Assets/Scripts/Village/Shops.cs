@@ -16,12 +16,13 @@ namespace SereneIsle
 
     public static class Shops
     {
-        public const string TapHoa = "taphoa", HatGiong = "hatgiong";
+        public const string TapHoa = "taphoa", HatGiong = "hatgiong", ConGiong = "giong";
 
         /// <summary>Hang tap hoa co dinh (ban web: shopBuyList - bottle, pie...).</summary>
         static readonly string[] GroceryStock = { "bottle", "coconut", "pie", "bread" };
 
-        public static string Title(string shop) => shop == HatGiong ? "Sạp hạt giống · Cô Sáu Vườn" : "Tiệm tạp hóa · Thím Tám";
+        public static string Title(string shop) => shop == HatGiong ? "Sạp hạt giống · Cô Sáu Vườn"
+                                                 : shop == ConGiong ? "Con giống chở từ đất liền · Bác Chín Đò" : "Tiệm tạp hóa · Thím Tám";
 
         /// <summary>Gia mua vao cua nguoi choi. Hat giong: dung gia hat; con lai: 1.6 x gia goc.</summary>
         public static int BuyPrice(ItemDefinition d)
@@ -51,6 +52,12 @@ namespace SereneIsle
                     var d = items ? items.Get(id) : null;
                     if (d) list.Add(new ShopOffer { id = id, price = BuyPrice(d) });
                 }
+                return list;
+            }
+            if (shop == ConGiong)
+            {
+                foreach (var a in AnimalDefs.All)
+                    if (a.role == AnimalRole.Farm && items && items.Get(a.calf)) list.Add(new ShopOffer { id = a.calf, price = a.price });
                 return list;
             }
             if (shop != HatGiong || !crops || !items) return list;
@@ -94,6 +101,15 @@ namespace SereneIsle
             ok = false;
             var d = s.Items.Get(o.id);
             if (!d || n <= 0) return null;
+            if (d.category == ItemCategory.Animal)
+            {
+                // con giong: ve thang chuong, khong vao tui
+                if (s.Coins < o.price) return $"Không đủ tiền mua {d.displayName} ({o.price} xu).";
+                if (!Animals.Instance) return null;
+                var msg = Animals.Instance.BuyFarm(o.id, out ok);
+                if (ok) s.Coins -= o.price;
+                return msg;
+            }
             int afford = o.price > 0 ? s.Coins / o.price : n;
             int room = s.Inventory.RoomFor(o.id);
             int k = Math.Min(n, Math.Min(afford, room));

@@ -111,6 +111,8 @@ namespace SereneIsle
             R("a_chick", "Gà con", A, 0, 0, IconShape.Chick, "#ffe066", "#e8913a");
             R("a_goat", "Dê con", A, 0, 0, IconShape.Goat, "#f2ede2", "#8a7a6a");
             R("a_cow", "Bê con", A, 0, 0, IconShape.Cow, "#f6f0e0", "#3a2715");
+            R("a_trau", "Nghé con", A, 0, 0, IconShape.Cow, "#5a5a62", "#d8d0c0");
+            R("phan_chuong", "Phân chuồng", M, 8, .5f, IconShape.Rock, "#6b4a2a", "#4a3220");
 
             // ---- do dat duoc ----
             R("campfire", "Lửa trại", P, 20, 2f, IconShape.Campfire, "#e8913a", "#8a5a2e");
@@ -119,6 +121,8 @@ namespace SereneIsle
             R("path", "Lát đá", P, 4, 2f, IconShape.PathTile, "#bdb4a3", "#8a8478");
             R("sprinkler", "Vòi tưới tự động", P, 40, 1.5f, IconShape.Sprinkler, "#7d8890", "#3d9bd6");
             R("scarecrow", "Bù nhìn", P, 15, 2f, IconShape.Scarecrow, "#e0b84a", "#3f7fb0");
+            R("chuong_ga", "Chuồng gà", P, 60, 4f, IconShape.Fence, "#c8a06a", "#b5523a");
+            R("chuong_trau", "Chuồng trâu bò", P, 120, 6f, IconShape.Fence, "#8a6038", "#b89a5a");
 
             // ---- con trung (BUGS: mau than / canh, gio, biome) ----
             Bug("b_fly", "Bướm xanh", 20, "day", "2,5,6,9,10", IconShape.Butterfly, "#2b5fa8", "#5bb6f0");
