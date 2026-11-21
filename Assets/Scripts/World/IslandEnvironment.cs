@@ -25,6 +25,11 @@ namespace SereneIsle
 
         public Light Sun { get; private set; }
 
+        [Header("Thoi tiet (WeatherSystem dat)")]
+        [Range(0, 1)] public float overcast;   // may u am: toi nang, troi xam, suong day
+        [Range(0, 1)] public float wind;       // gio: cay lay manh (bao = 1)
+        [Range(0, 1)] public float flash;      // chop (giam dan)
+
         // [gio, mau troi, mau nang, cuong do nang, cuong do ambient]
         struct Key { public float h; public Color sky, sun; public float sunI, ambI; }
         static Key K(float h, string sky, string sun, float si, float ai)
@@ -38,7 +43,8 @@ namespace SereneIsle
 
         static readonly int idSky = Shader.PropertyToID("_SI_HemiSky"), idGround = Shader.PropertyToID("_SI_HemiGround"),
                             idFogC = Shader.PropertyToID("_SI_FogColor"), idFogP = Shader.PropertyToID("_SI_FogParams"),
-                            idSkyTop = Shader.PropertyToID("_SI_SkyTop"), idSunDisc = Shader.PropertyToID("_SI_SunDisc");
+                            idSkyTop = Shader.PropertyToID("_SI_SkyTop"), idSunDisc = Shader.PropertyToID("_SI_SunDisc"),
+                            idWind = Shader.PropertyToID("_SI_Wind");
 
         void Awake()
         {
@@ -94,6 +100,22 @@ namespace SereneIsle
             Color sky = Color.LerpUnclamped(a.sky, b.sky, t);
             Color sunC = Color.LerpUnclamped(a.sun, b.sun, t);
             float sunI = a.sunI + (b.sunI - a.sunI) * t, ambI = a.ambI + (b.ambI - a.ambI) * t;
+            // thoi tiet: troi xam theo do sang hien tai, nang yeu, suong day; chop sang loa
+            if (overcast > 0)
+            {
+                float lum = sky.r * .3f + sky.g * .59f + sky.b * .11f;
+                var grey = new Color(lum * .82f + .05f, lum * .86f + .06f, lum * .92f + .08f);
+                sky = Color.Lerp(sky, grey, overcast * .85f);
+                sunC = Color.Lerp(sunC, grey, overcast * .5f);
+                sunI *= 1 - .65f * overcast;
+                ambI *= 1 - .18f * overcast;
+            }
+            if (flash > 0)
+            {
+                sky = Color.Lerp(sky, new Color(.85f, .88f, 1f), flash * .5f);
+                ambI += flash * .45f;
+            }
+            Shader.SetGlobalFloat(idWind, wind);
             Color hemiSky = Color.Lerp(sky, Color.white, .5f);
 
             // huong mat troi
@@ -113,7 +135,8 @@ namespace SereneIsle
             Shader.SetGlobalVector(idSky, new Vector4(hemiSky.r * ambI, hemiSky.g * ambI, hemiSky.b * ambI, 1));
             Shader.SetGlobalVector(idGround, new Vector4(hemiGround.r * ambI, hemiGround.g * ambI, hemiGround.b * ambI, 1));
             Shader.SetGlobalVector(idFogC, new Vector4(sky.r, sky.g, sky.b, 1));
-            Shader.SetGlobalVector(idFogP, new Vector4(fogNear, fogFar, 1, 0));
+            float fogK = 1 - .45f * overcast;
+            Shader.SetGlobalVector(idFogP, new Vector4(fogNear * fogK, fogFar * fogK, 1, 0));
             // vom troi: dinh troi dam hon chan troi; dia mat troi tat sau 19h36 (mat troi da lan)
             float sunUp = h < 19.6f ? Mathf.Clamp01((h - 5.6f) / .6f) * Mathf.Clamp01((19.6f - h) / .8f) : 0;
             // ban ngay dinh troi luon xanh (hoang hon: chan troi cam, tren cao van xanh); dem: toi hon chan troi

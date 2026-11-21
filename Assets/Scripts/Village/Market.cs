@@ -79,9 +79,10 @@ namespace SereneIsle
         // ------------------------------------------------------------------ lich
         public static bool IsMarketDay(int day) => LunarCalendar.Date(day).IsMarketDay;
         public static bool IsBig(int day) => LunarCalendar.IsBigMarket(LunarCalendar.Date(day));
-        public bool IsOpen => S && IsMarketDay(S.Clock.Day) && S.Clock.Hour >= OpenHour && S.Clock.Hour < CloseHour;
-        /// <summary>Bay sap duoc: ngay cho, truoc gio tan.</summary>
-        public bool CanSetUp => S && IsMarketDay(S.Clock.Day) && S.Clock.Hour < CloseHour;
+        public bool IsOpen => S && IsMarketDay(S.Clock.Day) && S.Clock.Hour >= OpenHour && S.Clock.Hour < CloseHour && !Storm;
+        /// <summary>Bay sap duoc: ngay cho, truoc gio tan, khong bao.</summary>
+        public bool CanSetUp => S && IsMarketDay(S.Clock.Day) && S.Clock.Hour < CloseHour && !Storm;
+        static bool Storm => WeatherSystem.Instance && WeatherSystem.Instance.IsStorm;
 
         public bool Attended
         {
@@ -293,6 +294,7 @@ namespace SereneIsle
             var d = s.Items.Get(slot.id);
             int price = PriceOf(d, pct) * k;
             s.Coins += price;
+            Journal.Stat("earn", price);
             slot.n -= k;
             if (slot.n <= 0) Stall.Remove(slot);
             SoldToday += k; EarnedToday += price;

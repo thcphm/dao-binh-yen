@@ -52,6 +52,10 @@ namespace SereneIsle
         public string playerName;
         public float playSeconds;
         public List<MapPin> pins = new List<MapPin>();
+        // giai doan 6: so tay, chai thu, kho bau
+        public List<ItemCount> stats = new List<ItemCount>();
+        public List<ItemCount> miles = new List<ItemCount>();
+        public int journalPages = 1, letters, bottle = -1, treasure = -1;
     }
 
     /// <summary>Tom tat 1 o luu cho man hinh chon o (giai doan 5).</summary>
@@ -140,6 +144,8 @@ namespace SereneIsle
             if (an) { d.pet = an.Pet; d.farmAnimals.AddRange(an.Farm); d.seenAnimals.AddRange(an.Seen); }
             d.playerName = s.PlayerName; d.playSeconds = s.PlaySeconds;
             if (MapUI.Instance) d.pins.AddRange(MapUI.Instance.Pins);
+            if (Journal.Instance) { d.stats = Journal.Instance.SnapshotStats(); d.miles = Journal.Instance.SnapshotMiles(); d.journalPages = Journal.Instance.PagesUnlocked; }
+            if (Bottles.Instance) { d.bottle = Bottles.Instance.Bottle; d.treasure = Bottles.Instance.Treasure; d.letters = Bottles.Instance.LettersRead; }
             var ts = ToolSystem.Instance;
             if (ts)
             {
@@ -213,6 +219,8 @@ namespace SereneIsle
             if (!string.IsNullOrEmpty(d.playerName)) s.PlayerName = d.playerName;
             s.PlaySeconds = d.playSeconds;
             if (MapUI.Instance) MapUI.Instance.SetPins(d.pins);
+            if (Journal.Instance) Journal.Instance.Restore(d.stats, d.miles, d.journalPages);
+            if (Bottles.Instance) Bottles.Instance.Restore(d.bottle, d.treasure, d.letters);
             if (d.hotbar != null && d.hotbar.Length == Hotbar.Size) s.Hotbar.Load(d.hotbar);
             s.Hotbar.Selected = Mathf.Clamp(d.selected, 0, Hotbar.Size - 1);
             var ts = ToolSystem.Instance;

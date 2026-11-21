@@ -244,7 +244,9 @@ namespace SereneIsle
                                                 && (string.IsNullOrEmpty(f.activeTime) || f.activeTime == "any" || (f.activeTime == "night") == night)).ToList();
             if (list.Count == 0) return null;
             float[] W = { 0, 10, 6, 3, 1.2f, .35f };
-            float boost = (RodLevel > 1 ? 1.6f : 1) * (bait ? 1.5f : 1);
+            float boost = (RodLevel > 1 ? 1.6f : 1) * (bait ? 1.5f : 1)
+                          * (WeatherSystem.Instance && WeatherSystem.Instance.Today == WeatherKind.Rain ? 1.25f : 1)   // ban web: mua -> ca hiem x1.25
+                          * (S.Stats.Calm >= 75 ? 1.2f : 1);                                                           // binh yen 75
             int craft = Crafts.Level(Crafts.Fishing); // nghe cau (Bac Chin Do)
             var ws = list.Select(f => W[Mathf.Clamp(f.fishDifficulty, 0, 5)] * (f.fishDifficulty >= 3 ? boost : 1) * Crafts.RareWeight(craft, f.fishDifficulty)).ToList();
             float r = (float)_rng.NextDouble() * ws.Sum();
@@ -295,6 +297,7 @@ namespace SereneIsle
             var s = S; var f = Fish;
             End();
             s.Give(f.id, 1, true);
+            s.Stats.Calm = Mathf.Min(100, s.Stats.Calm + 1); // ban web: moi con ca +1 binh yen
             bool first = s.Caught.Add(f.id);
             ActionUI.Float($"{f.displayName}!", s.Player.transform.position + Vector3.up * 2.2f, f.fishDifficulty >= 4 ? new Color(1, .81f, .29f) : new Color(1, .91f, .66f));
             s.Say($"Câu được {f.displayName} · {Rarity[Mathf.Clamp(f.fishDifficulty, 0, 5)]} · {f.price} xu");

@@ -73,6 +73,14 @@ namespace SereneIsle
             R("stew", "Bí ngô hầm sữa", F, 260, .8f, IconShape.Bowl, "#e8913a", "#c8a070", en: 50, hp: 20, wt: 10);
             R("hotpot", "Lẩu cá chua", F, 220, 1.2f, IconShape.Bowl, "#d8452f", "#7d8890", en: 60, hp: 25, wt: 20);
             R("smoothie", "Sinh tố dừa", F, 45, .5f, IconShape.Cup, "#f6f0e0", "#5fae3e", wt: 45, en: 10);
+            // mon Viet (giai doan 6: nau an o lua trai)
+            R("com", "Cơm trắng", F, 45, .4f, IconShape.Bowl, "#f6f2e6", "#c8a070", en: 30, hp: 4);
+            R("xoi", "Xôi nếp", F, 55, .4f, IconShape.Bowl, "#f2e6c0", "#7a9a4a", en: 38, hp: 5);
+            R("rau_xao", "Rau muống xào tỏi", F, 50, .4f, IconShape.Bowl, "#4f9e3a", "#c8a070", en: 22, hp: 6);
+            R("canh_cai", "Canh cải", F, 40, .5f, IconShape.Bowl, "#7ac24e", "#c8a070", en: 18, wt: 15, hp: 3);
+            R("ca_kho", "Cá kho tộ", F, 75, .5f, IconShape.Bowl, "#8a4a2a", "#5a3a22", en: 45, hp: 12);
+            R("khoai_nuong", "Khoai lang nướng", F, 30, .3f, IconShape.RootRound, "#a8507a", "#5a3a22", en: 20);
+            R("banh_chung", "Bánh chưng", F, 180, .8f, IconShape.Pie, "#3f7a3a", "#d8c890", en: 70, hp: 20);
 
             // ---- nong san + hat giong: sinh tu bang giong cay 4 mua (CropCatalogData) ----
             foreach (var row in CropCatalogData.Rows)

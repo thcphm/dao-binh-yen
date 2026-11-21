@@ -335,6 +335,10 @@ namespace SereneIsle
                 pin.style.backgroundColor = MaterialLibrary.Hex(PinColors[p.c]);
                 _bigMarks.Add(pin);
             }
+            // kho bau (dau X) + chai troi dat
+            var bt = Bottles.Instance;
+            if (bt && bt.Treasure >= 0) { var l = ToLocal(bt.Treasure % d.N, bt.Treasure / d.N); var x = L("bm-x", "X"); x.style.left = l.x; x.style.top = l.y; _bigMarks.Add(x); }
+            if (bt && bt.Bottle >= 0) { var l = ToLocal(bt.Bottle % d.N, bt.Bottle / d.N); var b = E(null, "mini-bottle"); b.style.left = l.x; b.style.top = l.y; _bigMarks.Add(b); }
             // nguoi choi
             var pp = s.Player.transform.position;
             var me = ToLocal(pp.x, pp.z);
@@ -471,6 +475,18 @@ namespace SereneIsle
             _miniMarks.Clear();
             var town = Loc(d.CX, d.CZ);
             if (town.x > 0 && town.y > 0 && town.x < W && town.y < W) { var t = E(null, "mini-town"); t.style.left = town.x; t.style.top = town.y; _miniMarks.Add(t); }
+            var bt = Bottles.Instance;
+            if (bt && bt.Treasure >= 0)
+            {
+                var l = Loc(bt.Treasure % _n, bt.Treasure / _n);
+                l.x = Mathf.Clamp(l.x, 6, W); l.y = Mathf.Clamp(l.y, 6, W);
+                var x = L("bm-x small", "X"); x.style.left = l.x; x.style.top = l.y; _miniMarks.Add(x);
+            }
+            if (bt && bt.Bottle >= 0)
+            {
+                var l = Loc(bt.Bottle % _n, bt.Bottle / _n);
+                if (l.x > 0 && l.y > 0 && l.x < W && l.y < W) { var b = E(null, "mini-bottle"); b.style.left = l.x; b.style.top = l.y; _miniMarks.Add(b); }
+            }
             for (int i = 0; i < Pins.Count; i++)
             {
                 var l = Loc(Pins[i].x, Pins[i].z);

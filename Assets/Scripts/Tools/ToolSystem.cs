@@ -122,7 +122,7 @@ namespace SereneIsle
             }
         }
 
-        Action NearbyAction(out string label)
+        public Action NearbyAction(out string label)
         {
             var s = S;
             var p = s.Player.transform.position;
@@ -137,9 +137,29 @@ namespace SereneIsle
                 var pet = Animals.Instance.NearbyAction(p, s.Player.Facing, out label);
                 if (pet != null || label != null) return pet ?? (() => { });
             }
+            if (Bottles.Instance)
+            {
+                var bottle = Bottles.Instance.NearbyAction(p, out label);
+                if (bottle != null) return bottle;
+            }
+            // lua trai phia truoc / ben canh: nau an, ngoi suoi (ban web: getInteract dong 1448)
+            var front = p + new Vector3(Mathf.Sin(s.Player.Facing), 0, Mathf.Cos(s.Player.Facing)) * .9f;
+            if (P && CookUI.Instance && (IsCampfire(front) || P.Near("campfire", p, 1)))
+            {
+                label = s.Sitting ? "V / đi: đứng dậy" : "E: Nấu ăn · ngồi sưởi lửa";
+                return () => CookUI.Instance.Open();
+            }
             if (s.HasHome && Flat(p, s.HomePosition) < 2.2f) { label = "E: Đi ngủ"; return () => ActionUI.Instance.AskSleep(); }
             if (HasBench && Flat(p, BenchPosition) < 1.9f) { label = "E: Bàn chế tạo"; return () => ActionUI.Instance.OpenCrafting(); }
             return null;
+        }
+
+        bool IsCampfire(Vector3 at)
+        {
+            var d = D;
+            if (d == null || !P) return false;
+            int i = Mathf.RoundToInt(at.x), j = Mathf.RoundToInt(at.z);
+            return d.InBounds(i, j) && P.At(d.Idx(i, j))?.type == "campfire";
         }
 
         static float Flat(Vector3 a, Vector3 b) => Vector2.Distance(new Vector2(a.x, a.z), new Vector2(b.x, b.z));
@@ -362,6 +382,7 @@ namespace SereneIsle
             if (!s.Stats.UseEnergy(2)) return;
             StartCoroutine(AtImpact("shovel", .64f, () =>
             {
+                if (Bottles.Instance && Bottles.Instance.TryDig(k)) return; // kho bau (ban web: digTreasure)
                 int i = k % d.N, j = k / d.N;
                 bool sandy = d.Bio[k] == Biome.Beach;
                 Debris.Burst(new Vector3(i, d.HT[k] + .1f, j), MaterialLibrary.Hex(sandy ? "#e6d29a" : "#8a6a44"), 8, 2);

@@ -27,6 +27,8 @@ namespace SereneIsle
         public static InputAction InteractAction { get; private set; }  // E / B tay cam: ngu, ban che tao, noi chuyen
         public static InputAction CycleAction { get; private set; }     // R / D-pad len: doi mon dat (xay dung)
         public static InputAction MapAction { get; private set; }       // M / Select tay cam: ban do lon
+        public static InputAction SitAction { get; private set; }       // V / D-pad xuong: ngoi nghi, ngoi suoi lua
+        public static InputAction JournalAction { get; private set; }   // J / D-pad phai: so tay
         public static InputAction SlotPrevAction { get; private set; }  // LB
         public static InputAction SlotNextAction { get; private set; }  // RB
         public static InputAction[] SlotActions { get; private set; }   // 1..9, 0
@@ -94,6 +96,10 @@ namespace SereneIsle
             CycleAction.AddBinding("<Keyboard>/r"); CycleAction.AddBinding("<Gamepad>/dpad/up");
             MapAction = Map.AddAction("Map", InputActionType.Button);
             MapAction.AddBinding("<Keyboard>/m"); MapAction.AddBinding("<Gamepad>/select");
+            SitAction = Map.AddAction("Sit", InputActionType.Button);
+            SitAction.AddBinding("<Keyboard>/v"); SitAction.AddBinding("<Gamepad>/dpad/down");
+            JournalAction = Map.AddAction("Journal", InputActionType.Button);
+            JournalAction.AddBinding("<Keyboard>/j"); JournalAction.AddBinding("<Gamepad>/dpad/right");
             CancelAction = Map.AddAction("Cancel", InputActionType.Button);
             CancelAction.AddBinding("<Keyboard>/escape"); CancelAction.AddBinding("<Gamepad>/start");
             SlotPrevAction = Map.AddAction("SlotPrev", InputActionType.Button, "<Gamepad>/leftShoulder");
@@ -142,6 +148,8 @@ namespace SereneIsle
         public static bool InteractPressed { get { Ensure(); return InteractAction.WasPressedThisFrame(); } }
         public static bool CyclePressed { get { Ensure(); return CycleAction.WasPressedThisFrame(); } }
         public static bool MapPressed { get { Ensure(); return MapAction.WasPressedThisFrame(); } }
+        public static bool SitPressed { get { Ensure(); return SitAction.WasPressedThisFrame(); } }
+        public static bool JournalPressed { get { Ensure(); return JournalAction.WasPressedThisFrame(); } }
 
         /// <summary>O hotbar vua bam (0..9) hoac -1.</summary>
         public static int SlotPressed

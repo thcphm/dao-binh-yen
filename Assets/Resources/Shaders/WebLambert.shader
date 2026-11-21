@@ -43,15 +43,21 @@ Shader "SereneIsle/WebLambert"
             half _Desaturate;
         CBUFFER_END
 
-        // gio: dich chuyen trong khong gian vat the, phase theo vi tri goc cua tung cay
+        // gio: dich chuyen trong khong gian vat the, phase theo vi tri goc cua tung cay.
+        // _SI_Wind (thoi tiet, toan cuc, mac dinh 0): bao thi lay nhanh va manh gap ~3.
+        float _SI_Wind;
         float3 SI_ApplySway(float3 posOS)
         {
         #if defined(_SWAY)
             float3 ip = TransformObjectToWorld(float3(0, 0, 0));
             float hg = max(0, posOS.y - .5);
+            float wd = saturate(_SI_Wind);
+            float w = 1 + wd * 2.2;
             float ph = _Time.y * 1.5 + ip.x * .37 + ip.z * .29;
-            posOS.x += (sin(ph) + sin(ph * 2.3) * .3) * .03 * hg * hg;
-            posOS.z += cos(ph * .8) * .025 * hg * hg;
+            // gio giat (nhanh) chi co khi co gio; doi gio khong lam nhay pha
+            float gust = sin(_Time.y * 4.3 + ip.x * .5 + ip.z * .3) * wd;
+            posOS.x += (sin(ph) + sin(ph * 2.3) * .3 + gust + wd * .8) * .03 * w * hg * hg;
+            posOS.z += (cos(ph * .8) + gust * .5) * .025 * w * hg * hg;
         #endif
             return posOS;
         }

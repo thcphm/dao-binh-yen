@@ -1,0 +1,18 @@
+/* So tay (phim J) */
+.journal { width: 860px; }
+.j-head { flex-direction: row; align-items: center; justify-content: space-between; }
+.j-calm { font-size: 14px; color: #3f7a5a; -unity-font-style: bold; }
+.j-tabs { margin: 6px 0 8px 0; }
+.j-section { font-size: 12px; -unity-font-style: bold; color: var(--ochre-d); letter-spacing: 1px; margin: 10px 0 4px 2px; }
+.j-grid { flex-direction: row; flex-wrap: wrap; }
+.j-cell { width: 120px; height: 104px; margin: 0 6px 6px 0; padding: 6px; border-radius: 12px; background-color: var(--paper-2); align-items: center; }
+.j-cell .item-icon { width: 38px; height: 38px; }
+.j-cell.j-unknown { opacity: .55; }
+.j-animal { font-size: 26px; height: 38px; color: #6b4423; -unity-text-align: middle-center; }
+.j-name { font-size: 12px; -unity-font-style: bold; white-space: normal; -unity-text-align: middle-center; }
+.j-info { font-size: 10px; color: var(--ink-2); white-space: normal; -unity-text-align: middle-center; }
+.j-bar { width: 180px; height: 12px; border-radius: 6px; background-color: #e7d3a6; border-width: 2px; border-color: var(--bark); overflow: hidden; }
+.j-bar-fill { position: absolute; left: 0; top: 0; bottom: 0; background-color: #5fb8a0; }
+.j-page { padding: 8px 12px; margin-bottom: 8px; border-radius: 12px; background-color: var(--paper-2); }
+.j-page.j-locked { opacity: .5; }
+.j-text { font-size: 14px; white-space: normal; -unity-font-style: italic; }

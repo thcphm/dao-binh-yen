@@ -133,6 +133,7 @@ namespace SereneIsle
             int got = k * SellPrice(d);
             s.Inventory.Take(id, k);
             s.Coins += got;
+            Journal.Stat("earn", got);
             ok = true;
             return $"Bán {k} {d.displayName}: +{got} xu.";
         }

@@ -100,10 +100,15 @@ namespace SereneIsle
             {
                 float dt = Mathf.Min(.05f, Time.deltaTime);
                 PlaySeconds += Time.unscaledDeltaTime;
-                float gameMinutes = dt * DayClock.MinutesPerSecond;
+                // ngoi suoi lua / ngoi nghi: thoi gian troi nhanh x6 (ban web dong 1878), sap dung day khi di chuyen
+                if (Sitting && (GameInput.Move.sqrMagnitude > .04f || GameInput.JumpPressed)) Stand();
+                float speed = Sitting ? 6f : 1f;
+                float gameMinutes = dt * DayClock.MinutesPerSecond * speed;
                 Clock.Advance(gameMinutes);
-                Stats.Tick(dt, gameMinutes / 60f, Player.Sprinting && Player.Moving);
-                Player.SpeedMultiplier = Stats.Energy <= 0 ? .6f : 1f;
+                Stats.Tick(dt * speed, gameMinutes / 60f, Player.Sprinting && Player.Moving, Sitting, Mathf.FloorToInt(Stats.Calm / 25f));
+                if (Sitting) SitTick(dt);
+                // binh yen 25: di nhanh hon 5% (ban web dong 1887)
+                Player.SpeedMultiplier = (Stats.Energy <= 0 ? .6f : 1f) * (Stats.Calm >= 25 ? 1.05f : 1f);
 
                 if (Clock.Minutes >= 22 * 60 && !_warn22) { _warn22 = true; Say("22 giờ rồi. 23 giờ phải về tới lều, không thì ngất và mất hết đồ trong túi!"); }
                 if (Clock.Minutes >= 22.5f * 60 && !_warn225) { _warn225 = true; Say("Còn 30 phút nữa là 23 giờ. Về lều ngay!"); }
@@ -120,9 +125,43 @@ namespace SereneIsle
             if (Environment) Environment.hour = Clock.Hour;
         }
 
+        // ---------------------------------------------------------------- ngoi nghi (ban web: sitDown / calmUpdate dong 1239-1243)
+        public bool Sitting { get; private set; }
+        float _sitT;
+
+        public void Sit()
+        {
+            if (Sitting || !Player || !Body) return;
+            Sitting = true;
+            _sitT = 0;
+            Body.HoldPose = "Sit_Floor_Idle";
+            Say(NearFire(3) ? "Ngồi sưởi bên lửa trại. Thời gian trôi chậm rãi… (đi để đứng dậy)" : "Ngồi nghỉ một chút. (đi để đứng dậy)");
+        }
+
+        public void Stand()
+        {
+            if (!Sitting) return;
+            Sitting = false;
+            if (Body && Body.HoldPose == "Sit_Floor_Idle") Body.HoldPose = null;
+        }
+
+        public bool NearFire(int r) => Placeables.Instance && Player && Placeables.Instance.Near("campfire", Player.transform.position, r);
+
+        void SitTick(float dt)
+        {
+            _sitT += dt;
+            if (_sitT < 5) return;
+            _sitT = 0;
+            bool fire = NearFire(3);
+            Stats.Calm = Mathf.Min(100, Stats.Calm + (fire ? 1f : .4f));
+            // +5 (ban web +3): thoi gian x6 khi ngoi lam hao nang luong nhanh hon, +3 chi vua bu
+            if (fire) Stats.Energy = Mathf.Min(Stats.EnergyMax, Stats.Energy + 5);
+        }
+
         // ---------------------------------------------------------------- dieu khien
         void HandleInput()
         {
+            if (GameInput.SitPressed) { if (Sitting) Stand(); else Sit(); }
             int s = GameInput.SlotPressed;
             if (s >= 0) SelectSlot(s);
             int cyc = GameInput.SlotCycle;
@@ -192,6 +231,7 @@ namespace SereneIsle
             if (d.category == ItemCategory.Bag) { Inventory.BagLevel = Math.Max(Inventory.BagLevel, d.bagLevel); if (!silent) Say($"Có {d.displayName}: túi {Inventory.Capacity} ô, {Inventory.MaxWeight:0} kg."); return n; }
             int add = Inventory.Give(id, n);
             if (add > 0 && !silent) Say($"+{add} {d.displayName}");
+            Journal.OnGive(d, n);
             if (n > add)
             {
                 Vector3 at = Player ? Player.transform.position : Vector3.zero;
@@ -280,6 +320,7 @@ namespace SereneIsle
         {
             if (Transitioning) yield break;
             Transitioning = true;
+            Stand();
             FadeShown?.Invoke(Clock.Day + 1, DayRules.Subtitle(reason));
             yield return new WaitForSecondsRealtime(1.3f);
 

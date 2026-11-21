@@ -27,7 +27,7 @@ namespace SereneIsle
         UIDocument _doc;
         VisualElement _root, _hud;
         Label _dayLabel, _timeLabel, _coinLabel, _panelSub, _itemInfo, _fadeTitle, _fadeSub;
-        Label _tideLabel, _targetHint, _regionLabel;
+        Label _tideLabel, _targetHint, _regionLabel, _weatherLabel;
         StatIconElement _sun;
         VisualElement _hpFill, _waterFill, _energyFill, _calmFill, _energyRec, _weightFill;
         VisualElement _toasts, _hotbar, _overlay, _grid, _toolsRow, _fade, _ghost, _help;
@@ -109,6 +109,8 @@ namespace SereneIsle
             clock.Add(_timeLabel);
             _tideLabel = L("tide-label");
             clock.Add(_tideLabel);
+            _weatherLabel = L("weather-label");
+            clock.Add(_weatherLabel);
             _regionLabel = L("region-label");
             clock.Add(_regionLabel);
             _hpFill = StatRow(clock, StatIcon.Heart, "hp-fill", out _);
@@ -163,7 +165,8 @@ namespace SereneIsle
             _help.Add(L(null, null, "1–9, 0 hoặc lăn chuột: đổi ô · F / chuột trái: dùng"));
             _help.Add(L(null, null, "Cần câu: giữ F lấy lực, thả để quăng · E: nói chuyện, ngủ, bàn chế tạo"));
             _help.Add(L(null, null, "Xây dựng (9): F đặt đồ, R đổi món · cuốc chim / xẻng: nhặt lại"));
-            _help.Add(L(null, null, "I: túi đồ · kéo chuột phải: xoay · Ctrl+lăn: zoom"));
+            _help.Add(L(null, null, "I: túi đồ · M: bản đồ · J: sổ tay · V: ngồi nghỉ · Esc: tạm dừng"));
+            _help.Add(L(null, null, "Kéo chuột phải: xoay · Ctrl+lăn: zoom"));
             _help.Add(L(null, null, "H: ẩn hướng dẫn"));
             _hud.Add(_help);
 
@@ -286,6 +289,9 @@ namespace SereneIsle
             _tideLabel.text = rising
                 ? $"Nước lên · lớn lúc {TideClock.ClockLabel(TideClock.NextHigh(abs))}"
                 : $"Nước ròng · cạn lúc {TideClock.ClockLabel(TideClock.NextLow(abs))}";
+            var wx = WeatherSystem.Instance;
+            _weatherLabel.style.display = wx ? DisplayStyle.Flex : DisplayStyle.None;
+            if (wx) _weatherLabel.text = $"{WeatherSystem.NameOf(wx.Today)} · mai: {WeatherSystem.NameOf(wx.Tomorrow).ToLowerInvariant()}";
             var reg = s.Restoration ? s.Restoration.Current : null;
             _regionLabel.text = reg != null ? $"{reg.name} · sức sống {Mathf.RoundToInt(reg.vitality)}" : "Ngoài khơi";
             string hint = s.Active && s.Farm ? s.Farm.HintFor(DB.Get(s.Hotbar.SelectedId)) : null;

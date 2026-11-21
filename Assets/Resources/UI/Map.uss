@@ -28,6 +28,10 @@
                  -unity-text-outline-width: 1.5px; -unity-text-outline-color: rgba(30, 20, 10, .85); }
 .bm-pin { position: absolute; width: 18px; height: 18px; border-radius: 9px; translate: -50% -100%; font-size: 11px; -unity-font-style: bold;
           color: #ffffff; -unity-text-align: middle-center; border-width: 2px; border-color: #ffffff; }
+.bm-x { position: absolute; translate: -50% -50%; font-size: 30px; -unity-font-style: bold; color: #ff3b2f;
+        -unity-text-outline-width: 1.5px; -unity-text-outline-color: rgba(40, 15, 5, .95); }
+.bm-x.small { font-size: 16px; }
+.mini-bottle { position: absolute; width: 7px; height: 7px; border-radius: 4px; translate: -50% -50%; background-color: #e8fff6; border-width: 1px; border-color: #3f7a6a; }
 .bm-legend { flex-direction: row; flex-wrap: wrap; margin-top: 8px; max-width: 1040px; }
 .leg-item { flex-direction: row; align-items: center; margin-right: 12px; margin-bottom: 3px; }
 .leg-sw { width: 14px; height: 14px; border-radius: 3px; margin-right: 5px; border-width: 1px; border-color: rgba(0, 0, 0, .3); }

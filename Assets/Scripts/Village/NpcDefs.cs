@@ -37,6 +37,8 @@ namespace SereneIsle
                 },
                 dynamicLine = s =>
                 {
+                    var w = WeatherSystem.Instance;
+                    if (w && (w.DaysToStorm() is int ds && ds >= 0 && ds <= 2 || UnityEngine.Random.value < .35f)) return w.RadioLine();
                     if (Market.IsMarketDay(s.Clock.Day) && s.Clock.Hour < Market.CloseHour)
                         return Market.IsBig(s.Clock.Day) ? "Bữa ni phiên chợ lớn, khách đất liền ra đông lắm. Bày sạp ở nhà lồng chợ mà bán đi con."
                                                          : "Bữa ni họp chợ phiên ở nhà lồng chợ đó. Đem rau cá ra bán, được giá hơn bán cho thím Tám.";

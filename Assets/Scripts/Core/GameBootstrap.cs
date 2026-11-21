@@ -130,9 +130,14 @@ namespace SereneIsle
             if (!Hud.GetComponent<MarketUI>()) Hud.gameObject.AddComponent<MarketUI>();
             if (!Hud.GetComponent<PauseMenu>()) Hud.gameObject.AddComponent<PauseMenu>();
             if (!Hud.GetComponent<MapUI>()) Hud.gameObject.AddComponent<MapUI>();
+            if (!Hud.GetComponent<CookUI>()) Hud.gameObject.AddComponent<CookUI>();
+            if (!Hud.GetComponent<JournalUI>()) Hud.gameObject.AddComponent<JournalUI>();
 
             // ---- lang chai: dung truoc khi tai do da dat tu file luu (nha chiem cho truoc) ----
             if (!Animals.Instance) Session.gameObject.AddComponent<Animals>();
+            if (!WeatherSystem.Instance) Session.gameObject.AddComponent<WeatherSystem>();
+            if (!Journal.Instance) Session.gameObject.AddComponent<Journal>();
+            if (!Bottles.Instance) Session.gameObject.AddComponent<Bottles>();
             var village = Village.Instance ? Village.Instance : Session.gameObject.AddComponent<Village>();
             if (Terrain.IsReady) village.Build();
             else Terrain.Ready += _ => village.Build();

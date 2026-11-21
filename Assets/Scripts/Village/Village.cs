@@ -128,7 +128,8 @@ namespace SereneIsle
             // dan lang co mat theo gio
             foreach (var n in Npcs)
             {
-                bool on = hour >= n.def.fromHour && hour < n.def.toHour;
+                bool storm = WeatherSystem.Instance && WeatherSystem.Instance.IsStorm;
+                bool on = hour >= n.def.fromHour && hour < n.def.toHour && !storm;
                 if (n.gameObject.activeSelf != on)
                 {
                     n.gameObject.SetActive(on);
