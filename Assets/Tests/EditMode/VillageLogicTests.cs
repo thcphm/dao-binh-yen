@@ -37,7 +37,6 @@ namespace SereneIsle.Tests
                 foreach (var c in annual)
                 {
                     Assert.IsTrue(c.InSeason(season), $"ngay {day}: {c.id} phai dung mua {season}");
-                    Assert.IsFalse(c.needsPaddy, "chua co ruong nuoc");
                 }
                 Assert.AreEqual(offers.Count, offers.Select(o => o.id).Distinct().Count(), "khong trung");
                 CollectionAssert.AreEqual(offers.Select(o => o.id), Shops.Offers(Shops.HatGiong, day, Items, Crops).Select(o => o.id), "co dinh trong ngay");
