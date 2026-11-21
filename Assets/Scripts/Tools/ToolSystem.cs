@@ -214,6 +214,7 @@ namespace SereneIsle
             // do / vo
             var drops = WorldObjects.Drops(type, _rng);
             RemoveObject(k, type);
+            if (tool == "axe" && s.Restoration) s.Restoration.Add(k, -1);   // chat cay truong thanh: -1 suc song vung
             Debris.Burst(new Vector3(i, y + .8f, j), fx, 16, 4);
             float ty = s.Player.transform.position.y + 2;
             foreach (var (id, n) in drops)
@@ -231,7 +232,8 @@ namespace SereneIsle
             d.ObjType[k] = 0; d.Solid[k] = 0;
             V?.RemoveObject(k, type);
             _hp.Remove(k); _nuts.Remove(k);
-            if (regrowDay < 0) regrowDay = S.Clock.Day + WorldObjects.RegrowDays(type, _rng);
+            // vung duoi 50 suc song: moc lai cham gap doi (Docs/ThietKeGameplay.md muc 5)
+            if (regrowDay < 0) regrowDay = S.Clock.Day + WorldObjects.RegrowDays(type, _rng) * (S.Restoration ? S.Restoration.RegrowFactor(k) : 1);
             RemovedObjects.Add(new Removed { idx = k, type = (int)type, regrowDay = regrowDay });
         }
 

@@ -34,6 +34,8 @@ namespace SereneIsle
         // vuon ruong (FarmSystem)
         public List<FarmPlot> farm = new List<FarmPlot>();
         public int canWater;
+        // suc song tung vung (RestorationSystem), theo thu tu vung cua dao
+        public float[] vitality;
         // do che tao da dat xuong dat (ban web: sv.pl)
         public List<PlacedItem> placed = new List<PlacedItem>();
         public string buildSel;
@@ -90,6 +92,7 @@ namespace SereneIsle
             if (s.Farm) { d.farm = s.Farm.Snapshot(); d.canWater = s.Farm.CanWater; }
             var pl = Placeables.Instance;
             if (pl) { d.placed = pl.Snapshot(); d.buildSel = pl.Selected; }
+            if (s.Restoration) d.vitality = s.Restoration.Snapshot();
             return d;
         }
 
@@ -161,6 +164,7 @@ namespace SereneIsle
                 foreach (var p in d.farm) { if (string.IsNullOrEmpty(p.crop)) p.crop = null; if (string.IsNullOrEmpty(p.deadReason)) p.deadReason = null; }
                 s.Farm.Restore(d.farm);
             }
+            if (s.Restoration && d.vitality != null && d.vitality.Length > 0) s.Restoration.Restore(d.vitality);
             if (s.Player) s.Player.PlaceAt(new Vector3(d.px, 0, d.pz), d.facing);
         }
     }
