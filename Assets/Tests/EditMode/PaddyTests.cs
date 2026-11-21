@@ -62,6 +62,30 @@ namespace SereneIsle.Tests
         }
 
         [Test]
+        public void Bao_CayNganNgayHu70PhanTram_CayAnTraiRungTrai()
+        {
+            var c = Crop("cai_be");
+            var rng = new System.Random(7);
+            int dead = 0;
+            for (int i = 0; i < 1000; i++)
+            {
+                var p = new FarmPlot { soil = SoilType.Vuon };
+                FarmRules.Plant(p, c);
+                if (FarmRules.StormDamage(p, c, rng) == 1) { dead++; Assert.AreEqual("bão", p.deadReason); }
+            }
+            Assert.That(dead, Is.InRange(650, 750), "khoang 70%");
+
+            var t = Crop("xoai");
+            var tp = new FarmPlot { soil = SoilType.DatDo };
+            FarmRules.Plant(tp, t);
+            tp.growth = t.growDays; tp.hasFruit = true;
+            Assert.AreEqual(2, FarmRules.StormDamage(tp, t, rng));
+            Assert.IsFalse(tp.hasFruit); Assert.IsFalse(tp.dead, "cay van song");
+            Assert.AreEqual(0, FarmRules.StormDamage(new FarmPlot { ditch = true }, c, rng));
+            Assert.AreEqual(0, FarmRules.StormDamage(new FarmPlot(), c, rng), "o trong");
+        }
+
+        [Test]
         public void BonPhan_LonNhanhHon_ItNhatHangNgon()
         {
             var c = Crop("cu_cai");                           // 8 ngay, hop cat pha / phu sa
