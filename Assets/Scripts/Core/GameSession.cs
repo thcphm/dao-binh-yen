@@ -23,6 +23,8 @@ namespace SereneIsle
         public readonly HashSet<string> OwnedTools = new HashSet<string>();
         /// <summary>Ca / bo da tung bat (so suu tam - ban web: G.caught).</summary>
         public readonly HashSet<string> Caught = new HashSet<string>();
+        /// <summary>Co danh dau tien trinh (da gap ong Bay...) - ban web: G.flags.</summary>
+        public readonly HashSet<string> Flags = new HashSet<string>();
         /// <summary>O luu tu dong (moi sang ngay moi). &lt; 0 = khong luu (test).</summary>
         public int SaveSlot { get; set; } = -1;
 

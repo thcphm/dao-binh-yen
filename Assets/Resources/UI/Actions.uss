@@ -3,6 +3,27 @@
 .float-text { position: absolute; translate: -50% -50%; font-size: 20px; -unity-font-style: bold; white-space: nowrap;
               -unity-text-outline-width: 1.5px; -unity-text-outline-color: rgba(58, 39, 21, .85); }
 
+/* ---------- bong thoai dan lang ---------- */
+#bubble { position: absolute; translate: -50% -100%; max-width: 300px; padding: 6px 12px 8px 12px; }
+.bubble-name { font-size: 13px; -unity-font-style: bold; color: #b9661c; }
+.bubble-text { font-size: 15px; white-space: normal; }
+
+/* ---------- cua hang ---------- */
+#shop-overlay { position: absolute; left: 0; top: 0; right: 0; bottom: 0; background-color: rgba(26, 18, 10, .45); align-items: center; justify-content: center; }
+#shop { width: 820px; max-height: 88%; background-color: var(--paper); border-width: 4px; border-bottom-width: 8px; border-color: var(--bark); border-radius: 20px; padding: 18px 20px 16px 20px; }
+.shop-cols { flex-direction: row; flex-shrink: 1; }
+.shop-col { flex-grow: 1; flex-basis: 0; flex-shrink: 1; margin: 0 6px; }
+.shop-col ScrollView { flex-shrink: 1; max-height: 420px; }
+.shop-head { font-size: 15px; -unity-font-style: bold; color: var(--ink-2); margin: 6px 0 4px 2px; }
+.shop-row { flex-direction: row; align-items: center; padding: 4px 6px; margin-bottom: 5px; border-radius: 12px; background-color: var(--paper-2); }
+.shop-row .item-icon { width: 34px; height: 34px; margin-right: 8px; }
+.shop-text { flex-grow: 1; flex-shrink: 1; }
+.shop-name { font-size: 14px; -unity-font-style: bold; white-space: normal; }
+.shop-price { font-size: 13px; color: #8a4f12; }
+.shop-btn { margin: 0 0 0 4px; min-width: 52px; padding: 2px 8px; font-size: 13px; }
+.shop-btn:disabled { opacity: .45; }
+.shop-empty { font-size: 13px; color: var(--ink-2); white-space: normal; margin: 6px; }
+
 #prompt { position: absolute; bottom: 112px; left: 50%; translate: -50% 0; padding: 4px 16px; font-size: 18px; -unity-font-style: bold; }
 
 /* ---------- cau ca ---------- */

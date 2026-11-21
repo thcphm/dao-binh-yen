@@ -104,6 +104,12 @@ namespace SereneIsle
             Hud = FindAnyObjectByType<GameHud>();
             if (!Hud) Hud = new GameObject("HUD").AddComponent<GameHud>();
             if (!Hud.GetComponent<ActionUI>()) Hud.gameObject.AddComponent<ActionUI>();
+            if (!Hud.GetComponent<ShopUI>()) Hud.gameObject.AddComponent<ShopUI>();
+
+            // ---- lang chai: dung truoc khi tai do da dat tu file luu (nha chiem cho truoc) ----
+            var village = Village.Instance ? Village.Instance : Session.gameObject.AddComponent<Village>();
+            if (Terrain.IsReady) village.Build();
+            else Terrain.Ready += _ => village.Build();
 
             if (save != null)
             {

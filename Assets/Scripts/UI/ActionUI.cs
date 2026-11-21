@@ -51,6 +51,14 @@ namespace SereneIsle
             _floats = E("floats");
             _layer.Add(_floats);
 
+            // bong thoai tren dau dan lang (ban web: say(), dong 1168)
+            _bubble = E("bubble", "chip");
+            _bubbleName = L("bubble-name");
+            _bubbleText = L("bubble-text");
+            _bubble.Add(_bubbleName); _bubble.Add(_bubbleText);
+            _bubble.style.display = DisplayStyle.None;
+            _floats.Add(_bubble);
+
             _prompt = E("prompt", "chip");
             _promptLabel = L(null);
             _prompt.Add(_promptLabel);
@@ -121,6 +129,7 @@ namespace SereneIsle
             if (!_built) return;
             var s = S;
             UpdateFloats();
+            UpdateBubble();
             if (!s) return;
 
             if (CraftOpen && GameInput.CancelPressed) CloseCrafting();
@@ -201,6 +210,56 @@ namespace SereneIsle
             var size = f.label.panel.visualTree.layout.size;
             f.label.style.left = vp.x * size.x;
             f.label.style.top = (1 - vp.y) * size.y;
+        }
+
+        // ------------------------------------------------------------------ bong thoai
+        VisualElement _bubble;
+        Label _bubbleName, _bubbleText;
+        Transform _bubbleTarget;
+        float _bubbleT;
+
+        /// <summary>Hien 1 cau tren dau nhan vat trong 'secs' giay (chi 1 bong cung luc, nhu ban web).</summary>
+        public static void Bubble(Transform target, string text, float secs = 4)
+        {
+            var me = Instance;
+            if (!me || !me._built || !target) return;
+            me._bubbleTarget = target;
+            me._bubbleT = secs;
+            var npc = target.GetComponent<Npc>();
+            me._bubbleName.text = npc && npc.def != null ? npc.def.name : "";
+            me._bubbleName.style.display = me._bubbleName.text.Length > 0 ? DisplayStyle.Flex : DisplayStyle.None;
+            me._bubbleText.text = text;
+            me.UpdateBubble();
+        }
+
+        public static void ClearBubble()
+        {
+            var me = Instance;
+            if (me) me._bubbleT = 0;
+        }
+
+        public string BubbleText => _bubbleT > 0 && _bubbleText != null ? _bubbleText.text : null;
+
+        void UpdateBubble()
+        {
+            if (_bubble == null) return;
+            _bubbleT -= Time.deltaTime;
+            var cam = Camera.main;
+            var s = S;
+            bool show = _bubbleT > 0 && _bubbleTarget && _bubbleTarget.gameObject.activeInHierarchy && cam && _bubble.panel != null
+                        && !(s && s.Player && Vector3.Distance(s.Player.transform.position, _bubbleTarget.position) > 9);
+            if (show)
+            {
+                var vp = cam.WorldToViewportPoint(_bubbleTarget.position + Vector3.up * 1.75f);
+                show = vp.z > 0;
+                if (show)
+                {
+                    var size = _bubble.panel.visualTree.layout.size;
+                    _bubble.style.left = vp.x * size.x;
+                    _bubble.style.top = (1 - vp.y) * size.y;
+                }
+            }
+            _bubble.style.display = show ? DisplayStyle.Flex : DisplayStyle.None;
         }
 
         // ------------------------------------------------------------------ hop thoai

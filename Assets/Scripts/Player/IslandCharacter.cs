@@ -155,6 +155,30 @@ namespace SereneIsle
             }
         }
 
+        /// <summary>Gan 1 vat (non la...) len dinh dau, theo xuong dau. sink: thut xuong tu dinh dau (o).</summary>
+        public Transform AttachToHead(Mesh mesh, Material mat, float sink = .08f)
+        {
+            if (!Model) { Debug.LogWarning("[SereneIsle] AttachToHead: chua co mo hinh"); return null; }
+            var head = FindDeep(Model, "head") ?? FindDeep(Model, "Head");
+            if (!head) { Debug.LogWarning("[SereneIsle] AttachToHead: khong thay xuong dau"); return null; }
+            float top = 0;
+            foreach (var r in _renderers)
+            {
+                if (OutfitBuilder.PartOf(r.name) != "Head" || !r.sharedMesh || !r.sharedMesh.isReadable) continue;
+                foreach (var v in r.sharedMesh.vertices) top = Mathf.Max(top, ModelHeight(r, v));
+            }
+            if (top <= 0) { Debug.LogWarning($"[SereneIsle] AttachToHead: khong do duoc dinh dau ({_renderers.Count} renderer)"); return null; }
+            float worldTop = Model.TransformPoint(new Vector3(0, top, 0)).y;
+            var go = new GameObject("hat");
+            go.transform.position = new Vector3(head.position.x, worldTop - sink, head.position.z);
+            go.transform.rotation = transform.rotation;
+            go.AddComponent<MeshFilter>().sharedMesh = mesh;
+            var mr = go.AddComponent<MeshRenderer>();
+            mr.sharedMaterial = mat;
+            go.transform.SetParent(head, true);
+            return go.transform;
+        }
+
         /// <summary>Cac mon doi mau duoc (giu ten cu cho HUD/test): shirt, pants, shoes, skin, hair.</summary>
         public IEnumerable<string> ClothingSlots => new[] { "shirt", "pants", "shoes", "skin", "hair" };
 

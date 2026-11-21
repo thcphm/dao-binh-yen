@@ -37,6 +37,7 @@ namespace SereneIsle
         // do che tao da dat xuong dat (ban web: sv.pl)
         public List<PlacedItem> placed = new List<PlacedItem>();
         public string buildSel;
+        public List<string> flags = new List<string>();
     }
 
     public static class SaveSystem
@@ -73,6 +74,7 @@ namespace SereneIsle
             foreach (var kv in s.Inventory.Stacks()) d.inventory.Add(new ItemCount { id = kv.Key, n = kv.Value });
             d.ownedTools.AddRange(s.OwnedTools);
             d.caught.AddRange(s.Caught);
+            d.flags.AddRange(s.Flags);
             var ts = ToolSystem.Instance;
             if (ts)
             {
@@ -137,6 +139,8 @@ namespace SereneIsle
             foreach (var t in d.ownedTools) s.OwnedTools.Add(t);
             s.Caught.Clear();
             foreach (var c in d.caught) s.Caught.Add(c);
+            s.Flags.Clear();
+            if (d.flags != null) foreach (var f in d.flags) s.Flags.Add(f);
             if (d.hotbar != null && d.hotbar.Length == Hotbar.Size) s.Hotbar.Load(d.hotbar);
             s.Hotbar.Selected = Mathf.Clamp(d.selected, 0, Hotbar.Size - 1);
             var ts = ToolSystem.Instance;
