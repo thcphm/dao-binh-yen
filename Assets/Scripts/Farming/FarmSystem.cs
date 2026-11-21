@@ -17,7 +17,13 @@ namespace SereneIsle
         readonly Dictionary<int, FarmPlot> _plots = new Dictionary<int, FarmPlot>();
         readonly Dictionary<int, PlotView> _views = new Dictionary<int, PlotView>();
         readonly System.Random _rng = new System.Random();
+        readonly HashSet<int> _ditches = new HashSet<int>();
+        HashSet<int> _wetDitches = new HashSet<int>();
         Transform _root;
+
+        /// <summary>Phan bon dung truc tiep len o dang co cay: rong bien (bai trieu), ca com (phan ca).</summary>
+        static readonly HashSet<string> Fertilizers = new HashSet<string> { "rong_bien", "f_anch" };
+        public static bool IsFertilizer(ItemDefinition d) => d && Fertilizers.Contains(d.id);
 
         sealed class PlotView
         {
@@ -25,6 +31,7 @@ namespace SereneIsle
             public MeshRenderer soil;
             public MeshFilter cropFilter;
             public MeshRenderer cropRenderer;
+            public GameObject water, dike;
         }
 
         GameSession S => GameSession.Instance;
@@ -56,26 +63,48 @@ namespace SereneIsle
 
         public FarmPlot PlotAt(int k) => _plots.TryGetValue(k, out var p) ? p : null;
 
+        // ---------------------------------------------------------------- muong, ruong nuoc
+        static bool IsFresh(int k) { var d = Data; return d != null && d.Fresh[k] != 0; }
+
+        /// <summary>O k ngap nuoc (ke muong co nuoc / nuoc ngot): trong lua, sen duoc va tu tuoi.</summary>
+        public bool Flooded(int k) { var d = Data; return d != null && FarmWater.Flooded(k, d.N, _wetDitches, IsFresh); }
+        public bool DitchWet(int k) => _wetDitches.Contains(k);
+
+        void RecomputeWater()
+        {
+            var d = Data;
+            if (d == null) return;
+            _ditches.Clear();
+            foreach (var p in _plots.Values) if (p.ditch) _ditches.Add(p.k);
+            _wetDitches = FarmWater.WetDitches(_ditches, d.N, IsFresh);
+            foreach (var k in _plots.Keys) Refresh(k);
+        }
+
         /// <summary>Goi y tren HUD cho o phia truoc (ban web: hintFor).</summary>
         public string HintFor(ItemDefinition held)
         {
             int k = TargetTile();
             if (k < 0) return null;
             var p = PlotAt(k);
+            if (p != null && p.ditch) return DitchWet(k) ? "Mương có nước" : "Mương khô: nối tới suối, ao hồ để có nước";
             var c = p != null ? Crops.Get(p.crop) : null;
             if (c != null)
             {
                 if (p.dead) return $"{c.displayName} đã chết ({p.deadReason}). Cuốc lại để dọn.";
                 if (FarmRules.Harvestable(p, c)) return $"Thu hoạch {c.displayName}";
+                if (IsFertilizer(held) && !p.fertilized) return $"Bón {held.displayName.ToLowerInvariant()} cho {c.displayName}";
                 string w = c.kind == CropKind.Tree && FarmRules.Mature(p, c)
                     ? (c.InSeason(CurrentSeason) ? "đang ra trái" : $"ra trái mùa {CropCatalogData.SeasonText(c.seasons)}")
-                    : p.watered ? "đã tưới" : p.dryDays > 0 ? "đang héo, cần tưới ngay" : "cần tưới";
-                return $"{c.displayName}: {Mathf.FloorToInt(p.growth)}/{c.growDays} ngày · {w}";
+                    : Flooded(k) ? "ruộng ngập nước" : p.watered ? "đã tưới" : p.dryDays > 0 ? "đang héo, cần tưới ngay" : "cần tưới";
+                return $"{c.displayName}: {Mathf.FloorToInt(p.growth)}/{c.growDays} ngày · {w}" + (p.fertilized ? " · đã bón" : "");
             }
+            if (p != null && p.saltDays > 0) return $"Đất mặn còn {p.saltDays} ngày";
             if (!held) return null;
-            if (held.id == "hoe" && p == null) return CanTill(k, out _) ? $"Cuốc đất ({Soils.Name(SoilAt(k))})" : null;
-            if (held.id == "can") return IsWater(k) ? "Đổ đầy bình tưới" : p != null && !p.watered ? $"Tưới nước ({CanWater} lượt)" : null;
-            if (p != null && p.Empty && (held.category == ItemCategory.Seed || held.id == "seed")) return "Gieo hạt";
+            if (held.id == "hoe" && p == null) return CanTill(k, out _) ? $"Cuốc đất ({Soils.Name(SoilAt(k))}{(IsLowland(k) ? ", đất trũng" : "")})" : null;
+            if (held.id == "hoe" && p != null && p.Empty && !p.dead && FarmWater.CanDig(k, Data.N, _ditches, IsFresh)) return "Cuốc mương dẫn nước";
+            if (held.id == "shovel" && p != null && p.lowland && !p.dike) return $"Đắp bờ bao ngăn mặn ({FarmRules.DikeStones} đá)";
+            if (held.id == "can") return IsWater(k) || (p != null && p.ditch && DitchWet(k)) ? "Đổ đầy bình tưới" : p != null && !p.watered ? $"Tưới nước ({CanWater} lượt)" : null;
+            if (p != null && p.Empty && (held.category == ItemCategory.Seed || held.id == "seed")) return Flooded(k) ? "Gieo hạt (ruộng nước)" : "Gieo hạt";
             return null;
         }
 
@@ -106,13 +135,42 @@ namespace SereneIsle
                 case "shovel":
                 case "pick":
                     if (p == null) return false;            // de dung cu khac (dao dat, dap da) xu ly
+                    if (held.id == "shovel" && p.lowland && !p.dike && !p.ditch) { BuildDike(k, p); return true; }
                     if (body) body.PlayAct(held.id);
                     RemovePlot(k);
-                    S.Say(p.Empty ? "Đã lấp ô đất." : "Đã nhổ cây trồng.");
+                    if (p.ditch) RecomputeWater();
+                    S.Say(p.ditch ? "Đã lấp mương." : p.Empty ? "Đã lấp ô đất." : "Đã nhổ cây trồng.");
                     return true;
             }
+            if (IsFertilizer(held)) { Fertilize(k, p, held); return true; }
             if (held.category == ItemCategory.Seed) { Plant(k, p, held); return true; }
             return false;
+        }
+
+        bool IsLowland(int k) => Data.HT[k] < TideClock.MaxLevel + .04f;
+
+        /// <summary>Dap bo bao quanh o dat trung (muc 4.6): ton 2 da, nuoc rong khong tran vao nua.</summary>
+        void BuildDike(int k, FarmPlot p)
+        {
+            if (!S.Inventory.Has("stone", FarmRules.DikeStones)) { S.Say($"Cần {FarmRules.DikeStones} đá để đắp bờ bao ngăn mặn. Muốn lấp ô thì dùng cuốc chim."); return; }
+            if (!S.Stats.UseEnergy(3)) { S.Say("Hết sức rồi."); return; }
+            S.Inventory.Take("stone", FarmRules.DikeStones);
+            if (S.Body) S.Body.PlayAct("shovel");
+            p.dike = true;
+            Refresh(k);
+            S.Say("Đã đắp bờ bao: nước rong không tràn vào ô này nữa.");
+        }
+
+        void Fertilize(int k, FarmPlot p, ItemDefinition fert)
+        {
+            string err = FarmRules.CanFertilize(p);
+            if (err != null) { S.Say(err); return; }
+            if (!S.Inventory.Has(fert.id)) { S.Say($"Hết {fert.displayName}."); return; }
+            S.Inventory.Take(fert.id);
+            if (S.Body) S.Body.PlayAct("seed");
+            p.fertilized = true;
+            Refresh(k);
+            S.Say($"Đã bón {fert.displayName.ToLowerInvariant()}: cây lớn nhanh hơn, nông sản ít nhất hạng ngon.");
         }
 
         public SoilType SoilAt(int k)
@@ -130,8 +188,7 @@ namespace SereneIsle
             if (d.Pier[k] != 0 || d.Solid[k] != 0) { why = "Không cuốc được ở đây."; return false; }
             if (Placeables.Instance && Placeables.Instance.At(k) != null) { why = "Ô này đã lát đá. Nhặt đá lên bằng xẻng trước."; return false; }
             if (d.Fresh[k] != 0 || d.HT[k] < IslandData.SEA + .04f) { why = "Dưới nước thì không cuốc được."; return false; }
-            if (d.HT[k] < TideClock.MaxLevel + .04f) { why = "Nước rong tràn tới ô này, cây sẽ chết mặn. Cuốc chỗ cao hơn."; return false; }
-            return true;
+            return true;   // dat trung (nuoc rong tran toi) van cuoc duoc, can dap bo bao de khoi chet man
         }
 
         bool IsWater(int k)
@@ -147,31 +204,44 @@ namespace SereneIsle
             if (p != null)
             {
                 if (p.dead) { if (body) body.PlayAct("hoe"); FarmRules.Clear(p); Refresh(k); S.Say("Đã dọn cây chết."); return; }
-                S.Say(p.Empty ? "Ô này đã cuốc rồi." : "Ô này đang có cây."); return;
+                if (p.ditch) { S.Say("Đây là mương. Dùng xẻng để lấp."); return; }
+                // cuoc lai o trong canh nguon nuoc ngot / muong: thanh muong dan nuoc (muc 4.3)
+                if (p.Empty && FarmWater.CanDig(k, Data.N, _ditches, IsFresh))
+                {
+                    if (!S.Stats.UseEnergy(3)) { S.Say("Hết sức rồi."); return; }
+                    if (body) body.PlayAct("hoe");
+                    p.ditch = true; p.dike = false; p.fertilized = false;
+                    RecomputeWater();
+                    S.Say(DitchWet(k) ? "Đã cuốc mương: nước ngọt chảy vào. Ô ruộng sát mương sẽ ngập nước." : "Đã cuốc mương, nhưng chưa nối tới nguồn nước ngọt.");
+                    return;
+                }
+                S.Say(p.Empty ? "Ô này đã cuốc rồi. Cuốc lại ô cạnh suối hoặc cạnh mương để làm mương." : "Ô này đang có cây."); return;
             }
             if (!CanTill(k, out var why)) { S.Say(why); return; }
             if (!S.Stats.UseEnergy(2)) { S.Say("Hết sức rồi, nghỉ ngơi hoặc ăn gì đó đã."); return; }
             if (body) body.PlayAct("hoe");
-            var plot = new FarmPlot { k = k, soil = SoilAt(k) };
+            var plot = new FarmPlot { k = k, soil = SoilAt(k), lowland = IsLowland(k) };
             _plots[k] = plot;
             HideGrass(k);
             Refresh(k);
+            if (plot.lowland) S.Say($"Đất trũng: nước rong sẽ tràn vào làm cây chết mặn. Dùng xẻng và {FarmRules.DikeStones} đá để đắp bờ bao.");
         }
 
         void Water(int k, FarmPlot p)
         {
             var d = Data;
             var body = S.Body;
-            if (IsWater(k))
+            if (IsWater(k) || (p != null && p.ditch && DitchWet(k)))
             {
-                if (d.Fresh[k] == 0) { S.Say("Nước biển mặn, tưới vào cây sẽ héo. Lấy nước ở suối, ao hồ."); return; }
+                if (d.Fresh[k] == 0 && !(p != null && p.ditch)) { S.Say("Nước biển mặn, tưới vào cây sẽ héo. Lấy nước ở suối, ao hồ."); return; }
                 if (body) body.PlayAct("can");
                 CanWater = CanCapacity;
                 S.Say($"Đã đổ đầy bình tưới ({CanCapacity} lượt).");
                 return;
             }
-            if (p == null) { S.Say("Tưới vào ô đất đã cuốc."); return; }
+            if (p == null || p.ditch) { S.Say("Tưới vào ô đất đã cuốc."); return; }
             if (p.watered) { S.Say("Ô này tưới rồi."); return; }
+            if (Flooded(k)) { S.Say("Ruộng ngập nước, không cần tưới."); return; }
             if (CanWater <= 0) { S.Say("Bình hết nước. Ra suối hoặc ao hồ để đổ đầy."); return; }
             if (!S.Stats.UseEnergy(1)) { S.Say("Hết sức rồi."); return; }
             if (body) body.PlayAct("can");
@@ -193,7 +263,7 @@ namespace SereneIsle
                 var c = Crops.FromSeed(it);
                 if (c == null) continue;
                 any ??= it;
-                if (FarmRules.CanPlant(new FarmPlot(), c, season) == null) { pick = it; break; }
+                if (FarmRules.CanPlant(new FarmPlot(), c, season, Flooded(k)) == null) { pick = it; break; }
             }
             if (!pick && !any) { S.Say("Không còn hạt giống nào trong túi."); return; }
             Plant(k, p, pick ? pick : any);
@@ -203,7 +273,7 @@ namespace SereneIsle
         {
             var c = Crops.FromSeed(seed);
             if (!S.Inventory.Has(seed.id)) { S.Say($"Hết {seed.displayName}."); return; }
-            string err = FarmRules.CanPlant(p, c, CurrentSeason);
+            string err = FarmRules.CanPlant(p, c, CurrentSeason, Flooded(k));
             if (err != null) { S.Say(err); return; }
             S.Inventory.Take(seed.id);
             if (S.Body) S.Body.PlayAct("seed");
@@ -234,15 +304,21 @@ namespace SereneIsle
         {
             var date = LunarCalendar.Date(day);
             var prev = LunarCalendar.Date(Mathf.Max(1, day - 1));
-            int died = 0, offSeason = 0;
+            int died = 0, offSeason = 0, salted = 0;
             var pl = Placeables.Instance;
+            var d = Data;
+            TideClock.DayRange(Mathf.Max(1, day - 1), out _, out float high);   // nuoc lon nhat hom qua
             foreach (var p in _plots.Values)
             {
+                if (p.ditch) continue;
                 var c = Crops.Get(p.crop);
-                bool auto = pl && pl.Sprinkled(p.k);          // voi tuoi: tinh la da tuoi hom qua (ban web dong 1479)
+                // voi tuoi / ruong ngap nuoc: tinh la da tuoi hom qua (ban web dong 1479)
+                bool auto = (pl && pl.Sprinkled(p.k)) || Flooded(p.k);
                 if (auto) p.watered = true;
                 float before = p.growth;
                 if (FarmRules.NewDay(p, c, date.Season)) { died++; if (p.deadReason == "trái mùa") offSeason++; }
+                // nuoc rong hom qua tran vao dat trung chua dap bo bao: man tu hom nay (sau buoc rua man cua NewDay)
+                if (d != null && FarmRules.SaltFlood(p, d.HT[p.k], high)) salted++;
                 // trong cay an trai song qua 3 ngay: +3 suc song vung (muc 5)
                 if (c != null && c.kind == CropKind.Tree && !p.dead && before < 3 && p.growth >= 3 && S.Restoration)
                     S.Restoration.Add(p.k, 3, $"cây {c.displayName.ToLowerInvariant()} bén rễ");
@@ -251,7 +327,9 @@ namespace SereneIsle
             foreach (var k in _plots.Keys) Refresh(k);
             if (date.Season != prev.Season && day > 1) S.Say($"Sang mùa {LunarCalendar.SeasonName(date.Season)}.");
             if (offSeason > 0) S.Say($"{offSeason} cây trái mùa đã tàn.");
-            if (died - offSeason > 0) S.Say($"{died - offSeason} cây chết khô vì quên tưới.");
+            if (salted > 0) S.Say($"Nước rong tràn vào {salted} ô đất trũng chưa đắp bờ bao: đất nhiễm mặn {FarmRules.SaltDays} ngày.");
+            int dry = died - offSeason;   // o bi man da chet truoc khi qua ngay, khong tinh vao day
+            if (dry > 0) S.Say($"{dry} cây chết khô vì quên tưới.");
         }
 
         // ---------------------------------------------------------------- ve
@@ -279,7 +357,35 @@ namespace SereneIsle
                 v.cropRenderer.sharedMaterial = MaterialLibrary.Objects(false);
                 _views[k] = v;
             }
-            v.soil.sharedMaterial = MaterialLibrary.Solid(Soils.Tilled(p.soil, p.watered));
+            bool flooded = !p.ditch && Flooded(k);
+            Color soilCol = Soils.Tilled(p.soil, p.watered || flooded || p.ditch);
+            if (p.saltDays > 0) soilCol = Color.Lerp(soilCol, MaterialLibrary.Hex("#d8d2c4"), .55f);   // dat man: muoi trang
+            v.soil.sharedMaterial = MaterialLibrary.Solid(soilCol);
+            v.soil.transform.localPosition = new Vector3(0, p.ditch ? -.14f : 0, 0);
+            // mat nuoc: muong co nuoc / ruong ngap nuoc
+            bool showWater = (p.ditch && DitchWet(k)) || flooded;
+            if (showWater && !v.water)
+            {
+                v.water = new GameObject("water");
+                v.water.transform.SetParent(v.go.transform, false);
+                v.water.AddComponent<MeshFilter>().sharedMesh = CropMeshes.WaterSheet;
+                var wr = v.water.AddComponent<MeshRenderer>();
+                wr.sharedMaterial = MaterialLibrary.Solid("#5aa6c4");
+                wr.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+            }
+            if (v.water)
+            {
+                v.water.SetActive(showWater);
+                v.water.transform.localPosition = new Vector3(0, p.ditch ? -.05f : .025f, 0);
+            }
+            if (p.dike && !v.dike)
+            {
+                v.dike = new GameObject("dike");
+                v.dike.transform.SetParent(v.go.transform, false);
+                v.dike.AddComponent<MeshFilter>().sharedMesh = CropMeshes.DikeRim;
+                v.dike.AddComponent<MeshRenderer>().sharedMaterial = MaterialLibrary.Solid("#7a6248");
+            }
+            if (v.dike) v.dike.SetActive(p.dike);
             var c = Crops.Get(p.crop);
             if (c == null) { v.cropRenderer.enabled = false; return; }
             v.cropRenderer.enabled = true;
@@ -292,7 +398,8 @@ namespace SereneIsle
         public void Restore(IEnumerable<FarmPlot> plots)
         {
             foreach (var k in new List<int>(_plots.Keys)) RemovePlot(k);
-            foreach (var p in plots) { _plots[p.k] = p; HideGrass(p.k); Refresh(p.k); }
+            foreach (var p in plots) { _plots[p.k] = p; HideGrass(p.k); }
+            RecomputeWater();   // ve lai tat ca o (can biet muong nao co nuoc)
         }
 
         /// <summary>O dat da cuoc thi khong con co / hoa moc xuyen qua.</summary>
