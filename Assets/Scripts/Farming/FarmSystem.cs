@@ -21,8 +21,8 @@ namespace SereneIsle
         HashSet<int> _wetDitches = new HashSet<int>();
         Transform _root;
 
-        /// <summary>Phan bon dung truc tiep len o dang co cay: rong bien (bai trieu), ca com (phan ca).</summary>
-        static readonly HashSet<string> Fertilizers = new HashSet<string> { "rong_bien", "f_anch" };
+        /// <summary>Phan bon dung truc tiep len o dang co cay: rong bien (bai trieu), ca com (phan ca), phan chuong (vat nuoi).</summary>
+        static readonly HashSet<string> Fertilizers = new HashSet<string> { "rong_bien", "f_anch", "phan_chuong" };
         public static bool IsFertilizer(ItemDefinition d) => d && Fertilizers.Contains(d.id);
 
         sealed class PlotView
