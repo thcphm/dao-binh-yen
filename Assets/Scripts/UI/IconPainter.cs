@@ -397,6 +397,69 @@ namespace SereneIsle
                     g.M(11, 7).L(29, 7).L(25, 4).L(15, 4).Z().Fill(Dark(c1, .7f));
                     g.Line(17.5f, 10, 18.5f, 11, Ink, 1.4f); g.Line(21.5f, 11, 22.5f, 10, Ink, 1.4f); break;
 
+                // ---------------- giong cay 4 mua (c1: nong san, c2: la) ----------------
+                case IconShape.LeafGreens:
+                    g.M(20, 36).C(5, 30, 4, 12, 14, 7).C(19, 16, 21, 28, 20, 36).Z().FillStroke(Dark(c1, .85f), Dark(c1, .5f), 1.5f);
+                    g.M(20, 36).C(35, 30, 36, 12, 26, 7).C(21, 16, 19, 28, 20, 36).Z().FillStroke(Dark(c1, .85f), Dark(c1, .5f), 1.5f);
+                    g.M(20, 36).C(11, 26, 12, 8, 20, 4).C(28, 8, 29, 26, 20, 36).Z().FillStroke(c1, Dark(c1, .5f), 1.5f);
+                    g.M(20, 34).Q(19, 20, 20, 8); g.Stroke(Light(c1, .5f), 1.4f); break;
+                case IconShape.Root:
+                    g.M(16, 12).Q(12, 4, 9, 6); g.Stroke(c2, 2.5f);
+                    g.M(20, 12).Q(20, 3, 21, 2); g.Stroke(c2, 2.5f);
+                    g.M(24, 12).Q(29, 4, 32, 7); g.Stroke(c2, 2.5f);
+                    g.M(12, 12).Q(20, 9, 28, 12).Q(26, 26, 20, 38).Q(14, 26, 12, 12).Z().FillStroke(c1, Dark(c1, .55f), 1.8f);
+                    g.Line(15, 18, 19, 18, Dark(c1, .6f), 1.2f); g.Line(21, 24, 24, 24, Dark(c1, .6f), 1.2f); g.Line(17, 29, 20, 29, Dark(c1, .6f), 1.2f); break;
+                case IconShape.RootRound:
+                    g.M(17, 13).Q(13, 4, 8, 6); g.Stroke(c2, 2.5f);
+                    g.M(23, 13).Q(27, 4, 32, 6); g.Stroke(c2, 2.5f);
+                    g.M(20, 13).Q(20, 5, 20, 3); g.Stroke(c2, 2.5f);
+                    g.Line(20, 34, 21, 39, Dark(c1, .55f), 1.5f);
+                    g.Ellipse(20, 24, 11, 10.5f).FillStroke(c1, Dark(c1, .55f), 1.8f);
+                    g.Circle(16, 20, 2).Fill(A(White, .5f)); break;
+                case IconShape.Bulb:
+                    g.Line(20, 12, 18, 3, c2, 2.5f); g.Line(20, 12, 23, 3, c2, 2.5f);
+                    g.M(20, 10).C(31, 16, 34, 33, 20, 35).C(6, 33, 9, 16, 20, 10).Z().FillStroke(c1, Dark(c1, .6f), 1.8f);
+                    g.M(20, 12).Q(15, 24, 18, 34); g.Stroke(Dark(c1, .75f), 1.2f);
+                    g.M(20, 12).Q(25, 24, 22, 34); g.Stroke(Dark(c1, .75f), 1.2f);
+                    g.Line(15, 36, 25, 36, Dark(c1, .5f), 1.2f); break;
+                case IconShape.Corn:
+                    g.M(14, 36).Q(6, 22, 12, 8).Q(15, 22, 20, 36).Z().Fill(c2);
+                    g.Ellipse(21, 19, 7, 15).FillStroke(c1, Dark(c1, .6f), 1.6f);
+                    for (int i = 0; i < 5; i++) { float y = 9 + i * 4.5f; g.Line(16, y, 26, y, Dark(c1, .75f), 1); }
+                    g.Line(21, 5, 21, 33, Dark(c1, .75f), 1);
+                    g.M(28, 36).Q(35, 22, 29, 10).Q(26, 24, 22, 36).Z().Fill(Dark(c2, .85f)); break;
+                case IconShape.Flower:
+                    g.M(20, 38).Q(19, 28, 20, 21); g.Stroke(c2, 2.5f);
+                    g.M(20, 31).Q(12, 26, 9, 30).Q(14, 33, 20, 31).Z().Fill(c2);
+                    for (int i = 0; i < 6; i++)
+                    {
+                        float a = i * Mathf.PI / 3;
+                        g.Circle(20 + Mathf.Cos(a) * 7, 14 + Mathf.Sin(a) * 7, 5).FillStroke(c1, Dark(c1, .6f), 1.2f);
+                    }
+                    g.Circle(20, 14, 4).Fill(Dark(c1, .55f)); break;
+                case IconShape.Gourd:
+                    g.Line(30, 9, 34, 4, c2, 2.5f);
+                    g.M(7, 33).C(9, 17, 25, 6, 31, 8).C(36, 12, 22, 33, 7, 33).Z().FillStroke(c1, Dark(c1, .55f), 1.8f);
+                    g.M(11, 30).Q(20, 21, 29, 11); g.Stroke(Light(c1, .35f), 1.4f); break;
+                case IconShape.Chili:
+                    g.M(26, 9).Q(28, 4, 33, 4); g.Stroke(c2, 2.5f);
+                    g.M(22, 9).L(30, 10).Q(30, 24, 10, 37).Q(16, 24, 22, 9).Z().FillStroke(c1, Dark(c1, .55f), 1.6f);
+                    g.M(23, 13).Q(22, 22, 16, 30); g.Stroke(A(White, .45f), 1.3f); break;
+                case IconShape.Fruit:
+                    g.Line(20, 12, 21, 5, Wood, 2);
+                    g.M(21, 8).Q(27, 2, 34, 6).Q(28, 11, 21, 8).Z().FillStroke(c2, Dark(c2, .6f), 1.2f);
+                    g.Ellipse(20, 23, 12, 12.5f).FillStroke(c1, Dark(c1, .55f), 1.8f);
+                    g.Circle(15, 19, 2.4f).Fill(A(White, .5f)); break;
+                case IconShape.Banana:
+                    g.Line(29, 6, 32, 3, Wood, 2.5f);
+                    g.M(29, 6).Q(34, 28, 8, 34).Q(10, 31, 12, 30).Q(28, 26, 26, 7).Z().FillStroke(c1, Dark(c1, .55f), 1.6f);
+                    g.M(26, 7).Q(30, 26, 12, 33); g.Stroke(Dark(c1, .75f), 1.1f); break;
+                case IconShape.Lotus:
+                    g.Ellipse(20, 33, 15, 4).Fill(c2);
+                    g.M(20, 30).Q(10, 22, 13, 10).Q(19, 18, 20, 30).Z().FillStroke(c1, Dark(c1, .6f), 1.3f);
+                    g.M(20, 30).Q(30, 22, 27, 10).Q(21, 18, 20, 30).Z().FillStroke(c1, Dark(c1, .6f), 1.3f);
+                    g.M(20, 30).Q(14, 18, 20, 6).Q(26, 18, 20, 30).Z().FillStroke(Light(c1, .25f), Dark(c1, .6f), 1.3f); break;
+
                 default:
                     g.Circle(20, 20, 12).FillStroke(c1, o1, 2); break;
             }

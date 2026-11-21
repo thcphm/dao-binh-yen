@@ -18,6 +18,8 @@ namespace SereneIsle
         ToolShovel, ToolAxe, ToolPick, ToolHoe, ToolCan, ToolSeed, ToolRod, ToolNet, ToolBuild,
         // them sau (giu thu tu cu vi asset luu so thu tu)
         Dragonfly, Bee, Mantis, Cicada,
+        // giong cay 4 mua
+        LeafGreens, Root, RootRound, Bulb, Corn, Flower, Gourd, Chili, Fruit, Banana, Lotus,
     }
 
     [CreateAssetMenu(menuName = "Serene Isle/Item", fileName = "Item")]

@@ -216,5 +216,77 @@ namespace SereneIsle.Tests
             Assert.Greater(s.Inventory.Count("wood"), 0, "go van con");
             Assert.IsTrue(d.IsPier(s.Player.transform.position.x, s.Player.transform.position.z), "ve cau tau");
         }
+
+        [UnityTest, Timeout(600000)]
+        public IEnumerator SucSong_RacDatBo_PhaiMau_BieuTuongCay()
+        {
+            yield return Boot();
+            var s = GameSession.Instance;
+            var d = IslandTerrain.Instance.Data;
+            var rs = s.Restoration;
+            Assert.IsNotNull(rs);
+            for (int i = 0; i < 5; i++) yield return null;
+            Assert.IsNotNull(rs.Model, "co du lieu vung");
+            Assert.IsNotNull(rs.Current, "dung tren cau tau thi o 1 vung");
+
+            // rac dat bo quanh nguoi choi
+            var debris = new List<GameObject>();
+            foreach (Transform t in rs.transform) if (t.name.StartsWith("Debris_")) debris.Add(t.gameObject);
+            Assert.Greater(debris.Count, 0, "co rac dat bo");
+
+            // di toi rac -> +1 suc song vung do
+            var dg = debris[0];
+            var p = dg.transform.position;
+            var reg = rs.Model.RegionAt(p.x, p.z);
+            float before = reg.vitality;
+            s.Player.PlaceAt(new Vector3(p.x, 0, p.z), 0);
+            for (int i = 0; i < 5; i++) yield return null;
+            Assert.IsTrue(dg == null, "nhat rac thi rac bien mat");
+            Assert.AreEqual(before + 1, reg.vitality, .001f);
+
+            var rig = Camera.main.GetComponent<OrbitCamera>();
+            rig.pitch = .55f; rig.distance = 10f;
+            s.Clock.Minutes = 9 * 60;
+            for (int i = 0; i < 20; i++) yield return null;
+            yield return GameplayShots.Shot(Path.Combine(ShotDir(), "p3_4_rac_dat_bo.png"));
+
+            // vung kiet que: dia hinh phai mau; len 50 thi tuoi han
+            reg.vitality = 10; rs.Add(d.Idx(Mathf.RoundToInt(p.x), Mathf.RoundToInt(p.z)), 0.001f);
+            yield return null;
+            var chunk = FindChunkRenderer(reg, rs);
+            Assert.IsNotNull(chunk);
+            var mpb = new MaterialPropertyBlock();
+            chunk.GetPropertyBlock(mpb);
+            Assert.Greater(mpb.GetFloat("_Desaturate"), .2f);
+            yield return GameplayShots.Shot(Path.Combine(ShotDir(), "p3_5_vung_kiet_que.png"));
+            rs.Add(d.Idx(Mathf.RoundToInt(p.x), Mathf.RoundToInt(p.z)), 50);
+            yield return null;
+            chunk.GetPropertyBlock(mpb);
+            Assert.AreEqual(0, mpb.GetFloat("_Desaturate"), .001f);
+            yield return GameplayShots.Shot(Path.Combine(ShotDir(), "p3_6_vung_hoi_sinh.png"));
+
+            // bieu tuong rieng cho giong cay (anh tui do)
+            s.Inventory.Clear();
+            s.Inventory.BagLevel = 2;
+            foreach (var id in new[] { "cai_be", "cu_cai", "ca_rot", "toi", "bap", "van_tho", "dua_leo", "ot", "xoai", "chuoi", "sen", "lua",
+                                       "seed_toi", "seed_xoai", "melon", "pumpkin", "tomato", "khoai_lang" })
+                s.Inventory.Give(id, 3);
+            GameHud.Instance.SetInventory(true);
+            for (int i = 0; i < 10; i++) yield return null;
+            yield return GameplayShots.Shot(Path.Combine(ShotDir(), "p3_7_bieu_tuong_cay.png"));
+            GameHud.Instance.SetInventory(false);
+        }
+
+        static Renderer FindChunkRenderer(RestorationModel.Region reg, RestorationSystem rs)
+        {
+            var root = IslandTerrain.Instance.transform.Find("TerrainChunks");
+            foreach (Transform ch in root)
+            {
+                var pos = ch.localPosition;
+                int u = Mathf.RoundToInt(pos.x + IslandData.M) / RestorationModel.Cell, v = Mathf.RoundToInt(pos.z + IslandData.M) / RestorationModel.Cell;
+                if (reg.cells.Contains(v * rs.Model.CellsPerSide + u)) return ch.GetComponent<Renderer>();
+            }
+            return null;
+        }
     }
 }

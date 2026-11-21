@@ -20,7 +20,7 @@ MonoBehaviour:
   eatHp: 0
   eatWater: 0
   eatEnergy: 0
-  icon: 21
+  icon: 63
   iconColor: {r: 0.627451, g: 0.2901961, b: 0.47843137, a: 1}
   iconColor2: {r: 0.37254903, g: 0.68235296, b: 0.24313726, a: 1}
   sprite: {fileID: 0}

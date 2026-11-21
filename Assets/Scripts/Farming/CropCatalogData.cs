@@ -132,11 +132,16 @@ namespace SereneIsle
         public static IconShape IconOf(Row r) => r.id switch
         {
             "tomato" => IconShape.Tomato, "pumpkin" => IconShape.Pumpkin, "melon" => IconShape.Melon,
+            "ot" => IconShape.Chili, "chuoi" => IconShape.Banana, "chom_chom" => IconShape.Berry, "man" => IconShape.Berry,
+            "cu_cai" or "su_hao" or "khoai_lang" or "khoai_mon" or "dau_phong" => IconShape.RootRound,
+            "ca_tim" or "dau_bap" => IconShape.Gourd,
+            "sa" => IconShape.Fiber,
             _ => r.kind switch
             {
-                CropKind.Leafy => IconShape.Fiber, CropKind.Grain => IconShape.Wheat, CropKind.Corn => IconShape.Wheat,
-                CropKind.Vine => IconShape.Melon, CropKind.Ground => IconShape.Pumpkin, CropKind.Flower => IconShape.Berry,
-                CropKind.Aquatic => IconShape.Berry, CropKind.Tree => IconShape.Coconut, _ => IconShape.Tomato,
+                CropKind.Leafy => IconShape.LeafGreens, CropKind.Root => IconShape.Root, CropKind.Bulb => IconShape.Bulb,
+                CropKind.Grain => IconShape.Wheat, CropKind.Corn => IconShape.Corn, CropKind.Vine => IconShape.Gourd,
+                CropKind.Ground => IconShape.Pumpkin, CropKind.Flower => IconShape.Flower, CropKind.Aquatic => IconShape.Lotus,
+                CropKind.Tree => IconShape.Fruit, _ => IconShape.Tomato,
             },
         };
 

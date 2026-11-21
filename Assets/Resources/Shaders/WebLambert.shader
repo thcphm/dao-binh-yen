@@ -17,6 +17,7 @@ Shader "SereneIsle/WebLambert"
         [Toggle(_ALPHATEST_ON)] _AlphaClip ("Cat alpha (la cay)", Float) = 0
         _Cutoff ("Nguong cat alpha", Range(0, 1)) = .5
         [Enum(UnityEngine.Rendering.CullMode)] _Cull ("Cull", Float) = 2
+        _Desaturate ("Phai mau (vung it suc song)", Range(0, 1)) = 0
     }
 
     SubShader
@@ -39,6 +40,7 @@ Shader "SereneIsle/WebLambert"
             half _AlphaClip;
             half _Cutoff;
             half _Cull;
+            half _Desaturate;
         CBUFFER_END
 
         // gio: dich chuyen trong khong gian vat the, phase theo vi tri goc cua tung cay
@@ -129,6 +131,9 @@ Shader "SereneIsle/WebLambert"
                 float3 n = normalize(i.normalWS) * IS_FRONT_VFACE(face, 1.0, -1.0);
                 // texture sRGB duoc GPU doi sang linear khi lay mau -> doi nguoc ve sRGB de tinh nhu ban web
                 half3 albedo = i.color * SI_ToSRGB(texc.rgb) * SI_ToSRGB(_BaseColor.rgb);
+                // vung it suc song (dao vua qua bao): mau nhat, nga nau xam
+                half lum = dot(albedo, half3(.3, .59, .11));
+                albedo = lerp(albedo, lum * half3(1.06, .97, .82), _Desaturate);
 
                 float4 shadowCoord = TransformWorldToShadowCoord(i.positionWS);
                 Light sun = GetMainLight(shadowCoord);
