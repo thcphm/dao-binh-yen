@@ -146,13 +146,19 @@ namespace SereneIsle.Tests
             yield return Phase3Tests.Shot(Path.Combine(dir, "p4b_3_bai_thu.png"));
             // truot 3 lan -> chua dat, khong mat vat lieu
             int crops = s.Inventory.Count("cai_be") + s.Inventory.Count("dua_leo");
-            for (int k = 0; k < 3; k++) { yield return WaitNeedle(false); ApprenticeUI.Instance.Press(); }
-            Assert.IsFalse(ApprenticeUI.Instance.Testing);
+            for (int k = 0; k < 3; k++) { var u = ApprenticeUI.Instance; u.SetNeedle(u.ZoneCenter > .5f ? .02f : .98f); u.Press(); yield return null; }
+            Assert.IsFalse(ApprenticeUI.Instance.Testing, $"truot 3 lan thi het bai thu (mo {ApprenticeUI.Instance.IsOpen}, ui {s.UiOpen})");
             Assert.AreEqual(0, Crafts.Level(Crafts.Garden));
             Assert.AreEqual(crops, s.Inventory.Count("cai_be") + s.Inventory.Count("dua_leo"), "truot thi khong mat vat lieu");
             // trung 3 lan -> len bac 1
             ApprenticeUI.Instance.StartTest(Crafts.Get(Crafts.Garden));
-            for (int k = 0; k < 3; k++) { yield return WaitNeedle(true); Assert.IsTrue(ApprenticeUI.Instance.Press(), "trung lan " + (k + 1)); }
+            for (int k = 0; k < 3; k++)
+            {
+                var ui = ApprenticeUI.Instance;
+                ui.SetNeedle(ui.ZoneCenter); // kim dung giua vung xanh
+                string st = $"kim {ui.Needle:F3}, tam {ui.ZoneCenter:F3}, dang thu {ui.Testing}, mo {ui.IsOpen}, ui {s.UiOpen}";
+                Assert.IsTrue(ui.Press(), $"trung lan {k + 1} ({st})");
+            }
             Assert.AreEqual(1, Crafts.Level(Crafts.Garden), "dat bai thu -> bac 1");
             Assert.AreEqual(crops - 5, s.Inventory.Count("cai_be") + s.Inventory.Count("dua_leo"), "tru 5 nong san");
             ApprenticeUI.Instance.Close();

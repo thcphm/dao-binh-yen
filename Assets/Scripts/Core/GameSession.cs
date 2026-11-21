@@ -23,6 +23,10 @@ namespace SereneIsle
         public readonly HashSet<string> OwnedTools = new HashSet<string>();
         /// <summary>Ca / bo da tung bat (so suu tam - ban web: G.caught).</summary>
         public readonly HashSet<string> Caught = new HashSet<string>();
+        /// <summary>Ten nguoi choi (tao nhan vat, giai doan 5).</summary>
+        public string PlayerName { get; set; } = "Bạn";
+        /// <summary>Thoi gian choi that (giay) - hien o o luu.</summary>
+        public float PlaySeconds { get; set; }
         /// <summary>Co danh dau tien trinh (da gap ong Bay...) - ban web: G.flags.</summary>
         public readonly HashSet<string> Flags = new HashSet<string>();
         /// <summary>O luu tu dong (moi sang ngay moi). &lt; 0 = khong luu (test).</summary>
@@ -38,7 +42,14 @@ namespace SereneIsle
         const float HomeRadius = 4.5f;
 
         /// <summary>Dang mo bang (tui do...) - ban web: uiOpen. Dung thoi gian va nhan vat.</summary>
-        public bool UiOpen { get; set; }
+        public bool UiOpen
+        {
+            get => _uiOpen;
+            set { if (_uiOpen && !value) UiClosedFrame = Time.frameCount; _uiOpen = value; }
+        }
+        bool _uiOpen;
+        /// <summary>Khung hinh vua dong bang (Esc dong bang thi khong mo luon menu tam dung).</summary>
+        public int UiClosedFrame { get; private set; } = -10;
         public bool Transitioning { get; private set; }
         public bool Running => Player && IslandTerrain.Instance && IslandTerrain.Instance.IsReady;
         public bool Active => Running && !UiOpen && !Transitioning;
@@ -88,6 +99,7 @@ namespace SereneIsle
             if (Active)
             {
                 float dt = Mathf.Min(.05f, Time.deltaTime);
+                PlaySeconds += Time.unscaledDeltaTime;
                 float gameMinutes = dt * DayClock.MinutesPerSecond;
                 Clock.Advance(gameMinutes);
                 Stats.Tick(dt, gameMinutes / 60f, Player.Sprinting && Player.Moving);
@@ -284,7 +296,7 @@ namespace SereneIsle
             if (HasHome && Player) Player.PlaceAt(HomePosition, HomeFacing);
             if (Environment) Environment.hour = Clock.Hour;
             if (ToolSystem.Instance) ToolSystem.Instance.Regrow(Clock.Day);
-            if (SaveNow()) msgs.Add("Đã lưu game."); // sau DayStarted: luu ca vuon ruong da qua ngay
+            if (GameSettings.Current.autosave && SaveNow()) msgs.Add("Đã lưu game."); // sau DayStarted: luu ca vuon ruong da qua ngay
 
             yield return new WaitForSecondsRealtime(1.6f);
             FadeHidden?.Invoke();

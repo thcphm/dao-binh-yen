@@ -34,6 +34,7 @@ namespace SereneIsle
         ItemIcon _ghostIcon;
         SlotView[] _slots;
         bool _pointerOver, _dirtyHotbar = true, _dirtyPanel = true;
+        bool? _helpSetting;
         GameSession _hooked;
 
         GameSession S => GameSession.Instance;
@@ -262,6 +263,9 @@ namespace SereneIsle
             bool show = s && s.Running;
             _hud.style.display = show || (s && s.Transitioning) ? DisplayStyle.Flex : DisplayStyle.None;
             if (!show) return;
+
+            bool hs = GameSettings.Current.showHelp;
+            if (_helpSetting != hs) { _helpSetting = hs; _help.style.display = hs ? DisplayStyle.Flex : DisplayStyle.None; }
 
             // phim
             if (!s.Transitioning)

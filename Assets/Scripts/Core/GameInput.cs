@@ -26,6 +26,7 @@ namespace SereneIsle
         public static InputAction CancelAction { get; private set; }    // Esc / Start tay cam
         public static InputAction InteractAction { get; private set; }  // E / B tay cam: ngu, ban che tao, noi chuyen
         public static InputAction CycleAction { get; private set; }     // R / D-pad len: doi mon dat (xay dung)
+        public static InputAction MapAction { get; private set; }       // M / Select tay cam: ban do lon
         public static InputAction SlotPrevAction { get; private set; }  // LB
         public static InputAction SlotNextAction { get; private set; }  // RB
         public static InputAction[] SlotActions { get; private set; }   // 1..9, 0
@@ -91,6 +92,8 @@ namespace SereneIsle
             InteractAction.AddBinding("<Keyboard>/e"); InteractAction.AddBinding("<Gamepad>/buttonEast");
             CycleAction = Map.AddAction("Cycle", InputActionType.Button);
             CycleAction.AddBinding("<Keyboard>/r"); CycleAction.AddBinding("<Gamepad>/dpad/up");
+            MapAction = Map.AddAction("Map", InputActionType.Button);
+            MapAction.AddBinding("<Keyboard>/m"); MapAction.AddBinding("<Gamepad>/select");
             CancelAction = Map.AddAction("Cancel", InputActionType.Button);
             CancelAction.AddBinding("<Keyboard>/escape"); CancelAction.AddBinding("<Gamepad>/start");
             SlotPrevAction = Map.AddAction("SlotPrev", InputActionType.Button, "<Gamepad>/leftShoulder");
@@ -138,6 +141,7 @@ namespace SereneIsle
         public static bool CancelPressed { get { Ensure(); return CancelAction.WasPressedThisFrame(); } }
         public static bool InteractPressed { get { Ensure(); return InteractAction.WasPressedThisFrame(); } }
         public static bool CyclePressed { get { Ensure(); return CycleAction.WasPressedThisFrame(); } }
+        public static bool MapPressed { get { Ensure(); return MapAction.WasPressedThisFrame(); } }
 
         /// <summary>O hotbar vua bam (0..9) hoac -1.</summary>
         public static int SlotPressed

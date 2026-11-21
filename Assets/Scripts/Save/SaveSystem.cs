@@ -48,6 +48,33 @@ namespace SereneIsle
         public PetData pet;
         public List<FarmAnimal> farmAnimals = new List<FarmAnimal>();
         public List<string> seenAnimals = new List<string>();
+        // giai doan 5: ten, thoi gian choi
+        public string playerName;
+        public float playSeconds;
+        public List<MapPin> pins = new List<MapPin>();
+    }
+
+    /// <summary>Tom tat 1 o luu cho man hinh chon o (giai doan 5).</summary>
+    public sealed class SlotInfo
+    {
+        public int slot;
+        public bool exists;
+        public string name, dateLabel, savedAt, playTime, model;
+        public int day, coins;
+
+        public static SlotInfo From(int slot, SaveData d)
+        {
+            var i = new SlotInfo { slot = slot, exists = d != null };
+            if (d == null) return i;
+            i.day = d.day; i.coins = d.coins; i.savedAt = d.savedAt;
+            i.name = string.IsNullOrEmpty(d.playerName) ? "Bạn" : d.playerName;
+            var date = LunarCalendar.Date(d.day);
+            i.dateLabel = $"{LunarCalendar.SeasonName(date.Season)} · {date.ShortLabel} · năm {date.Year}";
+            int min = Mathf.FloorToInt(d.playSeconds / 60);
+            i.playTime = min >= 60 ? $"{min / 60} giờ {min % 60} phút" : $"{min} phút";
+            i.model = d.outfit != null ? d.outfit.model : null;
+            return i;
+        }
     }
 
     public static class SaveSystem
@@ -67,6 +94,28 @@ namespace SereneIsle
 
         public static string PathOf(int slot) => Path.Combine(Dir, $"slot{slot}.json");
         public static bool Exists(int slot) => File.Exists(PathOf(slot));
+
+        public static SlotInfo Info(int slot) => SlotInfo.From(slot, Load(slot));
+
+        /// <summary>O luu moi nhat (theo thoi gian ghi file), -1 neu chua co.</summary>
+        public static int MostRecent()
+        {
+            int best = -1; DateTime t = DateTime.MinValue;
+            for (int i = 0; i < Slots; i++)
+            {
+                if (!Exists(i)) continue;
+                var w = File.GetLastWriteTimeUtc(PathOf(i));
+                if (w > t) { t = w; best = i; }
+            }
+            return best;
+        }
+
+        /// <summary>Xoa o luu (nguoi choi da xac nhan o man hinh chon o).</summary>
+        public static void Delete(int slot)
+        {
+            try { if (Exists(slot)) File.Delete(PathOf(slot)); }
+            catch (Exception e) { Debug.LogWarning("[SereneIsle] Khong xoa duoc o luu: " + e.Message); }
+        }
 
         public static SaveData Capture(GameSession s)
         {
@@ -89,6 +138,8 @@ namespace SereneIsle
             if (Market.Instance) { d.marketRep = Market.Instance.Reputation; d.stall = Market.Instance.Snapshot(); }
             var an = Animals.Instance;
             if (an) { d.pet = an.Pet; d.farmAnimals.AddRange(an.Farm); d.seenAnimals.AddRange(an.Seen); }
+            d.playerName = s.PlayerName; d.playSeconds = s.PlaySeconds;
+            if (MapUI.Instance) d.pins.AddRange(MapUI.Instance.Pins);
             var ts = ToolSystem.Instance;
             if (ts)
             {
@@ -159,6 +210,9 @@ namespace SereneIsle
             if (Village.Instance && d.crafts != null) foreach (var c in d.crafts) Village.Instance.SetCraftLevel(c.id, c.n);
             if (Market.Instance) Market.Instance.Restore(d.stall, d.marketRep);
             if (Animals.Instance) Animals.Instance.Restore(d.pet, d.farmAnimals, d.seenAnimals);
+            if (!string.IsNullOrEmpty(d.playerName)) s.PlayerName = d.playerName;
+            s.PlaySeconds = d.playSeconds;
+            if (MapUI.Instance) MapUI.Instance.SetPins(d.pins);
             if (d.hotbar != null && d.hotbar.Length == Hotbar.Size) s.Hotbar.Load(d.hotbar);
             s.Hotbar.Selected = Mathf.Clamp(d.selected, 0, Hotbar.Size - 1);
             var ts = ToolSystem.Instance;

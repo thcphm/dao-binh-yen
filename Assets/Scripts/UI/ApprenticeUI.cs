@@ -31,6 +31,16 @@ namespace SereneIsle
         /// <summary>Vi tri kim 0..1 (test doc).</summary>
         public float Needle { get; private set; }
         public float ZoneCenter => _zoneCenter;
+        /// <summary>Test: dung kim lai.</summary>
+        public bool Frozen { get; set; }
+
+        /// <summary>Test: dat kim tai vi tri v (0..1) va dung kim.</summary>
+        public void SetNeedle(float v)
+        {
+            Frozen = true;
+            _t = Mathf.Clamp01(v);
+            Needle = _t;
+        }
 
         GameSession S => GameSession.Instance;
 
@@ -206,7 +216,7 @@ namespace SereneIsle
             if (GameInput.CancelPressed) { if (_craft != null) { _craft = null; Render(null); } else Close(); return; }
             if (_craft == null) return;
             float dt = Time.unscaledDeltaTime;
-            _t += dt * _speed;
+            if (!Frozen) _t += dt * _speed;
             Needle = Mathf.PingPong(_t, 1f);
             _needle.style.left = Length.Percent(Needle * 100);
             if (_flash > 0 && (_flash -= dt) <= 0) { _zone.RemoveFromClassList("test-zone--hit"); _zone.RemoveFromClassList("test-zone--miss"); }
