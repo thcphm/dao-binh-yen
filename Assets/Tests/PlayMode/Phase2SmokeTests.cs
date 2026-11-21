@@ -100,7 +100,7 @@ namespace SereneIsle.Tests
             s.Stats.Water = 100;
             s.Clock.Minutes = DayClock.DayEnd - .01f;
             yield return null; yield return null;
-            Assert.IsTrue(s.Transitioning, "phai bat dau chuyen ngay");
+            Assert.IsTrue(s.Transitioning, $"phai bat dau chuyen ngay (ui {s.UiOpen}, active {s.Active}, running {s.Running}, phut {s.Clock.Minutes}, ngay {s.Clock.Day})");
             yield return Shot(Path.Combine(dir, "p2_3_chuyen_ngay.png"));
             float t1 = Time.realtimeSinceStartup;
             while (s.Transitioning && Time.realtimeSinceStartup - t1 < 10) yield return null;

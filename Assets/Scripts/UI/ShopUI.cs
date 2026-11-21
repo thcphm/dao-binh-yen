@@ -99,7 +99,7 @@ namespace SereneIsle
             _sub.text = $"Bạn có {s.Coins:#,0} xu · túi {s.Inventory.SlotsUsed()}/{s.Inventory.Capacity} ô · {s.Inventory.Weight:0.#}/{s.Inventory.MaxWeight:0} kg".Replace(',', '.');
 
             _buyList.Clear();
-            foreach (var o in Shops.Offers(_shop, s.Clock.Day, s.Items, CropDatabase.Instance))
+            foreach (var o in Shops.Offers(_shop, s.Clock.Day, s.Items, CropDatabase.Instance, Crafts.Level(Crafts.Garden)))
             {
                 var d = s.Items.Get(o.id);
                 if (!d) continue;

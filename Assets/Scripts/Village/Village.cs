@@ -31,8 +31,18 @@ namespace SereneIsle
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         static void ResetStatics() { Instance = null; }
 
-        void Awake() { Instance = this; }
+        void Awake()
+        {
+            Instance = this;
+            if (!GetComponent<Market>()) gameObject.AddComponent<Market>();
+        }
         void OnDestroy() { if (Instance == this) Instance = null; }
+
+        // ------------------------------------------------------------------ hoc nghe (luu trong file)
+        readonly Dictionary<string, int> _crafts = new Dictionary<string, int>();
+        public int CraftLevel(string id) => _crafts.TryGetValue(id, out var l) ? l : 0;
+        public void SetCraftLevel(string id, int level) => _crafts[id] = Mathf.Clamp(level, 0, Crafts.MaxLevel);
+        public IReadOnlyDictionary<string, int> CraftLevels => _crafts;
 
         public VillageBuilding Building(string id) => Buildings.Find(b => b.id == id);
         public Npc Find(string id) => Npcs.Find(n => n.def.id == id);
@@ -127,7 +137,8 @@ namespace SereneIsle
             }
 
             // dang noi chuyen: chi khi hop thoai / cua hang con mo
-            bool ui = (ActionUI.Instance && ActionUI.Instance.DialogOpen) || (ShopUI.Instance && ShopUI.Instance.IsOpen);
+            bool ui = (ActionUI.Instance && ActionUI.Instance.DialogOpen) || (ShopUI.Instance && ShopUI.Instance.IsOpen)
+                      || (ApprenticeUI.Instance && ApprenticeUI.Instance.IsOpen);
             if (!ui && _talking) { _talking.Talking = false; _talking = null; }
 
             // ghe thung noi theo con nuoc
@@ -205,9 +216,30 @@ namespace SereneIsle
         {
             label = null;
             var n = Nearest(pos);
-            if (!n) return null;
-            label = $"E: Nói chuyện với {n.def.name}";
-            return () => Talk(n);
+            if (n)
+            {
+                label = $"E: Nói chuyện với {n.def.name}";
+                return () => Talk(n);
+            }
+            var cho = Building("cho");
+            if (cho != null && (Flat(pos, cho.door) < 2.2f || Flat(pos, cho.center) < 2.4f))
+            {
+                var m = Market.Instance;
+                label = m && m.CanSetUp ? "E: Bày sạp chợ phiên" : "E: Nhà lồng chợ";
+                return OpenMarket;
+            }
+            return null;
+        }
+
+        void OpenMarket()
+        {
+            var m = Market.Instance;
+            if (m && m.CanSetUp && MarketUI.Instance) { MarketUI.Instance.Open(); return; }
+            var s = S;
+            int wait = 1;
+            while (!Market.IsMarketDay(s.Clock.Day + wait) && wait < 7) wait++;
+            s.Say(wait == 1 ? "Ngày mai họp chợ phiên (thứ 7), từ 7 giờ đến 17 giờ. Chuẩn bị nông sản, cá, bọ mà bán nghen." :
+                  $"Chợ phiên họp ngày thứ 7 mỗi tuần, còn {wait} ngày nữa.");
         }
 
         public void Talk(Npc n)
@@ -224,6 +256,8 @@ namespace SereneIsle
                 var shop = n.def.shop;
                 buttons.Add((shop == Shops.TapHoa ? "Mua bán" : "Mua hạt giống", () => OpenShop(n, shop)));
             }
+            if (ApprenticeUI.Instance && System.Linq.Enumerable.Any(Crafts.TaughtBy(n.def.id)))
+                buttons.Add(("Học nghề", () => { _talking = n; n.Talking = true; ApprenticeUI.Instance.Open(n.def.id); }));
             buttons.Add(("Tạm biệt", null));
             ui.ShowDialog(n.def.name, NpcDefs.Line(n.def, s, _rng), buttons.ToArray());
         }
@@ -256,7 +290,7 @@ namespace SereneIsle
         static Material _glowMat;
 
         /// <summary>Non la: non tre vang nhat + vanh dam.</summary>
-        static Mesh HatMesh
+        public static Mesh HatMesh
         {
             get
             {

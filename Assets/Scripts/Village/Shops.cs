@@ -40,7 +40,8 @@ namespace SereneIsle
         public static bool Buys(string shop) => shop == TapHoa;
 
         /// <summary>Danh sach hang ban hom nay.</summary>
-        public static List<ShopOffer> Offers(string shop, int day, ItemDatabase items, CropDatabase crops)
+        /// <param name="gardenLevel">bac nghe lam vuon: 2 = them 2 giong + cay giong, re 20%; 3 = du moi giong dung mua.</param>
+        public static List<ShopOffer> Offers(string shop, int day, ItemDatabase items, CropDatabase crops, int gardenLevel = 0)
         {
             var list = new List<ShopOffer>();
             if (shop == TapHoa)
@@ -67,13 +68,16 @@ namespace SereneIsle
             var rng = new System.Random(day * 7919 + 31);
             Shuffle(annual, rng);
             Shuffle(trees, rng);
-            int n = Math.Min(annual.Count, 6 + day % 2);
-            for (int i = 0; i < n; i++) list.Add(Offer(items, annual[i].SeedId));
-            if (trees.Count > 0) list.Add(Offer(items, trees[0].SeedId)); // 1 cay giong an trai
+            int n = gardenLevel >= 3 ? annual.Count : Math.Min(annual.Count, 6 + day % 2 + (gardenLevel >= 2 ? 2 : 0));
+            float mul = gardenLevel >= 2 ? .8f : 1f;
+            for (int i = 0; i < n; i++) list.Add(Offer(items, annual[i].SeedId, mul));
+            int nt = Math.Min(trees.Count, gardenLevel >= 2 ? 3 : 1);   // cay giong an trai
+            for (int i = 0; i < nt; i++) list.Add(Offer(items, trees[i].SeedId, mul));
             return list;
         }
 
-        static ShopOffer Offer(ItemDatabase items, string id) => new ShopOffer { id = id, price = BuyPrice(items.Get(id)) };
+        static ShopOffer Offer(ItemDatabase items, string id, float mul = 1)
+            => new ShopOffer { id = id, price = Mathf.Max(1, Mathf.RoundToInt(BuyPrice(items.Get(id)) * mul)) };
 
         static void Shuffle<T>(List<T> l, System.Random r)
         {

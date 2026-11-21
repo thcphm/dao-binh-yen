@@ -37,6 +37,10 @@ namespace SereneIsle
                 },
                 dynamicLine = s =>
                 {
+                    if (Market.IsMarketDay(s.Clock.Day) && s.Clock.Hour < Market.CloseHour)
+                        return Market.IsBig(s.Clock.Day) ? "Bữa ni phiên chợ lớn, khách đất liền ra đông lắm. Bày sạp ở nhà lồng chợ mà bán đi con."
+                                                         : "Bữa ni họp chợ phiên ở nhà lồng chợ đó. Đem rau cá ra bán, được giá hơn bán cho thím Tám.";
+                    if (Market.IsMarketDay(s.Clock.Day + 1)) return "Mai họp chợ phiên đó con, lo mà chuẩn bị đồ bán.";
                     double abs = TideClock.AbsHours(s.Clock.Day, s.Clock.Hour);
                     return TideClock.Rising(abs)
                         ? $"Nước đang lên, tới {TideClock.ClockLabel(TideClock.NextHigh(abs))} là lớn. Đừng ra cồn nghe con."

@@ -216,6 +216,7 @@ namespace SereneIsle
         void Harvest(int k, FarmPlot p, CropDefinition c)
         {
             int n = FarmRules.Harvest(p, c, _rng, out int q);
+            n += Crafts.HarvestBonus(Crafts.Level(Crafts.Garden), _rng); // nghe lam vuon (Co Sau Vuon)
             int got = S.Give(c.produce, n, true);
             S.Stats.Calm = Mathf.Min(100, S.Stats.Calm + .5f);
             S.Say($"Thu hoạch {n} {c.displayName} ({FarmRules.QualityNames[q]})" + (got < n ? ", túi đầy nên để lại một ít dưới đất." : "."));

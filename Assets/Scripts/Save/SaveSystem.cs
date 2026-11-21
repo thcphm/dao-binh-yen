@@ -40,6 +40,10 @@ namespace SereneIsle
         public List<PlacedItem> placed = new List<PlacedItem>();
         public string buildSel;
         public List<string> flags = new List<string>();
+        // hoc nghe + cho phien (giai doan 4b)
+        public List<ItemCount> crafts = new List<ItemCount>();
+        public float marketRep;
+        public List<StallSlot> stall = new List<StallSlot>();
     }
 
     public static class SaveSystem
@@ -77,6 +81,8 @@ namespace SereneIsle
             d.ownedTools.AddRange(s.OwnedTools);
             d.caught.AddRange(s.Caught);
             d.flags.AddRange(s.Flags);
+            if (Village.Instance) foreach (var kv in Village.Instance.CraftLevels) d.crafts.Add(new ItemCount { id = kv.Key, n = kv.Value });
+            if (Market.Instance) { d.marketRep = Market.Instance.Reputation; d.stall = Market.Instance.Snapshot(); }
             var ts = ToolSystem.Instance;
             if (ts)
             {
@@ -144,6 +150,8 @@ namespace SereneIsle
             foreach (var c in d.caught) s.Caught.Add(c);
             s.Flags.Clear();
             if (d.flags != null) foreach (var f in d.flags) s.Flags.Add(f);
+            if (Village.Instance && d.crafts != null) foreach (var c in d.crafts) Village.Instance.SetCraftLevel(c.id, c.n);
+            if (Market.Instance) Market.Instance.Restore(d.stall, d.marketRep);
             if (d.hotbar != null && d.hotbar.Length == Hotbar.Size) s.Hotbar.Load(d.hotbar);
             s.Hotbar.Selected = Mathf.Clamp(d.selected, 0, Hotbar.Size - 1);
             var ts = ToolSystem.Instance;

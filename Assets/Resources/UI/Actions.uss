@@ -24,6 +24,23 @@
 .shop-btn:disabled { opacity: .45; }
 .shop-empty { font-size: 13px; color: var(--ink-2); white-space: normal; margin: 6px; }
 
+/* ---------- hoc nghe ---------- */
+.apprentice { width: 640px; }
+.apprentice-scroll { flex-shrink: 1; max-height: 460px; }
+.craft-card { padding: 8px 12px; margin-bottom: 8px; border-radius: 12px; background-color: var(--paper-2); }
+.craft-card .btn { align-self: flex-end; margin-top: 6px; }
+.craft-card .btn:disabled { opacity: .45; }
+.req { font-size: 13px; white-space: normal; margin-left: 6px; }
+.req.ok { color: #3f7a2a; }
+.req.no { color: #a8402a; }
+.test { padding: 8px 4px 12px 4px; }
+#test-track { height: 34px; margin: 14px 0 8px 0; border-radius: 10px; border-width: 3px; border-color: var(--bark); background-color: #e7d3a6; overflow: hidden; }
+#test-zone { position: absolute; top: 0; bottom: 0; background-color: rgba(108, 191, 63, .75); }
+#test-zone.test-zone--hit { background-color: rgba(200, 255, 154, .95); }
+#test-zone.test-zone--miss { background-color: rgba(232, 88, 47, .8); }
+#test-needle { position: absolute; top: -2px; bottom: -2px; width: 6px; translate: -50% 0; background-color: #3a2715; border-radius: 3px; }
+.test-score { font-size: 15px; -unity-font-style: bold; -unity-text-align: middle-center; }
+
 #prompt { position: absolute; bottom: 112px; left: 50%; translate: -50% 0; padding: 4px 16px; font-size: 18px; -unity-font-style: bold; }
 
 /* ---------- cau ca ---------- */

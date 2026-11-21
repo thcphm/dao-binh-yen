@@ -171,10 +171,21 @@ namespace SereneIsle.Tests
                     {
                         if (Mathf.Max(Mathf.Abs(dx), Mathf.Abs(dz)) != r) continue;
                         x0 = cx + dx; z0 = cz + dz;
-                        if (Open(d, s, x0, z0)) return true;
+                        if (Open(d, s, x0, z0)) { ClearTrees(d, x0, z0); return true; }
                     }
             x0 = z0 = -1;
             return false;
+        }
+
+        /// <summary>Don cay / da trong vung (nha lang chiem het khoang dat trong bang phang).</summary>
+        static void ClearTrees(IslandData d, int x0, int z0)
+        {
+            for (int z = z0 - 3; z <= z0 + 3; z++)
+                for (int x = x0 - 1; x <= x0 + 8; x++)
+                {
+                    int k = d.Idx(x, z);
+                    if (d.ObjType[k] != 0) ToolSystem.Instance.RemoveObject(k, (WorldObjectType)(d.ObjType[k] - 1), 9999);
+                }
         }
 
         static bool Open(IslandData d, GameSession s, int x0, int z0)
@@ -185,7 +196,8 @@ namespace SereneIsle.Tests
                 for (int x = x0 - 1; x <= x0 + 8; x++)
                 {
                     int k = d.Idx(x, z);
-                    if (d.Level[k] == 0 || d.Solid[k] != 0 || d.Fresh[k] != 0 || d.Pier[k] != 0) return false;
+                    if (d.Level[k] == 0 || d.Fresh[k] != 0 || d.Pier[k] != 0) return false;
+                    if (d.Solid[k] != 0 && d.ObjType[k] == 0) return false; // nha, leu... (cay / da thi don duoc)
                     if (d.HT[k] < TideClock.MaxLevel + .1f || Mathf.Abs(d.HT[k] - h0) > .3f) return false;
                     if (Placeables.Instance.At(k) != null || s.Farm.PlotAt(k) != null) return false;
                 }

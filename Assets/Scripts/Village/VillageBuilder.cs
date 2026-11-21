@@ -25,6 +25,7 @@ namespace SereneIsle
         static readonly Spec[] Land =
         {
             new Spec { id = "taphoa", name = "Tiệm tạp hóa Thím Tám", ox = 4, oz = -5, w = 2, d = 2 },
+            new Spec { id = "cho", name = "Nhà lồng chợ phiên", ox = -2, oz = -4, w = 3, d = 2 },
             new Spec { id = "sauvuon", name = "Nhà Cô Sáu Vườn", ox = -8, oz = -6, w = 2, d = 2 },
             new Spec { id = "chinhut", name = "Chòi Bác Chín Đò", ox = -4, oz = 7, w = 2, d = 2 },
             new Spec { id = "lighthouse", name = "Hải đăng", ox = 4, oz = 8, w = 1, d = 1 },
@@ -152,6 +153,7 @@ namespace SereneIsle
                 case "sauvuon": SauVuon(b); break;
                 case "chinhut": ChinHut(b); break;
                 case "basketboat": BasketBoat(b); break;
+                case "cho": Pavilion(b); break;
                 default: House(b, "#efe0bd", "#a9b6bb", "#7a4a2a"); break;
             }
             m = b.ToMesh("Village_" + id);
@@ -230,6 +232,37 @@ namespace SereneIsle
             for (int k = 0; k < 5; k++) b.Box("#2f4a3a", -1.0f, .4f + k * .16f, -.1f, .02f, .02f, 1.2f); // luoi
             for (int k = 0; k < 6; k++) b.Box("#2f4a3a", -1.0f, .72f, -.6f + k * .2f, .02f, .66f, .02f);
             b.P(LowPolyShapes.Cylinder(.2f, .18f, .4f, 10), "#6b4a2a", -.6f, .22f, 1.45f);       // lu nuoc
+        }
+
+        /// <summary>Nha long cho: nen gach, 6 cot go, mai ngoi do, quay truoc (khach dung ngoai) + ban sau, bang hieu.</summary>
+        static void Pavilion(MeshBuilder b)
+        {
+            b.Box("#b8a888", 0, .04f, 0, 3.0f, .08f, 2.0f);
+            foreach (var x in new[] { -1.4f, 0, 1.4f })
+                foreach (var z in new[] { -.85f, .85f })
+                    b.Box("#7a5232", x, 1.1f, z, .12f, 2.2f, .12f);
+            b.Box("#6b4a2a", 0, 2.2f, .85f, 3.0f, .1f, .1f);
+            b.Box("#6b4a2a", 0, 2.2f, -.85f, 3.0f, .1f, .1f);
+            // mai: lang tru doc truc X (scale: x = nua sau, y = dai, z = cao dinh)
+            b.Add(Prism, Matrix4x4.TRS(new Vector3(0, 2.6f, 0), Quaternion.Euler(0, 90, 0) * Quaternion.Euler(-90, 0, 0), new Vector3(1.45f, 3.5f, .8f)), MaterialLibrary.Hex("#b5523a"));
+            b.Box("#8a3a2a", 0, 3.0f, 0, 3.55f, .08f, .12f);                                 // nok
+            // quay truoc + ban sau
+            b.Box("#a8703e", 0, .38f, .62f, 2.6f, .06f, .5f);
+            b.Box("#8a5a30", 0, .2f, .86f, 2.6f, .36f, .04f);
+            b.Box("#a8703e", 0, .38f, -.55f, 2.6f, .06f, .45f);
+            foreach (var x in new[] { -1.2f, 1.2f })
+            {
+                b.Box("#7a5232", x, .19f, .45f, .06f, .38f, .06f);
+                b.Box("#7a5232", x, .19f, -.55f, .06f, .38f, .06f);
+            }
+            // bang hieu "CHO PHIEN" (vach chu gia) + den long do
+            b.Box("#c8402a", 0, 1.95f, .93f, 1.2f, .32f, .05f);
+            for (int k = 0; k < 6; k++) b.Box("#f6e7c8", -.4f + k * .16f, 1.95f, .96f, .09f, .14f, .01f);
+            foreach (var x in new[] { -.95f, .95f })
+            {
+                b.Box("#3a2a1a", x, 2.05f, .95f, .02f, .2f, .02f);
+                b.P(LowPolyShapes.Sphere86, "#e0402a", x, 1.85f, .95f, .12f, .15f, .12f);
+            }
         }
 
         /// <summary>Ghe thung: thung tron dan tre + vanh + mai cheo (noi theo con nuoc).</summary>

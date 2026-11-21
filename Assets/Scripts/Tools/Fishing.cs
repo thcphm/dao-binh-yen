@@ -245,7 +245,8 @@ namespace SereneIsle
             if (list.Count == 0) return null;
             float[] W = { 0, 10, 6, 3, 1.2f, .35f };
             float boost = (RodLevel > 1 ? 1.6f : 1) * (bait ? 1.5f : 1);
-            var ws = list.Select(f => W[Mathf.Clamp(f.fishDifficulty, 0, 5)] * (f.fishDifficulty >= 3 ? boost : 1)).ToList();
+            int craft = Crafts.Level(Crafts.Fishing); // nghe cau (Bac Chin Do)
+            var ws = list.Select(f => W[Mathf.Clamp(f.fishDifficulty, 0, 5)] * (f.fishDifficulty >= 3 ? boost : 1) * Crafts.RareWeight(craft, f.fishDifficulty)).ToList();
             float r = (float)_rng.NextDouble() * ws.Sum();
             for (int n = 0; n < list.Count; n++) { r -= ws[n]; if (r <= 0) return list[n]; }
             return list[0];
@@ -256,7 +257,7 @@ namespace SereneIsle
         {
             Current = State.Reel;
             int d = Fish.fishDifficulty;
-            float zone = Mathf.Max(.15f, .34f - d * .04f) + (RodLevel > 1 ? .08f : 0);
+            float zone = Mathf.Max(.15f, .34f - d * .04f) + (RodLevel > 1 ? .08f : 0) + Crafts.ReelZoneBonus(Crafts.Level(Crafts.Fishing));
             Reel = new ReelState { pos = .2f, fy = .35f, tgt = .5f, prog = .3f, zone = zone, d = d, spd = .32f + d * .17f };
             S.Body.HoldPose = "Fishing_Reeling";
         }
