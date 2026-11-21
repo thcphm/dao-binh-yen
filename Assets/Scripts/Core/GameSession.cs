@@ -50,6 +50,8 @@ namespace SereneIsle
         /// <summary>Vuon ruong, con nuoc (giai doan 3, Docs/ThietKeGameplay.md).</summary>
         public FarmSystem Farm { get; private set; }
         public TideSystem Tide { get; private set; }
+        /// <summary>Suc song vung (Docs/ThietKeGameplay.md muc 5).</summary>
+        public RestorationSystem Restoration { get; private set; }
         public LunarDate Date => LunarCalendar.Date(Clock.Day);
 
         bool _warn22, _warn225, _kitGiven;
@@ -62,6 +64,7 @@ namespace SereneIsle
             Stats.Warning += m => Toast?.Invoke(m);
             Farm = gameObject.AddComponent<FarmSystem>();
             Tide = gameObject.AddComponent<TideSystem>();
+            Restoration = gameObject.AddComponent<RestorationSystem>();
         }
 
         void OnDestroy() { if (Instance == this) Instance = null; }

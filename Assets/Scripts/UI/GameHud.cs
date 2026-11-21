@@ -27,7 +27,7 @@ namespace SereneIsle
         UIDocument _doc;
         VisualElement _root, _hud;
         Label _dayLabel, _timeLabel, _coinLabel, _panelSub, _itemInfo, _fadeTitle, _fadeSub;
-        Label _tideLabel, _targetHint;
+        Label _tideLabel, _targetHint, _regionLabel;
         StatIconElement _sun;
         VisualElement _hpFill, _waterFill, _energyFill, _calmFill, _energyRec, _weightFill;
         VisualElement _toasts, _hotbar, _overlay, _grid, _toolsRow, _fade, _ghost, _help;
@@ -108,6 +108,8 @@ namespace SereneIsle
             clock.Add(_timeLabel);
             _tideLabel = L("tide-label");
             clock.Add(_tideLabel);
+            _regionLabel = L("region-label");
+            clock.Add(_regionLabel);
             _hpFill = StatRow(clock, StatIcon.Heart, "hp-fill", out _);
             _waterFill = StatRow(clock, StatIcon.Drop, "water-fill", out _);
             _energyFill = StatRow(clock, StatIcon.Bolt, "energy-fill", out var enBar);
@@ -280,6 +282,8 @@ namespace SereneIsle
             _tideLabel.text = rising
                 ? $"Nước lên · lớn lúc {TideClock.ClockLabel(TideClock.NextHigh(abs))}"
                 : $"Nước ròng · cạn lúc {TideClock.ClockLabel(TideClock.NextLow(abs))}";
+            var reg = s.Restoration ? s.Restoration.Current : null;
+            _regionLabel.text = reg != null ? $"{reg.name} · sức sống {Mathf.RoundToInt(reg.vitality)}" : "Ngoài khơi";
             string hint = s.Active && s.Farm ? s.Farm.HintFor(DB.Get(s.Hotbar.SelectedId)) : null;
             if (string.IsNullOrEmpty(hint) && s.Active && ToolSystem.Instance) hint = ToolSystem.Instance.HintFor(s.Hotbar.SelectedId);
             var buildSel = Placeables.Instance ? Placeables.Instance.Selected : null;

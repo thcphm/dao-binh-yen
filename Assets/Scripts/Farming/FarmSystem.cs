@@ -154,6 +154,7 @@ namespace SereneIsle
             if (body) body.PlayAct("hoe");
             var plot = new FarmPlot { k = k, soil = SoilAt(k) };
             _plots[k] = plot;
+            HideGrass(k);
             Refresh(k);
         }
 
@@ -239,7 +240,11 @@ namespace SereneIsle
                 var c = Crops.Get(p.crop);
                 bool auto = pl && pl.Sprinkled(p.k);          // voi tuoi: tinh la da tuoi hom qua (ban web dong 1479)
                 if (auto) p.watered = true;
+                float before = p.growth;
                 if (FarmRules.NewDay(p, c, date.Season)) { died++; if (p.deadReason == "trái mùa") offSeason++; }
+                // trong cay an trai song qua 3 ngay: +3 suc song vung (muc 5)
+                if (c != null && c.kind == CropKind.Tree && !p.dead && before < 3 && p.growth >= 3 && S.Restoration)
+                    S.Restoration.Add(p.k, 3, $"cây {c.displayName.ToLowerInvariant()} bén rễ");
                 if (auto && !p.dead) p.watered = true;         // va tuoi luon sang nay (dong 1482)
             }
             foreach (var k in _plots.Keys) Refresh(k);
@@ -286,7 +291,14 @@ namespace SereneIsle
         public void Restore(IEnumerable<FarmPlot> plots)
         {
             foreach (var k in new List<int>(_plots.Keys)) RemovePlot(k);
-            foreach (var p in plots) { _plots[p.k] = p; Refresh(p.k); }
+            foreach (var p in plots) { _plots[p.k] = p; HideGrass(p.k); Refresh(p.k); }
+        }
+
+        /// <summary>O dat da cuoc thi khong con co / hoa moc xuyen qua.</summary>
+        static void HideGrass(int k)
+        {
+            var t = IslandTerrain.Instance;
+            if (t && t.Vegetation) t.Vegetation.HideGrass(k);
         }
     }
 }
