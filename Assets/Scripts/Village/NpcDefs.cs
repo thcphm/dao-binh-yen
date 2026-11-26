@@ -91,6 +91,27 @@ namespace SereneIsle
             },
             new NpcDef
             {
+                // O Man (mien Trung): day nghe lan bien, hay ngoi o ben cua Bac Chin
+                id = "man", name = "O Mận", building = "chinhut", wander = 5f, fromHour = 6, toHour = 19,
+                outfit = new CharacterOutfit { model = "Rogue", shirt = "#3f8aa8", pants = "#2a3a4a", shoe = "#2a2422", skin = "#c98d63", hair = "#1a1614", shorts = true, noBelt = true },
+                lines = new[]
+                {
+                    "Lặn chi mà lâu rứa? Hụt hơi là chết đó nghe.",
+                    "Đáy rạn ni hồi xưa san hô đẹp lắm, bão phá hết rồi. Cấy lại từ từ thì cá về.",
+                    "Mùa đông nước lạnh, nín thở không được lâu mô.",
+                    "Hải sâm, bào ngư nằm chỗ sâu. Muốn xuống đó thì phải học thêm với O.",
+                    "Lượm nghêu, sò ở bãi rồi đem lại đây, O dạy cho cách lặn.",
+                },
+                dynamicLine = s =>
+                {
+                    int lv = Crafts.Level("lan");
+                    if (lv == 0) return "Muốn lặn thì đem 3 nghêu với 3 sò huyết lại đây, O chỉ cho.";
+                    if (s.Clock.IsNight && lv < 3) return "Tối rồi, không có đèn lặn thì đừng xuống nước nghe.";
+                    return null;
+                },
+            },
+            new NpcDef
+            {
                 id = "tam", name = "Thím Tám", building = "taphoa", shop = Shops.TapHoa, wander = 1.5f, fromHour = 6.5f, toHour = 20.5f,
                 outfit = new CharacterOutfit { model = "Rogue", shirt = "#b05a8a", pants = "#2a2422", shoe = "#d9534f", skin = "#f8cfae", hair = "#2a2422", longSleeve = true, noBelt = true },
                 lines = new[]

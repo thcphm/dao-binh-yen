@@ -40,6 +40,7 @@
 #water-fill { background-color: #3d9bd6; }
 #energy-fill { background-color: #e8b02f; }
 #calm-fill { background-color: #5fb8a0; }
+#breath-fill { background-color: #8fd8f0; }
 
 /* ---------- xu ---------- */
 #coins { position: absolute; top: 12px; right: 12px; padding: 6px 14px; flex-direction: row; align-items: center; }

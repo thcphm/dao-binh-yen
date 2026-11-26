@@ -11,6 +11,8 @@ namespace SereneIsle
 
         [Header("Goc nhin (radian, giong ban web)")]
         public float yaw = Mathf.PI * .15f;
+        /// <summary>Dang lan bien (DivingSystem): cho camera xuong duoi mat nuoc.</summary>
+        public static bool AllowUnderwater;
         [Range(.06f, 1.35f)] public float pitch = .55f;
         [Range(3.5f, 24f)] public float distance = 9f;
         public float lookHeight = 1.1f;
@@ -76,10 +78,20 @@ namespace SereneIsle
             float cx = p.x + Mathf.Sin(yaw) * cp, cz = p.z + Mathf.Cos(yaw) * cp;
             float cy = p.y + lookHeight + Mathf.Sin(pitch) * distance;
             var data = Data;
-            if (data != null) cy = Mathf.Max(cy, data.HeightAt(cx, cz) + .5f, data.WaterLevel + .4f);
+            float lookY = p.y + lookHeight;
+            if (data != null)
+            {
+                if (AllowUnderwater)
+                {
+                    // dang lan: camera ha xuong duoi mat nuoc, sat sau lung nguoi boi (khong chui xuong day)
+                    lookY = p.y + .25f;
+                    cy = Mathf.Max(data.HeightAt(cx, cz) + .3f, Mathf.Min(cy, data.WaterLevel - .12f));
+                }
+                else cy = Mathf.Max(cy, data.HeightAt(cx, cz) + .5f, data.WaterLevel + .4f);
+            }
 
             transform.position = new Vector3(cx, cy, cz);
-            transform.LookAt(new Vector3(p.x, p.y + lookHeight, p.z));
+            transform.LookAt(new Vector3(p.x, lookY, p.z));
 
             // ban web FADE: uCam, uPl = nhan vat + .8, uR = 2.2 -> vat che nhan vat thua dan
             Shader.SetGlobalVector(idCam, transform.position);

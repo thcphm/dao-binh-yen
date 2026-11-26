@@ -52,7 +52,8 @@ namespace SereneIsle
             _wasLow = low;
             CleanSubmerged(d);
 
-            if (s.Active && s.Player && !_rescuing && d.WaterDepth(s.Player.transform.position.x, s.Player.transform.position.z) > strandDepth)
+            // dang boi (biet lan) thi khong bi ket
+            if (s.Active && s.Player && !_rescuing && !(DivingSystem.Instance && DivingSystem.Instance.Swimming) && !(BoatSystem.Instance && BoatSystem.Instance.OnBoat) && d.WaterDepth(s.Player.transform.position.x, s.Player.transform.position.z) > strandDepth)
                 StartCoroutine(Rescue());
         }
 

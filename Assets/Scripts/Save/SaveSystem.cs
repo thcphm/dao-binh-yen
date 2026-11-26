@@ -36,6 +36,8 @@ namespace SereneIsle
         public int canWater;
         // suc song tung vung (RestorationSystem), theo thu tu vung cua dao
         public float[] vitality;
+        // san ho da cay duoi day bien (DivingSystem) - chi so o
+        public List<int> corals = new List<int>();
         // do che tao da dat xuong dat (ban web: sv.pl)
         public List<PlacedItem> placed = new List<PlacedItem>();
         public string buildSel;
@@ -162,6 +164,7 @@ namespace SereneIsle
             var pl = Placeables.Instance;
             if (pl) { d.placed = pl.Snapshot(); d.buildSel = pl.Selected; }
             if (s.Restoration) d.vitality = s.Restoration.Snapshot();
+            if (DivingSystem.Instance) d.corals = DivingSystem.Instance.CoralSnapshot();
             return d;
         }
 
@@ -242,6 +245,7 @@ namespace SereneIsle
                 s.Farm.Restore(d.farm);
             }
             if (s.Restoration && d.vitality != null && d.vitality.Length > 0) s.Restoration.Restore(d.vitality);
+            if (DivingSystem.Instance) DivingSystem.Instance.RestoreCorals(d.corals);
             if (s.Player) s.Player.PlaceAt(new Vector3(d.px, 0, d.pz), d.facing);
         }
     }

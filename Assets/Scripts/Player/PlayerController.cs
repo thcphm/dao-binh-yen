@@ -59,6 +59,18 @@ namespace SereneIsle
         /// <summary>Quay mat (radian) - vd. quay lung ve camera khi quang can.</summary>
         public void Face(float facingRad) { _rot = facingRad; SyncTransform(); }
 
+        /// <summary>He khac (boi / lan bien) tiep quan di chuyen: tra ve true thi frame nay bo qua di bo + trong luc.</summary>
+        public static System.Func<PlayerController, float, bool> MovementOverride;
+
+        /// <summary>Dat vi tri / huong khi he khac dieu khien (boi, lan). Giu trang thai dung tren dat de lap tuc di bo lai.</summary>
+        public void Drive(Vector3 pos, float facingRad, bool moving, float speed)
+        {
+            _x = pos.x; _y = pos.y; _z = pos.z; _rot = facingRad;
+            _vy = 0; _ground = true; _prep = 0; _land = 0;
+            Moving = moving; Sprinting = false; _speed = speed;
+            SyncTransform();
+        }
+
         public void PlaceAtArrival()
         {
             var d = Data;
@@ -75,6 +87,7 @@ namespace SereneIsle
 
             float dt = Mathf.Min(.05f, Time.deltaTime);
             _time += dt;
+            if (MovementOverride != null && MovementOverride(this, dt)) return;
 
             // ---- di chuyen theo huong camera ----
             Vector2 input = InputLocked ? Vector2.zero : GameInput.Move;

@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1e9a6876b7042064b965bcdd10808fc1, type: 3}
+  m_Name: manh_san_ho
+  m_EditorClassIdentifier: SereneIsle::SereneIsle.ItemDefinition
+  id: manh_san_ho
+  displayName: "M\u1EA3nh san h\xF4"
+  category: 0
+  price: 5
+  weight: 0.1
+  eatHp: 0
+  eatWater: 0
+  eatEnergy: 0
+  icon: 4
+  iconColor: {r: 0.9411765, g: 0.5411765, b: 0.5411765, a: 1}
+  iconColor2: {r: 0.972549, g: 0.7529412, b: 0.65882355, a: 1}
+  sprite: {fileID: 0}
+  seedOf: 
+  bagLevel: 0
+  fishDifficulty: 0
+  habitats: []
+  activeTime: 
+  description: "L\u1EB7n xu\u1ED1ng, c\u1EA7m m\u1EA3nh san h\xF4 v\xE0 b\u1EA5m F \u1EDF \u0111\xE1y c\xE1t \u0111\u1EC3 c\u1EA5y: +5 s\u1EE9c s\u1ED1ng v\xF9ng."
