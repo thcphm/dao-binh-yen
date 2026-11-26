@@ -109,6 +109,15 @@ namespace SereneIsle
             R("sao_bien", "Sao biển", X, 25, .05f, IconShape.Shell, "#f08a3a", "#d8452f");
             R("rong_bien", "Rong biển", M, 6, .1f, IconShape.Fiber, "#3f7a4a", "#8ab84a");
 
+            // ---- day bien: nhat khi lan (Docs/ThietKeGameplay.md muc 7.1) ----
+            R("rong_sun", "Rong sụn", M, 12, .1f, IconShape.Fiber, "#c8a070", "#e8c890");
+            R("oc_huong", "Ốc hương", X, 28, .05f, IconShape.Shell, "#e8c8a0", "#8a5a3a");
+            R("nhum", "Nhum biển", X, 32, .1f, IconShape.Berry, "#3a2a4a", "#6a4a7a");
+            R("hai_sam", "Hải sâm", X, 60, .3f, IconShape.Worm, "#5a3a2a", "#8a6a4a");
+            R("bao_ngu", "Bào ngư", X, 95, .2f, IconShape.Shell, "#8a9a7a", "#d8e0e8");
+            R("trai_ngoc", "Trai ngọc", X, 140, .2f, IconShape.Shell, "#4a4a5a", "#f0ecf8");
+            R("manh_san_ho", "Mảnh san hô", M, 5, .1f, IconShape.Fiber, "#f08a8a", "#f8c0a8").description = "Lặn xuống, cầm mảnh san hô và bấm F ở đáy cát để cấy: +5 sức sống vùng.";
+
             // ---- linh tinh ----
             R("worm", "Giun đất", X, 3, .02f, IconShape.Worm, "#d98a8a", "#a85a5a");
             R("shell", "Vỏ sò", X, 8, .05f, IconShape.Shell, "#f2d7c4", "#d9a58a");
@@ -169,6 +178,9 @@ namespace SereneIsle
             Fish("f_snap", "Cá hồng", 30, 2, "sea,trop", "day", IconShape.TropicalFish, "#e8706a", "#f6c0a0");
             Fish("f_crab", "Cua biển", 35, 2, "sea,trop", "any", IconShape.Crab, "#d8452f", "#8a2a1a");
             Fish("f_squid", "Mực ống", 42, 3, "sea,trop", "night", IconShape.Squid, "#f2b8b0", "#c87a70");
+            // cau muc dem bang ghe thung co den (BoatSystem.SquidBoost)
+            Fish("f_muc_la", "Mực lá", 38, 2, "sea,trop", "night", IconShape.Squid, "#f0d0c0", "#b8806a");
+            Fish("f_muc_nang", "Mực nang", 65, 3, "sea", "night", IconShape.Squid, "#e8c8b0", "#7a5a4a");
             Fish("f_octo", "Bạch tuộc", 65, 3, "sea", "any", IconShape.Octopus, "#c8504a", "#8a2a2a");
             Fish("f_grouper", "Cá mú", 58, 3, "sea,trop", "any", IconShape.Fish, "#8a6a4a", "#c8a070");
             Fish("f_lobster", "Tôm hùm", 140, 4, "sea,trop", "night", IconShape.Lobster, "#c8402a", "#8a2a1a");

@@ -9,6 +9,7 @@ namespace SereneIsle
         Sleep,   // ve leu kip truoc 23h
         Late,    // 23h chua ve leu: ngat, mat het do trong tui (dung cu van con)
         Fainted, // het mau: ngat, mat 10% xu tien thuoc (toi da 100)
+        Drowned, // het hoi khi lan: mat toan bo tui + 20% xu, het ngay (Docs/ThietKeGameplay.md muc 8)
     }
 
     public static class DayRules
@@ -17,6 +18,7 @@ namespace SereneIsle
         {
             NewDayReason.Fainted => "Bạn kiệt sức ngất đi… Ông Bảy tìm thấy và đưa bạn về nghỉ.",
             NewDayReason.Late => "23 giờ mà chưa về lều, bạn ngất giữa đường… Ông Bảy dìu bạn về, nhưng đồ trong túi rơi mất hết.",
+            NewDayReason.Drowned => "Hết hơi giữa biển, bạn ngất đi… O Mận lặn xuống kéo bạn lên bờ, nhưng đồ trong túi chìm mất cả.",
             _ => "Một ngày mới trên đảo",
         };
 
@@ -32,6 +34,8 @@ namespace SereneIsle
                 int n = inv.Clear();
                 if (n > 0) msgs.Add($"Mất hết {n} món đồ trong túi. Dụng cụ vẫn còn.");
             }
+
+            if (reason == NewDayReason.Drowned) msgs.AddRange(DiveRules.Drown(inv, ref coins));
 
             if (passOut)
             {

@@ -248,7 +248,11 @@ namespace SereneIsle
                           * (WeatherSystem.Instance && WeatherSystem.Instance.Today == WeatherKind.Rain ? 1.25f : 1)   // ban web: mua -> ca hiem x1.25
                           * (S.Stats.Calm >= 75 ? 1.2f : 1);                                                           // binh yen 75
             int craft = Crafts.Level(Crafts.Fishing); // nghe cau (Bac Chin Do)
-            var ws = list.Select(f => W[Mathf.Clamp(f.fishDifficulty, 0, 5)] * (f.fishDifficulty >= 3 ? boost : 1) * Crafts.RareWeight(craft, f.fishDifficulty)).ToList();
+            // cau muc dem tren ghe thung co den (BoatSystem), it muc dem trang tron
+            bool lamp = BoatSystem.Instance && BoatSystem.Instance.LampOn;
+            double moon = LunarCalendar.MoonAge(S.Clock.Day, S.Clock.Hour);
+            var ws = list.Select(f => W[Mathf.Clamp(f.fishDifficulty, 0, 5)] * (f.fishDifficulty >= 3 ? boost : 1) * Crafts.RareWeight(craft, f.fishDifficulty)
+                                      * BoatSystem.SquidBoost(f, lamp, moon)).ToList();
             float r = (float)_rng.NextDouble() * ws.Sum();
             for (int n = 0; n < list.Count; n++) { r -= ws[n]; if (r <= 0) return list[n]; }
             return list[0];

@@ -78,6 +78,8 @@ namespace SereneIsle
             Farm = gameObject.AddComponent<FarmSystem>();
             Tide = gameObject.AddComponent<TideSystem>();
             Restoration = gameObject.AddComponent<RestorationSystem>();
+            gameObject.AddComponent<DivingSystem>();   // boi, lan bien (giai doan 6)
+            gameObject.AddComponent<BoatSystem>();     // ghe thung, cau muc dem
         }
 
         void OnDestroy() { if (Instance == this) Instance = null; }
@@ -206,6 +208,7 @@ namespace SereneIsle
 
         public void UseSelected()
         {
+            if (DivingSystem.Instance && DivingSystem.Instance.TryUse()) return;   // duoi nuoc: nhat do day bien / cay san ho
             string id = Hotbar.SelectedId;
             if (string.IsNullOrEmpty(id)) return;
             var d = Items.Get(id);

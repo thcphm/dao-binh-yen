@@ -382,6 +382,169 @@ namespace SereneIsle.Tests
             yield return GameplayShots.Shot(Path.Combine(ShotDir(), "p3_9_dat_trung_bo_bao.png"));
         }
 
+        [UnityTest, Timeout(600000)]
+        public IEnumerator LanBien_Boi_Lan_NhatDo_CaySanHo_HetHoi()
+        {
+            yield return Boot();
+            var s = GameSession.Instance;
+            var d = IslandTerrain.Instance.Data;
+            var dive = DivingSystem.Instance;
+            Assert.IsNotNull(dive);
+            Village.Instance.SetCraftLevel("lan", 2);
+
+            // cho nuoc sau .6-1.1 gan thi tran nhat
+            int spot = -1; float best = 1e9f;
+            for (int k = 0; k < d.N * d.N; k++)
+            {
+                if (d.Ocean[k] == 0 || d.Pier[k] != 0) continue;
+                float depth = IslandData.SEA - d.HT[k];
+                if (depth < .7f || depth > 1.1f) continue;
+                float dist = Vector2.Distance(new Vector2(k % d.N, k / d.N), new Vector2(d.CX, d.CZ));
+                if (dist < best) { best = dist; spot = k; }
+            }
+            Assert.GreaterOrEqual(spot, 0, "khong co cho lan");
+            s.Clock.Minutes = 10 * 60;
+            s.Player.PlaceAt(new Vector3(spot % d.N, 0, spot / d.N), 0);
+            for (int i = 0; i < 60; i++) yield return null;
+            Assert.IsTrue(dive.Swimming, "nuoc sau thi boi");
+            Assert.IsFalse(dive.Underwater);
+            var sp = s.Player.transform.position;
+            float expectY = Mathf.Max(d.WaterLevel - .95f, d.HeightAt(sp.x, sp.z) + .2f);   // noi tren mat nuoc, cho can thi cham day
+            Assert.AreEqual(expectY, sp.y, .1f, "noi tren mat nuoc");
+            Assert.IsFalse(s.Transitioning, "dang boi khong bi Bac Chin cuu");
+            var rig = Camera.main.GetComponent<OrbitCamera>();
+            rig.pitch = .35f; rig.distance = 6f;
+            for (int i = 0; i < 10; i++) yield return null;
+            yield return GameplayShots.Shot(Path.Combine(ShotDir(), "p6_1_boi.png"));
+
+            Assert.IsTrue(dive.ToggleDive(), "lan xuong");
+            Assert.IsTrue(dive.Underwater);
+            Assert.Greater(dive.LootCount, 0, "co do day bien");
+            rig.pitch = .15f; rig.distance = 4f;
+            for (int i = 0; i < 90; i++) yield return null;
+            Assert.Less(Camera.main.transform.position.y, d.WaterLevel, "camera xuong duoi nuoc");
+            Assert.Less(dive.Breath, dive.MaxBreath, "hoi tho giam");
+
+            // toi do gan nhat roi nhat
+            Vector3 lp = Vector3.zero; float bd = 1e9f;
+            foreach (var q in dive.LootPositions) { float dd = Vector3.Distance(q, s.Player.transform.position); if (dd < bd) { bd = dd; lp = q; } }
+            s.Player.PlaceAt(new Vector3(lp.x + .3f, 0, lp.z), 0);
+            for (int i = 0; i < 40; i++) yield return null;
+            Assert.IsTrue(dive.Underwater, "van duoi nuoc");
+            int before = s.Inventory.TotalItems, loot = dive.LootCount;
+            yield return GameplayShots.Shot(Path.Combine(ShotDir(), "p6_2_duoi_nuoc.png"));
+            Assert.IsTrue(dive.TryUse());
+            Assert.AreEqual(before + 1, s.Inventory.TotalItems, "nhat duoc 1 mon");
+            Assert.AreEqual(loot - 1, dive.LootCount);
+
+            // cay san ho: +5 suc song vung
+            s.Inventory.BagLevel = 2;
+            s.Give("manh_san_ho", 2, true);
+            s.Hotbar.Assign(6, "manh_san_ho"); s.Hotbar.Selected = 6;
+            var pos = s.Player.transform.position;
+            var reg = s.Restoration.Model.RegionAt(pos.x, pos.z);
+            float vit = reg != null ? reg.vitality : 0;
+            Assert.IsTrue(dive.TryUse());
+            Assert.AreEqual(1, dive.Corals.Count);
+            if (reg != null) Assert.AreEqual(vit + 5, reg.vitality, .01f);
+            Assert.AreEqual(1, s.Inventory.Count("manh_san_ho"));
+            for (int i = 0; i < 5; i++) yield return null;
+            yield return GameplayShots.Shot(Path.Combine(ShotDir(), "p6_3_cay_san_ho.png"));
+
+            // het hoi: ngat, mat tui + 20% xu, sang ngay moi
+            s.Coins = 100;
+            dive.Breath = .02f;
+            float t = Time.realtimeSinceStartup;
+            while (!s.Transitioning && Time.realtimeSinceStartup - t < 3) yield return null;
+            Assert.IsTrue(s.Transitioning, "het hoi thi ngat");
+            while (s.Transitioning && Time.realtimeSinceStartup - t < 12) yield return null;
+            Assert.AreEqual(2, s.Clock.Day);
+            Assert.AreEqual(0, s.Inventory.TotalItems, "do trong tui chim mat");
+            Assert.AreEqual(80, s.Coins);
+            for (int i = 0; i < 5; i++) yield return null;
+            Assert.IsFalse(dive.Swimming, "tinh day o leu");
+        }
+
+        [UnityTest, Timeout(600000)]
+        public IEnumerator GheThung_CheoRaBien_LenBo_CauMucDem_TrauCay()
+        {
+            yield return Boot();
+            var s = GameSession.Instance;
+            var d = IslandTerrain.Instance.Data;
+            var boats = BoatSystem.Instance;
+            Assert.IsNotNull(boats);
+            for (int i = 0; i < 5; i++) yield return null;
+            var boat = boats.Boat;
+            Assert.IsNotNull(boat, "co ghe cua Bac Chin");
+
+            // len ghe
+            s.Player.PlaceAt(boat.position + new Vector3(.6f, 0, .6f), 0);
+            yield return null;
+            Assert.IsNotNull(boats.NearbyAction(s.Player.transform.position, out string label));
+            StringAssert.Contains("Lên ghe", label);
+            boats.Board();
+            Assert.IsTrue(boats.OnBoat);
+            for (int i = 0; i < 5; i++) yield return null;
+            Assert.AreEqual(boat.position.x, s.Player.transform.position.x, .05f, "ngoi trong ghe");
+
+            // cheo ra cho nuoc sau (dich chuyen thang de khoi gia lap phim)
+            int deep = -1; float best = 1e9f;
+            for (int k = 0; k < d.N * d.N; k++)
+            {
+                if (d.Ocean[k] == 0 || IslandData.SEA - d.HT[k] < 1.2f) continue;
+                float dist = Vector2.Distance(new Vector2(k % d.N, k / d.N), new Vector2(d.CX, d.CZ));
+                if (dist < best) { best = dist; deep = k; }
+            }
+            s.Player.Drive(new Vector3(deep % d.N, d.WaterLevel, deep / d.N), 0, false, 0);
+            for (int i = 0; i < 10; i++) yield return null;
+            Assert.IsTrue(boats.OnBoat);
+            Assert.IsFalse(s.Transitioning, "tren ghe khong bi ket nuoc");
+            Assert.IsFalse(DivingSystem.Instance.Swimming, "tren ghe khong boi");
+            Assert.AreEqual(d.WaterLevel, boat.position.y, .06f, "ghe noi tren mat nuoc");
+
+            // dem: thap den, muc nhieu gap ~4 (trang non nhieu hon trang tron)
+            s.Clock.Minutes = 21 * 60;
+            for (int i = 0; i < 10; i++) yield return null;
+            Assert.IsTrue(boats.LampOn);
+            var squid = s.Items.Get("f_muc_la");
+            Assert.IsNotNull(squid);
+            Assert.AreEqual(4f * 1.5f, BoatSystem.SquidBoost(squid, true, 0), .01f, "dem khong trang");
+            Assert.AreEqual(4f * .5f, BoatSystem.SquidBoost(squid, true, .5), .01f, "trang tron");
+            Assert.AreEqual(1f, BoatSystem.SquidBoost(s.Items.Get("f_tuna"), true, 0), "ca khac khong doi");
+            var rig = Camera.main.GetComponent<OrbitCamera>();
+            rig.pitch = .4f; rig.distance = 6f;
+            for (int i = 0; i < 20; i++) yield return null;
+            yield return GameplayShots.Shot(Path.Combine(ShotDir(), "p6_4_ghe_dem.png"));
+
+            // sang ngay moi: ghe ve ben, nguoi ve leu
+            s.Clock.Minutes = 10 * 60;
+            yield return Sleep(s);
+            Assert.IsFalse(boats.OnBoat);
+
+            // trau cay: co trau trong chuong thi cuoc 1 lan duoc 4 o
+            var farm = s.Farm;
+            Assert.IsFalse(FarmSystem.HasBuffalo());
+            Vector3 home = s.HomePosition; int start = -1;
+            for (int z = (int)home.z - 15; z <= home.z + 15 && start < 0; z++)
+                for (int x = (int)home.x - 15; x <= home.x + 15 && start < 0; x++)
+                {
+                    bool ok = d.InBounds(x, z - 1) && d.InBounds(x, z + 3) && d.Solid[d.Idx(x, z - 1)] == 0 && d.Walkable(x, z - 1, d.HT[d.Idx(x, z - 1)]);
+                    for (int q = 0; q < 4 && ok; q++) ok = farm.CanTill(d.Idx(x, z + q), out _) && farm.PlotAt(d.Idx(x, z + q)) == null;
+                    if (ok) start = d.Idx(x, z);
+                }
+            Assert.GreaterOrEqual(start, 0, "khong co 4 o dat lien nhau");
+            Face(s, new Vector3(start % d.N, d.HT[start - d.N], start / d.N - 1), start);
+            int before = farm.Plots.Count;
+            // them trau vao danh sach chi trong luc cuoc (khong de he vat nuoi xu ly chuong gia)
+            var trau = new FarmAnimal { type = "trau", pen = 0 };
+            Animals.Instance.Farm.Add(trau);
+            Assert.IsTrue(FarmSystem.HasBuffalo());
+            bool used = farm.TryUse(s.Items.Get("hoe"));
+            Animals.Instance.Farm.Remove(trau);
+            Assert.IsTrue(used); yield return WaitAct(s);
+            Assert.AreEqual(before + 4, farm.Plots.Count, "trau cay 4 o");
+        }
+
         static Renderer FindChunkRenderer(RestorationModel.Region reg, RestorationSystem rs)
         {
             var root = IslandTerrain.Instance.transform.Find("TerrainChunks");
