@@ -45,7 +45,7 @@ namespace SereneIsle.Tests
                 Assert.IsNotEmpty(b.tiles);
                 foreach (var k in b.tiles) Assert.AreEqual(1, d.Solid[k], $"{id}: o nha la vat can");
             }
-            Assert.AreEqual(4, v.Npcs.Count, "4 dan lang");
+            Assert.AreEqual(NpcDefs.All.Length, v.Npcs.Count, "du dan lang (4 + O Man tho lan)");
             Assert.IsNotNull(Placeables.Instance.At(d.TownIdx(0, 3)), "lua trai giua lang van co");
 
             // ban ngay: ai cung co mat

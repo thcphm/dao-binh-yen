@@ -13,7 +13,7 @@ namespace SereneIsle.Tests
         public void DuLieuNghe()
         {
             var taught = Crafts.All.Where(c => c.available).Select(c => c.id).ToList();
-            CollectionAssert.AreEquivalent(new[] { Crafts.Garden, Crafts.Fishing }, taught, "4b: 2 tho ca co mat tu dau");
+            CollectionAssert.AreEquivalent(new[] { Crafts.Garden, Crafts.Fishing, "lan" }, taught, "4b: vuon + cau; giai doan 6 them lan bien (O Man)");
             foreach (var c in Crafts.All.Where(c => c.available))
             {
                 Assert.AreEqual(Crafts.MaxLevel, c.levels.Length, c.id);

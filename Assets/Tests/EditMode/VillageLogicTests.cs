@@ -58,7 +58,7 @@ namespace SereneIsle.Tests
         [Test]
         public void DanLang()
         {
-            CollectionAssert.AreEquivalent(new[] { "bay", "chin", "sau", "tam" }, NpcDefs.All.Select(n => n.id));
+            CollectionAssert.AreEquivalent(new[] { "bay", "chin", "sau", "tam", "man" }, NpcDefs.All.Select(n => n.id)); // man: O Man tho lan (nhanh gameplay)
             foreach (var n in NpcDefs.All)
             {
                 Assert.IsNotEmpty(n.lines, n.id);

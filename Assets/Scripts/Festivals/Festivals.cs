@@ -17,7 +17,7 @@ namespace SereneIsle
 
         public const string Tet = "Tết", RamGieng = "Rằm tháng giêng", CauNgu = "Lễ cầu ngư", TrungThu = "Trung thu", ComMoi = "Cúng cơm mới";
 
-        static readonly Dictionary<string, int> LiXi = new Dictionary<string, int> { ["bay"] = 50, ["chin"] = 40, ["sau"] = 30, ["tam"] = 30 };
+        static readonly Dictionary<string, int> LiXi = new Dictionary<string, int> { ["bay"] = 50, ["chin"] = 40, ["sau"] = 30, ["tam"] = 30, ["man"] = 20 };
         static readonly string[] Houses = { "shack", "taphoa", "sauvuon", "chinhut" };
 
         GameObject _decor;
@@ -413,7 +413,9 @@ namespace SereneIsle
                         "bay" => "Chúc mừng năm mới! Năm nay đảo mình xanh hơn, biển êm hơn nghen con.",
                         "chin" => "Năm mới an khang nghen con! Ghe bác chở đầy hoa với dưa hấu cho xóm rồi đó.",
                         "sau" => "Chúc con năm mới vườn tược tốt tươi, trồng cây gì cũng sai trái!",
-                        _ => "Năm mới phát tài nghen con! Ghé tiệm thím có bánh chưng, mứt gừng đó.",
+                        "tam" => "Năm mới phát tài nghen con! Ghé tiệm thím có bánh chưng, mứt gừng đó.",
+                        "man" => "Năm mới lặn đâu cũng gặp bào ngư nghe! Mà Tết thì nghỉ lặn, ăn bánh đã.",
+                        _ => "Chúc mừng năm mới nghen con!",
                     };
                     if (LiXi.TryGetValue(id, out int amt) && !Done("lixi_" + id))
                     {
@@ -438,7 +440,9 @@ namespace SereneIsle
                         "bay" => "Lễ cầu ngư, xóm mình cúng cá Ông cho biển êm, ghe về đầy khoang.",
                         "chin" => "Bữa nay chợ lớn nhất năm, khách đất liền ra đông nghẹt. Có cá thì đem bán, được giá lắm!",
                         "sau" => "Đầu mùa cá rồi. Con bày sạp ở nhà lồng chợ đi, nay họp cả ngày.",
-                        _ => "Cá bữa nay bán được giá nghen con. Khách đất liền mê đặc sản đảo lắm.",
+                        "tam" => "Cá bữa nay bán được giá nghen con. Khách đất liền mê đặc sản đảo lắm.",
+                        "man" => "Cầu ngư rồi, xin cá Ông cho biển êm. Mấy bữa ni lặn rạn là trúng mùa.",
+                        _ => "Lễ cầu ngư vui lắm, ra chợ coi nghen.",
                     };
                     break;
                 case TrungThu:
