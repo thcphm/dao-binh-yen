@@ -297,7 +297,8 @@ namespace SereneIsle
             _weatherLabel.style.display = wx ? DisplayStyle.Flex : DisplayStyle.None;
             if (wx) _weatherLabel.text = $"{WeatherSystem.NameOf(wx.Today)} · mai: {WeatherSystem.NameOf(wx.Tomorrow).ToLowerInvariant()}";
             var reg = s.Restoration ? s.Restoration.Current : null;
-            _regionLabel.text = reg != null ? $"{reg.name} · sức sống {Mathf.RoundToInt(reg.vitality)}" : "Ngoài khơi";
+            var islet = reg == null && IsletSystem.Instance && s.Player ? IsletSystem.Instance.At(s.Player.transform.position) : null;
+            _regionLabel.text = reg != null ? $"{reg.name} · sức sống {Mathf.RoundToInt(reg.vitality)}" : islet != null ? islet.name : "Ngoài khơi";
             string hint = s.Active && DivingSystem.Instance && DivingSystem.Instance.Swimming ? DivingSystem.Instance.Hint
                         : s.Active && s.Farm ? s.Farm.HintFor(DB.Get(s.Hotbar.SelectedId)) : null;
             if (string.IsNullOrEmpty(hint) && s.Active && ToolSystem.Instance) hint = ToolSystem.Instance.HintFor(s.Hotbar.SelectedId);

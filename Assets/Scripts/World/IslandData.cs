@@ -372,6 +372,8 @@ namespace SereneIsle
         // ---- vat the tren o (cay, da...) - ban web: objAt ----
         /// <summary>0 = trong, nguoc lai = (int)WorldObjectType + 1.</summary>
         public byte[] ObjType;
+        /// <summary>Quan dao nho (Islets.Carve, sinh sau dao chinh). Rong neu chua tao.</summary>
+        public List<Islet> Islets = new List<Islet>();
         public float[] ObjScale;
         public float[] ObjRot;
 

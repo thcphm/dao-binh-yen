@@ -133,6 +133,11 @@ namespace SereneIsle
                 if (boat != null) return boat;
                 if (BoatSystem.Instance.OnBoat) return null;
             }
+            if (IsletSystem.Instance)  // ruong o Hon Da
+            {
+                var chest = IsletSystem.Instance.NearbyAction(p, out label);
+                if (chest != null) return chest;
+            }
             if (Village.Instance)
             {
                 var talk = Village.Instance.NearbyAction(p, out label);
