@@ -62,7 +62,20 @@ namespace SereneIsle
                                      unlock = "Cá huyền thoại cắn câu gấp đôi, kéo cá dễ hơn nữa." },
                 },
             },
-            Later("lan", "Lặn biển", "man", "O Mận"),
+            new CraftDef
+            {
+                // nghe lan (giai doan 6, Docs muc 7.1): DivingSystem doc cap nay
+                id = "lan", name = "Lặn biển", master = "man", masterName = "O Mận", available = true,
+                levels = new[]
+                {
+                    new CraftLevel { req = new[] { new CraftReq("ngheu", 3), new CraftReq("so_huyet", 3) },
+                                     unlock = "Kính lặn: bơi ra chỗ nước sâu, lặn đầm nông (sâu tới 1 sải), nín thở 15 giây." },
+                    new CraftLevel { req = new[] { new CraftReq("rong_sun", 4), new CraftReq("oc_huong", 3), new CraftReq("nhum", 2) },
+                                     unlock = "Chân vịt: bơi nhanh hơn, lặn rạn gần bờ (sâu tới 1,4 sải), nín thở 30 giây." },
+                    new CraftLevel { req = new[] { new CraftReq("hai_sam", 3), new CraftReq("bao_ngu", 2), new CraftReq("manh_san_ho", 3) },
+                                     unlock = "Đèn lặn: lặn mọi chỗ sâu, lặn được ban đêm, nín thở 45 giây." },
+                },
+            },
             Later("luoi", "Đan lưới", "tu", "Bà Tư Lưới"),
             Later("muoi", "Làm muối", "nam", "Chú Năm Diêm"),
             Later("mam", "Làm nước mắm", "ba", "Dì Ba Mắm"),

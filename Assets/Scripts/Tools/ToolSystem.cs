@@ -127,6 +127,12 @@ namespace SereneIsle
             var s = S;
             var p = s.Player.transform.position;
             label = null;
+            if (BoatSystem.Instance)   // ghe thung: len ghe / len bo (uu tien khi dang tren ghe)
+            {
+                var boat = BoatSystem.Instance.NearbyAction(p, out label);
+                if (boat != null) return boat;
+                if (BoatSystem.Instance.OnBoat) return null;
+            }
             if (Village.Instance)
             {
                 var talk = Village.Instance.NearbyAction(p, out label);

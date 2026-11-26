@@ -17,7 +17,7 @@ namespace SereneIsle.Tests
             var ids = DB.items.Select(i => i.id).ToList();
             Assert.AreEqual(ids.Count, ids.Distinct().Count(), "id trung");
             Assert.AreEqual(9, DB.items.Count(i => i.IsTool), "9 dung cu");
-            Assert.AreEqual(31, DB.items.Count(i => i.category == ItemCategory.Fish), "30 ca FISH + f_trout");
+            Assert.AreEqual(33, DB.items.Count(i => i.category == ItemCategory.Fish), "30 ca FISH + f_trout + 2 muc (cau muc dem)");
             Assert.AreEqual(24, DB.items.Count(i => i.category == ItemCategory.Bug), "6 BUGS ban web + 18 loai Viet Nam");
             foreach (var it in DB.items)
             {

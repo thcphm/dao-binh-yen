@@ -220,12 +220,39 @@ namespace SereneIsle
             if (!CanTill(k, out var why)) { S.Say(why); return; }
             if (!S.Stats.UseEnergy(2)) { S.Say("Hết sức rồi, nghỉ ngơi hoặc ăn gì đó đã."); return; }
             if (body) body.PlayAct("hoe");
+            bool low = TillOne(k);
+            // trau cay (muc 4.3): co trau trong chuong thi moi lan cuoc lam them 3 o thang hang phia truoc (nhanh gap 4)
+            int extra = 0;
+            if (HasBuffalo())
+            {
+                var d = Data;
+                float f = S.Player.Facing;
+                int i0 = k % d.N, j0 = k / d.N, di = Mathf.RoundToInt(Mathf.Sin(f)), dj = Mathf.RoundToInt(Mathf.Cos(f));
+                if (di == 0 && dj == 0) dj = 1;
+                for (int q = 1; q <= 3; q++)
+                {
+                    int i = i0 + di * q, j = j0 + dj * q;
+                    if (!d.InBounds(i, j)) break;
+                    int kk = d.Idx(i, j);
+                    if (_plots.ContainsKey(kk) || !CanTill(kk, out _)) break;
+                    low |= TillOne(kk); extra++;
+                }
+                if (extra > 0) S.Say($"Trâu cày thêm {extra} ô.");
+            }
+            if (low) S.Say($"Đất trũng: nước rong sẽ tràn vào làm cây chết mặn. Dùng xẻng và {FarmRules.DikeStones} đá để đắp bờ bao.");
+        }
+
+        bool TillOne(int k)
+        {
             var plot = new FarmPlot { k = k, soil = SoilAt(k), lowland = IsLowland(k) };
             _plots[k] = plot;
             HideGrass(k);
             Refresh(k);
-            if (plot.lowland) S.Say($"Đất trũng: nước rong sẽ tràn vào làm cây chết mặn. Dùng xẻng và {FarmRules.DikeStones} đá để đắp bờ bao.");
+            return plot.lowland;
         }
+
+        /// <summary>Co trau o trong chuong (Animals, giai doan 4c).</summary>
+        public static bool HasBuffalo() => Animals.Instance && Animals.Instance.Farm.Exists(a => a.type == "trau" && a.pen >= 0);
 
         void Water(int k, FarmPlot p)
         {

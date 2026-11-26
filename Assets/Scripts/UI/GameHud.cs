@@ -30,6 +30,7 @@ namespace SereneIsle
         Label _tideLabel, _targetHint, _regionLabel, _weatherLabel;
         StatIconElement _sun;
         VisualElement _hpFill, _waterFill, _energyFill, _calmFill, _energyRec, _weightFill;
+        VisualElement _breathFill, _breathRow;   // hoi tho khi lan (DivingSystem)
         VisualElement _toasts, _hotbar, _overlay, _grid, _toolsRow, _fade, _ghost, _help;
         ItemIcon _ghostIcon;
         SlotView[] _slots;
@@ -119,6 +120,9 @@ namespace SereneIsle
             _energyRec = E(null, "bar-recover");
             enBar.Add(_energyRec);
             _calmFill = StatRow(clock, StatIcon.Leaf, "calm-fill", out _);
+            _breathFill = StatRow(clock, StatIcon.Drop, "breath-fill", out var breathBar);
+            _breathRow = breathBar.parent;
+            _breathRow.style.display = DisplayStyle.None;
             _hud.Add(clock);
 
             // ---- xu ----
@@ -294,7 +298,8 @@ namespace SereneIsle
             if (wx) _weatherLabel.text = $"{WeatherSystem.NameOf(wx.Today)} · mai: {WeatherSystem.NameOf(wx.Tomorrow).ToLowerInvariant()}";
             var reg = s.Restoration ? s.Restoration.Current : null;
             _regionLabel.text = reg != null ? $"{reg.name} · sức sống {Mathf.RoundToInt(reg.vitality)}" : "Ngoài khơi";
-            string hint = s.Active && s.Farm ? s.Farm.HintFor(DB.Get(s.Hotbar.SelectedId)) : null;
+            string hint = s.Active && DivingSystem.Instance && DivingSystem.Instance.Swimming ? DivingSystem.Instance.Hint
+                        : s.Active && s.Farm ? s.Farm.HintFor(DB.Get(s.Hotbar.SelectedId)) : null;
             if (string.IsNullOrEmpty(hint) && s.Active && ToolSystem.Instance) hint = ToolSystem.Instance.HintFor(s.Hotbar.SelectedId);
             var buildSel = Placeables.Instance ? Placeables.Instance.Selected : null;
             if (buildSel != _lastBuildSel) { _lastBuildSel = buildSel; _dirtyHotbar = true; }
@@ -307,6 +312,10 @@ namespace SereneIsle
             SetBar(_waterFill, st.Water, true);
             SetBar(_energyFill, en, true);
             SetBar(_calmFill, st.Calm, false);
+            var dive = DivingSystem.Instance;
+            bool swim = dive && dive.Swimming;
+            _breathRow.style.display = swim ? DisplayStyle.Flex : DisplayStyle.None;
+            if (swim) SetBar(_breathFill, dive.BreathPct, dive.Underwater);
             _energyRec.style.left = Length.Percent(en);
             _energyRec.style.width = Length.Percent(Mathf.Min(100 - en, st.Recover / st.EnergyMax * 100f));
             _coinLabel.text = s.Coins.ToString("#,0", CultureInfo.InvariantCulture).Replace(',', '.');
