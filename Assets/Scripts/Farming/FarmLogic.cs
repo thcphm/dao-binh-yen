@@ -149,6 +149,24 @@ namespace SereneIsle
             return true;
         }
 
+        public const double StormKillChance = .7;
+
+        /// <summary>Bao (muc 8): cay ngan ngay ngoai troi hu 70%, cay an trai rung het trai cua mua.
+        /// Tra ve 1 neu cay chet, 2 neu cay an trai rung trai, 0 neu khong sao.</summary>
+        public static int StormDamage(FarmPlot p, CropDefinition c, Random rng)
+        {
+            if (p.ditch || p.Empty || p.dead || c == null) return 0;
+            if (c.kind == CropKind.Tree)
+            {
+                if (!p.hasFruit) return 0;
+                p.hasFruit = false; p.fruitTimer = 0;
+                return 2;
+            }
+            if (rng.NextDouble() >= StormKillChance) return 0;
+            Kill(p, "bão");
+            return 1;
+        }
+
         /// <summary>Bon phan: chi khi o dang co cay song va chua bon vu nay.</summary>
         public static string CanFertilize(FarmPlot p)
         {

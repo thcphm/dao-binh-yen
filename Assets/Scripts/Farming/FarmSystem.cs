@@ -332,6 +332,36 @@ namespace SereneIsle
             if (dry > 0) S.Say($"{dry} cây chết khô vì quên tưới.");
         }
 
+        // ---------------------------------------------------------------- thoi tiet (goi tu he thoi tiet, giai doan 6)
+        /// <summary>Troi mua: moi o ruong (tru muong) tinh la da tuoi hom nay. Tra ve so o duoc tuoi.</summary>
+        public int WaterAllByRain()
+        {
+            int n = 0;
+            foreach (var p in _plots.Values)
+            {
+                if (p.ditch || p.watered) continue;
+                p.watered = true; n++;
+            }
+            foreach (var k in _plots.Keys) Refresh(k);
+            return n;
+        }
+
+        /// <summary>Bao quet qua (Docs/ThietKeGameplay.md muc 8): cay ngan ngay hu 70%, cay an trai rung trai.
+        /// Tra ve so cay chet va so cay rung trai; tu bao len HUD.</summary>
+        public (int killed, int fruitLost) ApplyStorm(System.Random rng)
+        {
+            int killed = 0, lost = 0;
+            foreach (var p in _plots.Values)
+            {
+                int r = FarmRules.StormDamage(p, Crops.Get(p.crop), rng);
+                if (r == 1) killed++; else if (r == 2) lost++;
+            }
+            foreach (var k in _plots.Keys) Refresh(k);
+            if (S && (killed > 0 || lost > 0))
+                S.Say($"Bão quét qua vườn: {killed} cây hư" + (lost > 0 ? $", {lost} cây ăn trái rụng hết trái." : "."));
+            return (killed, lost);
+        }
+
         // ---------------------------------------------------------------- ve
         void Refresh(int k)
         {
