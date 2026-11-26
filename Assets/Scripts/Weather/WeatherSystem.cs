@@ -144,18 +144,15 @@ namespace SereneIsle
         {
             var farm = S ? S.Farm : null;
             if (!farm) return;
-            // hook cua nhanh gameplay (FarmSystem.WaterAllByRain) - goi qua reflection de 2 nhanh doc lap
-            var m = farm.GetType().GetMethod("WaterAllByRain");
-            m?.Invoke(farm, null);
+            farm.WaterAllByRain();
         }
 
         void AfterStorm()
         {
             var s = S; var d = IslandTerrain.Instance ? IslandTerrain.Instance.Data : null;
             var farm = s ? s.Farm : null;
-            var m = farm ? farm.GetType().GetMethod("ApplyStorm") : null;
-            if (m != null) m.Invoke(farm, new object[] { _rng });
-            else s?.Say("Đêm qua bão quét qua đảo.");
+            var (killed, lost) = farm ? farm.ApplyStorm(_rng) : (0, 0);
+            if (killed + lost == 0) s?.Say("Đêm qua bão quét qua đảo."); // ApplyStorm tu bao khi co cay hu
             // go troi dat vao bai bien quanh lang (Docs muc 7.4: sau bao bien dat vao go troi)
             if (d == null || !s.Player) return;
             int n = 0;
