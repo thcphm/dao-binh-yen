@@ -64,7 +64,7 @@ namespace SereneIsle
             head.Add(L("j-calm", $"Bình yên {Mathf.RoundToInt(s.Stats.Calm)}/100 · {LunarCalendar.Date(s.Clock.Day).LongLabel}"));
             _card.Add(head);
             var tabs = E(null, "seg j-tabs");
-            foreach (var (id, name) in new[] { ("book", "Sổ sinh vật"), ("mile", "Cột mốc"), ("diary", "Nhật ký"), ("calm", "Bình yên") })
+            foreach (var (id, name) in new[] { ("book", "Sổ sinh vật"), ("mile", "Cột mốc"), ("diary", "Nhật ký"), ("mail", "Thư nhà"), ("calm", "Bình yên") })
             {
                 string t = id;
                 tabs.Add(Btn(name, () => Open(t), Tab == id ? null : "off"));
@@ -80,6 +80,7 @@ namespace SereneIsle
                 case "book": Book(c); break;
                 case "mile": Miles(c); break;
                 case "diary": Diary(c); break;
+                case "mail": Letters(c); break;
                 default: Calm(c); break;
             }
             var foot = E(null, "menu-buttons");
@@ -152,6 +153,23 @@ namespace SereneIsle
                 c.Add(page);
             }
             if (Bottles.Instance) c.Add(L("j-section", $"ĐÃ ĐỌC {Bottles.Instance.LettersRead} LÁ THƯ TRONG CHAI"));
+        }
+
+        void Letters(VisualElement c)
+        {
+            var m = Mail.Instance;
+            int n = m ? m.Chapter : 0;
+            c.Add(L("j-text", "Mỗi tháng (mùng 2) ghe thư của Bác Chín cập cầu tàu. Nói chuyện với Bác Chín để nhận thư nhà và gửi thư hồi âm kèm quà."));
+            if (n == 0) c.Add(L("j-section", "CHƯA CÓ THƯ NÀO"));
+            for (int i = n - 1; i >= 0; i--)
+            {
+                var l = Mail.LetterAt(i);
+                var page = E(null, "j-page");
+                page.Add(L("craft-name", $"Thư {i + 1} · {l.from}"));
+                page.Add(L("j-text", l.text));
+                c.Add(page);
+            }
+            if (m && m.Pending) c.Add(L("j-section", "CÓ THƯ MỚI ĐANG CHỜ Ở BÁC CHÍN"));
         }
 
         void Calm(VisualElement c)

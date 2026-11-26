@@ -81,6 +81,7 @@ namespace SereneIsle
             R("ca_kho", "Cá kho tộ", F, 75, .5f, IconShape.Bowl, "#8a4a2a", "#5a3a22", en: 45, hp: 12);
             R("khoai_nuong", "Khoai lang nướng", F, 30, .3f, IconShape.RootRound, "#a8507a", "#5a3a22", en: 20);
             R("banh_chung", "Bánh chưng", F, 180, .8f, IconShape.Pie, "#3f7a3a", "#d8c890", en: 70, hp: 20);
+            R("banh_trung_thu", "Bánh trung thu", F, 90, .2f, IconShape.Pie, "#c8843a", "#f2d48a", en: 35, hp: 8); // qua Trung thu
 
             // ---- nong san + hat giong: sinh tu bang giong cay 4 mua (CropCatalogData) ----
             foreach (var row in CropCatalogData.Rows)
@@ -121,6 +122,7 @@ namespace SereneIsle
             R("worm", "Giun đất", X, 3, .02f, IconShape.Worm, "#d98a8a", "#a85a5a");
             R("shell", "Vỏ sò", X, 8, .05f, IconShape.Shell, "#f2d7c4", "#d9a58a");
             R("oldcoin", "Đồng xu cổ", X, 60, .02f, IconShape.Coin, "#e0a21f", "#9a6510");
+            R("hoa_dang", "Hoa đăng", X, 10, .1f, IconShape.Lotus, "#f28aa8", "#ffd34d").description = "Đèn hoa sen. Tối đến ra mép nước bấm E để thả.";
 
             // ---- ba lo, vat nuoi (khong vao tui) ----
             R("bag1", "Ba lô vải", B, 0, 0, IconShape.Backpack, "#c9a46a", "#8a6a40").bagLevel = 1;

@@ -77,8 +77,10 @@ namespace SereneIsle
         void OnDestroy() { if (Instance == this) Instance = null; }
 
         // ------------------------------------------------------------------ lich
-        public static bool IsMarketDay(int day) => LunarCalendar.Date(day).IsMarketDay;
-        public static bool IsBig(int day) => LunarCalendar.IsBigMarket(LunarCalendar.Date(day));
+        /// <summary>Le cau ngu (ram thang 3): chu phien lon nhat nam, hop bat ke thu may (muc 7.5).</summary>
+        public static bool IsCauNgu(int day) { var d = LunarCalendar.Date(day); return d.Month == 3 && d.DayOfMonth == LunarCalendar.FullMoonDay; }
+        public static bool IsMarketDay(int day) => LunarCalendar.Date(day).IsMarketDay || IsCauNgu(day);
+        public static bool IsBig(int day) => LunarCalendar.IsBigMarket(LunarCalendar.Date(day)) || IsCauNgu(day);
         public bool IsOpen => S && IsMarketDay(S.Clock.Day) && S.Clock.Hour >= OpenHour && S.Clock.Hour < CloseHour && !Storm;
         /// <summary>Bay sap duoc: ngay cho, truoc gio tan, khong bao.</summary>
         public bool CanSetUp => S && IsMarketDay(S.Clock.Day) && S.Clock.Hour < CloseHour && !Storm;
@@ -171,10 +173,10 @@ namespace SereneIsle
 
             // khach den: phien lon / uy tin cao thi dong hon; sap trong thi it khach ghe
             _spawnT -= Time.deltaTime;
-            int max = IsBig(s.Clock.Day) ? 5 : 3;
+            int max = IsCauNgu(s.Clock.Day) ? 7 : IsBig(s.Clock.Day) ? 5 : 3;
             if (_spawnT <= 0 && _customers.Count < max)
             {
-                float interval = (IsBig(s.Clock.Day) ? 7f : 11f) * Mathf.Lerp(1f, .6f, Reputation / 100f);
+                float interval = (IsCauNgu(s.Clock.Day) ? 5f : IsBig(s.Clock.Day) ? 7f : 11f) * Mathf.Lerp(1f, .6f, Reputation / 100f);
                 if (Stall.Count == 0) interval *= 2.5f;
                 _spawnT = interval * (.7f + (float)_rng.NextDouble() * .6f);
                 SpawnCustomer();
@@ -219,7 +221,8 @@ namespace SereneIsle
 
         /// <summary>Gia toi da (ti le gia goc) khach chap nhan voi mon nay.</summary>
         public float WillingRatio(CustomerType t, ItemDefinition d, float noise)
-            => .95f + .3f * t.Pref(d) + t.wealth + Reputation / 100f * .2f + (S && IsBig(S.Clock.Day) ? .1f : 0) + noise;
+            => .95f + .3f * t.Pref(d) + t.wealth + Reputation / 100f * .2f + (S && IsBig(S.Clock.Day) ? .1f : 0)
+               + (S && IsCauNgu(S.Clock.Day) && d.category == ItemCategory.Fish ? .15f : 0) + noise; // cau ngu: ca duoc gia
 
         /// <summary>Khach toi quay: chon mon, mua / tra gia / bo di.</summary>
         public Outcome Serve(MarketCustomer c)

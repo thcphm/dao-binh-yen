@@ -138,6 +138,8 @@ namespace SereneIsle
             if (!WeatherSystem.Instance) Session.gameObject.AddComponent<WeatherSystem>();
             if (!Journal.Instance) Session.gameObject.AddComponent<Journal>();
             if (!Bottles.Instance) Session.gameObject.AddComponent<Bottles>();
+            if (!Mail.Instance) Session.gameObject.AddComponent<Mail>();
+            if (!Festivals.Instance) Session.gameObject.AddComponent<Festivals>();
             var village = Village.Instance ? Village.Instance : Session.gameObject.AddComponent<Village>();
             if (Terrain.IsReady) village.Build();
             else Terrain.Ready += _ => village.Build();

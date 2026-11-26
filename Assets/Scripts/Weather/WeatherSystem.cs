@@ -220,6 +220,7 @@ namespace SereneIsle
             _overcast = Today switch { WeatherKind.Storm => 1f, WeatherKind.Rain => .8f, WeatherKind.Cloud => .42f, _ => 0f };
             _wind = Today switch { WeatherKind.Storm => 1f, WeatherKind.Rain => .3f, WeatherKind.Cloud => .15f, _ => .05f };
             if (s && s.Environment) { s.Environment.overcast = _overcast; s.Environment.wind = _wind; }
+            if (_rain && !IsRaining) { _rain.intensity = 0; _rain.ClearNow(); }
         }
 
         /// <summary>Danh 1 tia chop ngay (test / su kien).</summary>

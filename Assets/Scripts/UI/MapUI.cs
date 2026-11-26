@@ -363,7 +363,12 @@ namespace SereneIsle
             _side.Add(L("bm-p", $"{LunarCalendar.MoonPhaseName(age)} · sáng {Mathf.RoundToInt((float)LunarCalendar.MoonIllumination(age) * 100)}%"));
             string fest = LunarCalendar.Festival(date);
             if (fest != null) _side.Add(L("bm-p bm-hl", $"Hôm nay: {fest}"));
-            int toMarket = 0; while (!LunarCalendar.Date(s.Clock.Day + toMarket).IsMarketDay && toMarket < 7) toMarket++;
+            else
+            {
+                var next = LunarCalendar.NextFestival(s.Clock.Day, out int fd);
+                if (next != null) _side.Add(L("bm-p", $"Lễ sắp tới: {next}, còn {fd} ngày."));
+            }
+            int toMarket = 0; while (!Market.IsMarketDay(s.Clock.Day + toMarket) && toMarket < 7) toMarket++;
             _side.Add(L("bm-p", toMarket == 0 ? "Hôm nay họp chợ phiên (7–17 giờ)." : $"Chợ phiên: còn {toMarket} ngày."));
 
             _side.Add(L("bm-h", "CON NƯỚC HÔM NAY"));
