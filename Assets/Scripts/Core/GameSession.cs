@@ -80,6 +80,7 @@ namespace SereneIsle
             Restoration = gameObject.AddComponent<RestorationSystem>();
             gameObject.AddComponent<DivingSystem>();   // boi, lan bien (giai doan 6)
             gameObject.AddComponent<BoatSystem>();     // ghe thung, cau muc dem
+            gameObject.AddComponent<IsletSystem>();    // quan dao nho
         }
 
         void OnDestroy() { if (Instance == this) Instance = null; }

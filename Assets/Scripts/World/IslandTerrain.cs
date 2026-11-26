@@ -64,6 +64,7 @@ namespace SereneIsle
             {
                 data.Generate(p => Progress = p * .7f);
                 objects = WorldObjects.Place(data);
+                Islets.Carve(data, objects);   // quan dao nho (sau genObjects: dao chinh giu nguyen nhu ban web)
                 chunks = BuildChunkData(data, p => Progress = .7f + p * .25f);
             });
             while (!task.IsCompleted) yield return null;

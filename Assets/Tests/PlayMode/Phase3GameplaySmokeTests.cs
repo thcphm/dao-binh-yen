@@ -545,6 +545,54 @@ namespace SereneIsle.Tests
             Assert.AreEqual(before + 4, farm.Plots.Count, "trau cay 4 o");
         }
 
+        [UnityTest, Timeout(600000)]
+        public IEnumerator DaoNho_TimThay_RuongHonDa_RuaConDemRam()
+        {
+            yield return Boot();
+            var s = GameSession.Instance;
+            var d = IslandTerrain.Instance.Data;
+            var sys = IsletSystem.Instance;
+            Assert.IsNotNull(sys);
+            Assert.AreEqual(4, sys.Islets.Count, "4 hon dao nho");
+            for (int i = 0; i < 5; i++) yield return null;
+
+            // len Hon Dua
+            var coco = sys.Find(IsletKind.Coconut);
+            s.Clock.Minutes = 9 * 60;
+            s.Player.PlaceAt(new Vector3(coco.ci, 0, coco.cj), 0);
+            for (int i = 0; i < 10; i++) yield return null;
+            Assert.IsTrue(sys.Discovered.Contains("Hòn Dừa"), "tim thay Hon Dua");
+            var rig = Camera.main.GetComponent<OrbitCamera>();
+            rig.pitch = .45f; rig.distance = 16f;
+            for (int i = 0; i < 20; i++) yield return null;
+            yield return GameplayShots.Shot(Path.Combine(ShotDir(), "p6_5_hon_dua.png"));
+
+            // ruong Hon Da
+            var rock = sys.Find(IsletKind.Rock);
+            int ft = rock.featureTile;
+            s.Player.PlaceAt(new Vector3(ft % d.N + 1, 0, ft / d.N), 0);
+            yield return null;
+            Assert.IsNotNull(sys.NearbyAction(s.Player.transform.position, out string label));
+            StringAssert.Contains("rương", label);
+            int coins = s.Coins;
+            sys.OpenChest();
+            Assert.AreEqual(coins + 120, s.Coins);
+            Assert.IsTrue(sys.ChestOpened);
+            Assert.IsNull(sys.NearbyAction(s.Player.transform.position, out _), "mo 1 lan");
+
+            // dem ram o Hon Rua: rua con bo ra bien
+            var tur = sys.Find(IsletKind.Turtle);
+            s.Clock.Day = 15; s.Clock.Minutes = 20 * 60;
+            s.Player.PlaceAt(new Vector3(tur.ci, 0, tur.cj), 0);
+            float t = Time.realtimeSinceStartup;
+            while (!sys.TurtlesSeen && Time.realtimeSinceStartup - t < 6) yield return null;
+            Assert.IsTrue(sys.HatchingNow, "rua con dang bo");
+            Assert.IsTrue(sys.TurtlesSeen, "khoanh khac binh yen");
+            rig.pitch = .7f; rig.distance = 7f;
+            for (int i = 0; i < 20; i++) yield return null;
+            yield return GameplayShots.Shot(Path.Combine(ShotDir(), "p6_6_rua_con.png"));
+        }
+
         static Renderer FindChunkRenderer(RestorationModel.Region reg, RestorationSystem rs)
         {
             var root = IslandTerrain.Instance.transform.Find("TerrainChunks");

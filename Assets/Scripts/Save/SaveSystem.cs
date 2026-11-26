@@ -38,6 +38,9 @@ namespace SereneIsle
         public float[] vitality;
         // san ho da cay duoi day bien (DivingSystem) - chi so o
         public List<int> corals = new List<int>();
+        // quan dao nho (IsletSystem): hon da tim thay, ruong Hon Da, da thay rua con
+        public List<string> islets = new List<string>();
+        public bool isletChest, turtlesSeen;
         // do che tao da dat xuong dat (ban web: sv.pl)
         public List<PlacedItem> placed = new List<PlacedItem>();
         public string buildSel;
@@ -165,6 +168,8 @@ namespace SereneIsle
             if (pl) { d.placed = pl.Snapshot(); d.buildSel = pl.Selected; }
             if (s.Restoration) d.vitality = s.Restoration.Snapshot();
             if (DivingSystem.Instance) d.corals = DivingSystem.Instance.CoralSnapshot();
+            var isl = IsletSystem.Instance;
+            if (isl) { d.islets = new List<string>(isl.Discovered); d.isletChest = isl.ChestOpened; d.turtlesSeen = isl.TurtlesSeen; }
             return d;
         }
 
@@ -246,6 +251,13 @@ namespace SereneIsle
             }
             if (s.Restoration && d.vitality != null && d.vitality.Length > 0) s.Restoration.Restore(d.vitality);
             if (DivingSystem.Instance) DivingSystem.Instance.RestoreCorals(d.corals);
+            var isl = IsletSystem.Instance;
+            if (isl)
+            {
+                isl.Discovered.Clear();
+                if (d.islets != null) foreach (var n in d.islets) isl.Discovered.Add(n);
+                isl.ChestOpened = d.isletChest; isl.TurtlesSeen = d.turtlesSeen;
+            }
             if (s.Player) s.Player.PlaceAt(new Vector3(d.px, 0, d.pz), d.facing);
         }
     }
