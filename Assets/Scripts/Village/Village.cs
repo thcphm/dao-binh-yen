@@ -243,6 +243,15 @@ namespace SereneIsle
                   $"Chợ phiên họp ngày thứ 7 mỗi tuần, còn {wait} ngày nữa.");
         }
 
+        /// <summary>Mo rong hoi thoai (le hoi, thu dat lien): doi cau noi, them nut truoc cac nut co san.</summary>
+        public sealed class TalkContext
+        {
+            public Npc npc;
+            public string line;
+            public readonly List<(string, Action)> buttons = new List<(string, Action)>();
+        }
+        public static event Action<TalkContext> Talking;
+
         public void Talk(Npc n)
         {
             var s = S; var ui = ActionUI.Instance;
@@ -251,7 +260,9 @@ namespace SereneIsle
             n.Talking = true;
             ActionUI.ClearBubble();
             if (n.def.id == "bay" && !s.Flags.Contains(MetBay)) { Intro(n, 0); return; }
-            var buttons = new List<(string, Action)>();
+            var ctx = new TalkContext { npc = n, line = NpcDefs.Line(n.def, s, _rng) };
+            Talking?.Invoke(ctx);
+            var buttons = ctx.buttons;
             if (n.def.shop != null)
             {
                 var shop = n.def.shop;
@@ -260,7 +271,7 @@ namespace SereneIsle
             if (ApprenticeUI.Instance && System.Linq.Enumerable.Any(Crafts.TaughtBy(n.def.id)))
                 buttons.Add(("Học nghề", () => { _talking = n; n.Talking = true; ApprenticeUI.Instance.Open(n.def.id); }));
             buttons.Add(("Tạm biệt", null));
-            ui.ShowDialog(n.def.name, NpcDefs.Line(n.def, s, _rng), buttons.ToArray());
+            ui.ShowDialog(n.def.name, ctx.line, buttons.ToArray());
         }
 
         void OpenShop(Npc n, string shop)

@@ -23,6 +23,29 @@ namespace SereneIsle
         readonly List<FloatText> _floatTexts = new List<FloatText>();
 
         public bool DialogOpen => _dialog != null && _dialog.style.display == DisplayStyle.Flex;
+        public string DialogTitle => _dialogTitle?.text;
+        public string DialogText => _dialogText?.text;
+        /// <summary>Nhan cac nut cua hop thoai dang mo (test).</summary>
+        public System.Collections.Generic.List<string> DialogButtons()
+        {
+            var l = new System.Collections.Generic.List<string>();
+            if (_dialogButtons != null) foreach (var c in _dialogButtons.Children()) if (c is Button b) l.Add(b.text);
+            return l;
+        }
+        /// <summary>Bam nut theo nhan (test).</summary>
+        public bool ClickDialog(string label)
+        {
+            if (_dialogButtons == null) return false;
+            foreach (var (l, act) in _dialogActs)
+                if (l == label)
+                {
+                    CloseDialog();
+                    act?.Invoke();
+                    return true;
+                }
+            return false;
+        }
+        readonly System.Collections.Generic.List<(string, System.Action)> _dialogActs = new System.Collections.Generic.List<(string, System.Action)>();
         public bool CraftOpen => _craft != null && _craft.style.display == DisplayStyle.Flex;
 
         GameSession S => GameSession.Instance;
@@ -269,6 +292,11 @@ namespace SereneIsle
             _dialogTitle.text = title;
             _dialogText.text = text;
             _dialogButtons.Clear();
+            // nut dai (chon cau ke trong thu...) -> xep doc, rong het hop thoai
+            bool stack = System.Array.Exists(buttons, b => b.label != null && b.label.Length > 18);
+            _dialogButtons.EnableInClassList("stack", stack);
+            _dialogActs.Clear();
+            _dialogActs.AddRange(buttons);
             foreach (var (label, act) in buttons)
             {
                 var b = new Button(() => { CloseDialog(); act?.Invoke(); }) { text = label };

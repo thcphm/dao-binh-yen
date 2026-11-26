@@ -333,7 +333,7 @@ namespace SereneIsle
             var date = Date;
             string fest = LunarCalendar.Festival(date);
             if (fest != null) msgs.Add($"Hôm nay là {fest}!");
-            if (date.IsMarketDay) msgs.Add(LunarCalendar.IsBigMarket(date) ? "Hôm nay có phiên chợ lớn." : "Hôm nay có phiên chợ.");
+            if (Market.IsMarketDay(Clock.Day)) msgs.Add(Market.IsBig(Clock.Day) ? "Hôm nay có phiên chợ lớn." : "Hôm nay có phiên chợ.");
             if (HasHome && Player) Player.PlaceAt(HomePosition, HomeFacing);
             if (Environment) Environment.hour = Clock.Hour;
             if (ToolSystem.Instance) ToolSystem.Instance.Regrow(Clock.Day);

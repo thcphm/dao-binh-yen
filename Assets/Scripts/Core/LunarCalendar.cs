@@ -97,6 +97,22 @@ namespace SereneIsle
             if (d.Month == 1 && d.DayOfMonth == FullMoonDay) return "Rằm tháng giêng";
             if (d.Month == 3 && d.DayOfMonth == FullMoonDay) return "Lễ cầu ngư";
             if (d.Month == 6 && d.DayOfMonth == FullMoonDay) return "Trung thu";
+            if (d.Month == ComMoiMonth && d.DayOfMonth == ComMoiDay) return "Cúng cơm mới";
+            return null;
+        }
+
+        /// <summary>Cung com moi: sau vu lua dong xuan (thu hoach cuoi Xuan) -> mung 10 thang 3, dau mua Ha.</summary>
+        public const int ComMoiMonth = 3, ComMoiDay = 10;
+
+        /// <summary>Le hoi gan nhat tu ngay day (ke ca hom nay). days = so ngay con lai.</summary>
+        public static string NextFestival(int day, out int days)
+        {
+            for (int k = 0; k <= DaysPerYear; k++)
+            {
+                var f = Festival(Date(day + k));
+                if (f != null) { days = k; return f; }
+            }
+            days = -1;
             return null;
         }
 

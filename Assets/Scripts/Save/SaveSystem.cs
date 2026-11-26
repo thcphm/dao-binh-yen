@@ -56,6 +56,9 @@ namespace SereneIsle
         public List<ItemCount> stats = new List<ItemCount>();
         public List<ItemCount> miles = new List<ItemCount>();
         public int journalPages = 1, letters, bottle = -1, treasure = -1;
+        // giai doan 6d: thu dat lien
+        public int mailChapter, mailMonth = -1, mailSent = -1;
+        public string mailTopic, mailGift;
     }
 
     /// <summary>Tom tat 1 o luu cho man hinh chon o (giai doan 5).</summary>
@@ -146,6 +149,8 @@ namespace SereneIsle
             if (MapUI.Instance) d.pins.AddRange(MapUI.Instance.Pins);
             if (Journal.Instance) { d.stats = Journal.Instance.SnapshotStats(); d.miles = Journal.Instance.SnapshotMiles(); d.journalPages = Journal.Instance.PagesUnlocked; }
             if (Bottles.Instance) { d.bottle = Bottles.Instance.Bottle; d.treasure = Bottles.Instance.Treasure; d.letters = Bottles.Instance.LettersRead; }
+            var mail = Mail.Instance;
+            if (mail) { d.mailChapter = mail.Chapter; d.mailMonth = mail.LastMonth; d.mailSent = mail.SentMonth; d.mailTopic = mail.Topic; d.mailGift = mail.Gift; }
             var ts = ToolSystem.Instance;
             if (ts)
             {
@@ -221,6 +226,7 @@ namespace SereneIsle
             if (MapUI.Instance) MapUI.Instance.SetPins(d.pins);
             if (Journal.Instance) Journal.Instance.Restore(d.stats, d.miles, d.journalPages);
             if (Bottles.Instance) Bottles.Instance.Restore(d.bottle, d.treasure, d.letters);
+            if (Mail.Instance) Mail.Instance.Restore(d.mailChapter, d.mailMonth, d.mailSent, d.mailTopic, d.mailGift);
             if (d.hotbar != null && d.hotbar.Length == Hotbar.Size) s.Hotbar.Load(d.hotbar);
             s.Hotbar.Selected = Mathf.Clamp(d.selected, 0, Hotbar.Size - 1);
             var ts = ToolSystem.Instance;

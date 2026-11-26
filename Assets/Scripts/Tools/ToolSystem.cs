@@ -142,6 +142,11 @@ namespace SereneIsle
                 var bottle = Bottles.Instance.NearbyAction(p, out label);
                 if (bottle != null) return bottle;
             }
+            if (Festivals.Instance)
+            {
+                var lantern = Festivals.Instance.NearbyAction(p, out label);
+                if (lantern != null) return lantern;
+            }
             // lua trai phia truoc / ben canh: nau an, ngoi suoi (ban web: getInteract dong 1448)
             var front = p + new Vector3(Mathf.Sin(s.Player.Facing), 0, Mathf.Cos(s.Player.Facing)) * .9f;
             if (P && CookUI.Instance && (IsCampfire(front) || P.Near("campfire", p, 1)))

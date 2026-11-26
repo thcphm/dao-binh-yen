@@ -14,6 +14,9 @@ namespace SereneIsle
 
         public int ActiveDrops => _rain ? _rain.particleCount : 0;
 
+        /// <summary>Xoa het hat mua dang roi (doi thoi tiet tuc thi: test, chuyen ngay).</summary>
+        public void ClearNow() { if (_rain) _rain.Clear(true); if (_splash) _splash.Clear(true); }
+
         void Awake()
         {
             _rain = MakeSystem("Rain", true);
