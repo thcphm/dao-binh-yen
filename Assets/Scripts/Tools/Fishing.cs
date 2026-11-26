@@ -145,6 +145,7 @@ namespace SereneIsle
                         Fish = PickFish(Habitat, _bait);
                         if (!Fish) { End(); s.Say("Chỗ này không có cá."); return; }
                         Current = State.Bite; _t = 1.05f - Fish.fishDifficulty * .08f;
+                        GameAudio.Play(Sfx.Bite);
                         ActionUI.Float("!", _bobber.position + Vector3.up * .9f, new Color(1, .89f, .48f));
                     }
                     break;
@@ -186,6 +187,7 @@ namespace SereneIsle
             float x = pp.x + Mathf.Sin(r) * dist, z = pp.z + Mathf.Cos(r) * dist;
             int i = Mathf.FloorToInt(x + .5f), j = Mathf.FloorToInt(z + .5f);
             s.Body.PlayAct("rod");
+            GameAudio.Play(Sfx.Swish);
             Current = State.Fly;
             _t = -CharacterActions.DurationOf("rod") * .45f;
             _dur = .3f + dist * .05f;
@@ -206,6 +208,7 @@ namespace SereneIsle
                 return;
             }
             Debris.Burst(new Vector3(_to.x, IslandData.SEA + .05f, _to.z), MaterialLibrary.Hex("#d8f2ff"), 8, 1.5f);
+            GameAudio.Play(Sfx.Splash, .6f);
             Habitat = HabitatAt(d, _k);
             _bait = s.Inventory.Has("worm");
             if (_bait) s.Inventory.Take("worm");
@@ -293,7 +296,7 @@ namespace SereneIsle
             R.prog += dt * (R.inZone ? .3f : -(.15f + R.d * .045f));
             Reel = R;
             if (R.prog >= 1) Catch();
-            else if (R.prog <= 0) { End(); S.Say("Cá vùng vẫy rồi thoát mất!"); }
+            else if (R.prog <= 0) { End(); GameAudio.Play(Sfx.Err); S.Say("Cá vùng vẫy rồi thoát mất!"); }
         }
 
         void Catch()
@@ -301,6 +304,7 @@ namespace SereneIsle
             var s = S; var f = Fish;
             End();
             s.Give(f.id, 1, true);
+            GameAudio.Play(Sfx.Catch);
             s.Stats.Calm = Mathf.Min(100, s.Stats.Calm + 1); // ban web: moi con ca +1 binh yen
             bool first = s.Caught.Add(f.id);
             ActionUI.Float($"{f.displayName}!", s.Player.transform.position + Vector3.up * 2.2f, f.fishDifficulty >= 4 ? new Color(1, .81f, .29f) : new Color(1, .91f, .66f));

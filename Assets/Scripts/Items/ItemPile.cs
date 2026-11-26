@@ -61,6 +61,7 @@ namespace SereneIsle
             if (_wait) { if (d > 1.6f) _wait = false; return; }
             if (d >= 1f) return;
             int got = s.Inventory.Give(itemId, count);
+            if (got > 0) GameAudio.Play(Sfx.Pop, .7f);
             if (got > 0)
             {
                 count -= got;

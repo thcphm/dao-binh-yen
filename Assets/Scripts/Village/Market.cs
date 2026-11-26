@@ -297,6 +297,7 @@ namespace SereneIsle
             var d = s.Items.Get(slot.id);
             int price = PriceOf(d, pct) * k;
             s.Coins += price;
+            GameAudio.Play(Sfx.Coin);
             Journal.Stat("earn", price);
             slot.n -= k;
             if (slot.n <= 0) Stall.Remove(slot);

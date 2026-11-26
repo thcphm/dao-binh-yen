@@ -140,6 +140,7 @@ namespace SereneIsle
             if (!Bottles.Instance) Session.gameObject.AddComponent<Bottles>();
             if (!Mail.Instance) Session.gameObject.AddComponent<Mail>();
             if (!Festivals.Instance) Session.gameObject.AddComponent<Festivals>();
+            if (!GameAudio.Instance) cam.gameObject.AddComponent<GameAudio>(); // nhac + am nen + hieu ung (giai doan 6e)
             var village = Village.Instance ? Village.Instance : Session.gameObject.AddComponent<Village>();
             if (Terrain.IsReady) village.Build();
             else Terrain.Ready += _ => village.Build();

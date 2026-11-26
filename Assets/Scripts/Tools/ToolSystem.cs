@@ -216,6 +216,7 @@ namespace SereneIsle
             {
                 StartCoroutine(AtImpact(tool, .64f, () =>
                 {
+                    GameAudio.Play(Sfx.Err);
                     s.Say(tool == "axe" ? "Cần cuốc chim để đập đá." : "Cần rìu để chặt.");
                     V?.Shake(k, .2f);
                 }));
@@ -235,6 +236,7 @@ namespace SereneIsle
             int hp = (_hp.TryGetValue(k, out var h) ? h : info.hp) - Lv(tool);
             _hp[k] = hp;
             V?.Shake(k);
+            GameAudio.Play(tool == "axe" ? Sfx.Chop : Sfx.Mine);
             if (type == WorldObjectType.Palm)
             {
                 int nuts = _nuts.TryGetValue(k, out var nn) ? nn : 3;
@@ -250,6 +252,7 @@ namespace SereneIsle
             // do / vo
             var drops = WorldObjects.Drops(type, _rng);
             RemoveObject(k, type);
+            if (tool == "axe") GameAudio.Play(Sfx.Fell);
             if (tool == "axe" && s.Restoration) s.Restoration.Add(k, -1);   // chat cay truong thanh: -1 suc song vung
             Debris.Burst(new Vector3(i, y + .8f, j), fx, 16, 4);
             float ty = s.Player.transform.position.y + 2;
@@ -315,6 +318,7 @@ namespace SereneIsle
         {
             var s = S;
             s.Body.PlayAct("net");
+            GameAudio.Play(Sfx.Swish);
             if (!s.Stats.UseEnergy(1)) return;
             var c = Critters.Instance;
             if (!c) return;
@@ -328,6 +332,7 @@ namespace SereneIsle
             var def = s.Items.Get(id);
             ActionUI.Float($"{def.displayName}!", s.Player.transform.position + Vector3.up * 2.2f, new Color(.78f, 1f, .6f));
             Debris.Burst(at, def.iconColor2, 5, 1.2f);
+            GameAudio.Play(Sfx.Catch, .7f);
             s.Say($"Bắt được {def.displayName} ({def.price} xu)");
             if (first) s.Say($"Mới trong sổ sưu tầm: {def.displayName}!");
         }
@@ -343,6 +348,7 @@ namespace SereneIsle
             if (!pl.CanPlace(k, id, out var why)) { s.Say(why); return; }
             s.Inventory.Take(id);
             s.Body.PlayAct("build");
+            GameAudio.Play(Sfx.Build);
             float f = s.Player.Facing;
             pl.Add(id, k, Mathf.Abs(Mathf.Sin(f)) > Mathf.Abs(Mathf.Cos(f)) ? Mathf.PI / 2 : 0);
             Debris.Burst(new Vector3(k % d.N, d.HT[k] + .2f, k / d.N), MaterialLibrary.Hex("#c9a46e"), 8, 2);
@@ -356,6 +362,7 @@ namespace SereneIsle
             var item = P.At(k);
             if (item == null) return;
             P.Remove(k);
+            GameAudio.Play(Sfx.Pop);
             s.Give(item.type, 1, true);
             ActionUI.Float($"+1 {s.Items.NameOf(item.type)}", new Vector3(k % d.N, d.HT[k] + 1, k / d.N));
         }
@@ -397,6 +404,7 @@ namespace SereneIsle
                 int i = k % d.N, j = k / d.N;
                 bool sandy = d.Bio[k] == Biome.Beach;
                 Debris.Burst(new Vector3(i, d.HT[k] + .1f, j), MaterialLibrary.Hex(sandy ? "#e6d29a" : "#8a6a44"), 8, 2);
+                GameAudio.Play(Sfx.Till);
                 double r = _rng.NextDouble();
                 string got = null;
                 if (r < (sandy ? .15 : .36)) got = "stone";

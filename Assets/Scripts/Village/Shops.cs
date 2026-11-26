@@ -116,6 +116,7 @@ namespace SereneIsle
             if (afford <= 0) return $"Không đủ tiền mua {d.displayName} ({o.price} xu).";
             if (room <= 0) return "Túi đầy rồi, bán bớt hoặc cất đồ đã.";
             s.Coins -= k * o.price;
+            GameAudio.Play(Sfx.Coin);
             s.Inventory.Give(o.id, k);
             ok = true;
             return $"Mua {k} {d.displayName}: -{k * o.price} xu.";
@@ -133,6 +134,7 @@ namespace SereneIsle
             int got = k * SellPrice(d);
             s.Inventory.Take(id, k);
             s.Coins += got;
+            GameAudio.Play(Sfx.Coin);
             Journal.Stat("earn", got);
             ok = true;
             return $"Bán {k} {d.displayName}: +{got} xu.";
