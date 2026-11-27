@@ -34,6 +34,8 @@ namespace SereneIsle
         public bool trellis;
         [Tooltip("Chiu man: nuoc rong tran vao khong chet, cay duoc khi dat con hoi man (lua chiu man)")]
         public bool saltTolerant;
+        [Tooltip("Cay dai: sap Co Sau khong ban, nhat hat o vung da hoi sinh")]
+        public bool wild;
 
         [Header("Thu hoach")]
         public int yieldMin = 1;

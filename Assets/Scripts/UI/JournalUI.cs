@@ -96,6 +96,11 @@ namespace SereneIsle
             int known = 0;
             foreach (var e in list) if (e.known) known++;
             c.Add(L("panel-sub", $"Đã ghi {known}/{list.Count} loài. Câu cá, bắt bọ, gặp thú hoang để điền sổ. Loài lạ hiện dấu ?"));
+            var pond = ReefPond.Instance;
+            if (pond)
+                c.Add(L("panel-sub", pond.Open
+                    ? $"Đầm nuôi rạn san hô: {pond.Count}/{ReefPond.TotalKeepable(S.Items)} loài (loài ghi chữ đầm là đang nuôi)."
+                    : $"Cấy đủ {ReefPond.CoralsNeeded} mảnh san hô dưới rạn để mở đầm nuôi."));
             string kind = null;
             VisualElement grid = null;
             foreach (var e in list)
@@ -116,7 +121,7 @@ namespace SereneIsle
                 }
                 else if (e.known) { var paw = E(null, "j-animal"); paw.Add(new IconGlyph(IconGlyph.Kind.Flower, 24)); cell.Add(paw); }
                 else cell.Add(L("j-animal", "?"));
-                cell.Add(L("j-name", e.known ? e.name : "???"));
+                cell.Add(L("j-name", e.known ? e.name + (pond && pond.Has(e.id) ? " (đầm)" : "") : "???"));
                 cell.Add(L("j-info", e.known ? (e.item ? $"{e.price} xu · {e.where}" : e.where) : ""));
                 grid.Add(cell);
             }

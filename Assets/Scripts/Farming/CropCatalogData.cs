@@ -20,7 +20,7 @@ namespace SereneIsle
             public float weight;
             public string leaf, prod;
             public int en, wt, hp;
-            public bool paddy, trellis, perennial, saltTolerant;
+            public bool paddy, trellis, perennial, saltTolerant, wild;
         }
 
         const SeasonMask X = SeasonMask.Xuan, H = SeasonMask.Ha, T = SeasonMask.Thu, D = SeasonMask.Dong, ALL = SeasonMask.All;
@@ -105,6 +105,9 @@ namespace SereneIsle
 
                 // ---- Quanh nam ----
                 C("rau_thom", "Rau thơm", Lf, ALL, 6, 3, VU, 1, 2, 8, 6, "#3f8a3a", "#5fae3e", .05f);
+                // rau dai, cay thuoc: khong ban o sap, chi nhat hat o vung da hoi sinh (muc 4.8)
+                C("rau_ma", "Rau má", Lf, ALL, 6, 3, PS | DL | VU, 2, 3, 10, 6, "#4f9e3a", "#6ab84a", .1f, en: 5, wt: 4).wild = true;
+                C("ngai_cuu", "Ngải cứu", Lf, ALL, 8, 4, ANY, 1, 2, 16, 8, "#7a9a6a", "#a8c098", .05f, hp: 4).wild = true;
                 C("sa", "Sả", Lf, ALL, 12, 6, ANY, 2, 3, 8, 6, "#8ab84a", "#c8d870", .1f).perennial = true;
                 C("chuoi", "Chuối", Tr, ALL, 28, 7, PS | VU, 4, 8, 8, 40, "#5a9a3a", "#f0d050", .2f, en: 10);
                 return _rows;
@@ -117,7 +120,7 @@ namespace SereneIsle
             c.name = r.id;
             c.id = r.id; c.displayName = r.name; c.produce = r.id; c.kind = r.kind;
             c.seasons = r.seasons; c.perennial = r.perennial; c.growDays = r.grow; c.regrowDays = r.regrow;
-            c.soils = r.soils; c.needsPaddy = r.paddy; c.trellis = r.trellis; c.saltTolerant = r.saltTolerant;
+            c.soils = r.soils; c.needsPaddy = r.paddy; c.trellis = r.trellis; c.saltTolerant = r.saltTolerant; c.wild = r.wild;
             c.yieldMin = r.yMin; c.yieldMax = r.yMax;
             c.leafColor = MaterialLibrary.Hex(r.leaf); c.produceColor = MaterialLibrary.Hex(r.prod);
             return c;

@@ -230,6 +230,53 @@ namespace SereneIsle.Tests
         }
 
         [Test]
+        public void GiongDai_DoiGiong_DamNuoi()
+        {
+            var rng = new System.Random(4);
+            Assert.IsNull(FarmCare.WildSeed(WorldObjectType.Fern, 40, rng), "vung chua hoi sinh");
+            Assert.IsNull(FarmCare.WildSeed(WorldObjectType.Rock, 90, rng), "da khong roi hat");
+            int got = 0;
+            for (int t = 0; t < 400; t++)
+            {
+                var s = FarmCare.WildSeed(WorldObjectType.Fern, 60, rng);
+                if (s == null) continue;
+                got++;
+                CollectionAssert.Contains(FarmCare.WildSeeds, s);
+            }
+            Assert.That(got, Is.InRange(80, 160), "khoang 30%");
+            Assert.IsTrue(Crop("rau_ma").wild && Crop("ngai_cuu").wild);
+
+            var items = ItemCatalogData.CreateAll();
+            foreach (var w in FarmCare.WildSeeds) Assert.IsTrue(items.Any(i => i.id == w), w);
+            var db = UnityEngine.ScriptableObject.CreateInstance<ItemDatabase>();
+            db.items = items;
+            var crops = UnityEngine.ScriptableObject.CreateInstance<CropDatabase>();
+            crops.crops = All;
+            for (int day = 1; day < 224; day += 7)
+                foreach (var o in Shops.Offers(Shops.HatGiong, day, db, crops, 3))
+                    Assert.IsFalse(o.id == "seed_rau_ma" || o.id == "seed_ngai_cuu", "sap khong ban giong dai");
+
+            var seen = new HashSet<string>();
+            for (int m = 0; m < 8; m++)
+            {
+                string r = FarmCare.RareSeed(m, All);
+                Assert.AreEqual(r, FarmCare.RareSeed(m, All), "co dinh trong thang");
+                var c = All.First(x => x.SeedId == r);
+                Assert.AreNotEqual(CropKind.Tree, c.kind);
+                Assert.IsFalse(c.wild);
+                seen.Add(r);
+            }
+            Assert.Greater(seen.Count, 4, "doi giong hiem moi thang");
+
+            Assert.IsTrue(ReefPond.Keepable(items.First(i => i.id == "f_clown")), "ca ran");
+            Assert.IsTrue(ReefPond.Keepable(items.First(i => i.id == "f_mack")), "ca bien");
+            Assert.IsTrue(ReefPond.Keepable(items.First(i => i.id == "nhum")), "nhum");
+            Assert.IsFalse(ReefPond.Keepable(items.First(i => i.id == "f_catf")), "ca nuoc ngot");
+            Assert.IsFalse(ReefPond.Keepable(items.First(i => i.id == "b_bee")), "con trung");
+            Assert.Greater(ReefPond.TotalKeepable(db), ReefPond.Goals[2], "du loai cho moc cuoi");
+        }
+
+        [Test]
         public void VatPhamMoi_CoTrongKho()
         {
             var items = ItemCatalogData.CreateAll();

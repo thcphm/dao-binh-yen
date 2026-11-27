@@ -69,6 +69,11 @@ namespace SereneIsle
         // vuon ruong nang cao: dong giong giu lai, ngay cat canh cay dau dong (id vung -> ngay)
         public List<Strain> strains = new List<Strain>();
         public List<ItemCount> motherCuts = new List<ItemCount>();
+        // dam nuoi ran san ho (thay bao tang): o tam (-1 = chua mo), loai da tha, so manh san ho trang tri
+        public int pondCenter = -1;
+        public List<string> pondSpecies = new List<string>();
+        public int pondCorals;
+        public int seedSwapMonth = -1;   // thang da doi giong voi Co Sau
     }
 
     /// <summary>Tom tat 1 o luu cho man hinh chon o (giai doan 5).</summary>
@@ -173,6 +178,8 @@ namespace SereneIsle
             if (Moments.Instance) d.moments = Moments.Instance.Snapshot();
             if (s.Farm) d.strains = s.Farm.StrainSnapshot();
             if (MotherTrees.Instance) d.motherCuts = MotherTrees.Instance.Snapshot();
+            if (SeedExchange.Instance) d.seedSwapMonth = SeedExchange.Instance.LastMonth;
+            if (ReefPond.Instance) { d.pondCenter = ReefPond.Instance.CenterK; d.pondSpecies = ReefPond.Instance.Snapshot(); d.pondCorals = ReefPond.Instance.CoralDecor; }
             var mail = Mail.Instance;
             if (mail) { d.mailChapter = mail.Chapter; d.mailMonth = mail.LastMonth; d.mailSent = mail.SentMonth; d.mailTopic = mail.Topic; d.mailGift = mail.Gift; }
             var ts = ToolSystem.Instance;
@@ -257,6 +264,8 @@ namespace SereneIsle
             if (Moments.Instance) Moments.Instance.Restore(d.moments);
             if (s.Farm) s.Farm.RestoreStrains(d.strains);
             if (MotherTrees.Instance) MotherTrees.Instance.Restore(d.motherCuts);
+            if (ReefPond.Instance) ReefPond.Instance.Restore(d.pondCenter, d.pondSpecies, d.pondCorals);
+            if (SeedExchange.Instance) SeedExchange.Instance.Restore(d.seedSwapMonth);
             if (Mail.Instance) Mail.Instance.Restore(d.mailChapter, d.mailMonth, d.mailSent, d.mailTopic, d.mailGift);
             if (d.hotbar != null && d.hotbar.Length == Hotbar.Size) s.Hotbar.Load(d.hotbar);
             s.Hotbar.Selected = Mathf.Clamp(d.selected, 0, Hotbar.Size - 1);

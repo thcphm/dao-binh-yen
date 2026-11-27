@@ -214,6 +214,31 @@ namespace SereneIsle
             GraftTrait.TwoSeasons => "ra trái hai mùa", GraftTrait.SaltTolerant => "chịu mặn", GraftTrait.BigFruit => "trái to", _ => "",
         };
 
+        // ------------------------------------------------------------------ nguon giong (muc 4.8)
+        public const float WildVitality = 50;     // vung da hoi sinh: chat bui co nhat duoc hat dai
+        public const double WildChance = .3;
+        public static readonly string[] WildSeeds = { "seed_rau_ma", "seed_ngai_cuu", "seed_rau_den", "seed_rau_thom" };
+        public const int SwapCost = 3, SwapGive = 2;
+
+        /// <summary>Phat bui co, lau, duong xi, dua dai o vung suc song tu 50: 30% roi 1 hat giong dai. null = khong.</summary>
+        public static string WildSeed(WorldObjectType t, float vitality, Random rng)
+        {
+            bool plant = t == WorldObjectType.Spin || t == WorldObjectType.Reeds || t == WorldObjectType.Fern
+                         || t == WorldObjectType.Bush || t == WorldObjectType.ScrewPine;
+            if (!plant || vitality < WildVitality || rng.NextDouble() >= WildChance) return null;
+            return WildSeeds[rng.Next(WildSeeds.Length)];
+        }
+
+        /// <summary>Giong hiem cua thang (Co Sau doi lay hat giu giong): co dinh theo thang, xoay vong cac giong khong phai cay an trai.</summary>
+        public static string RareSeed(int month, IList<CropDefinition> crops)
+        {
+            var pool = new List<CropDefinition>();
+            foreach (var c in crops) if (c && c.kind != CropKind.Tree && !c.wild) pool.Add(c);
+            if (pool.Count == 0) return null;
+            pool.Sort((a, b) => string.CompareOrdinal(a.id, b.id));
+            return pool[(int)((uint)(month * 7 + 3) % (uint)pool.Count)].SeedId;
+        }
+
         // ------------------------------------------------------------------ luan canh lua tom
         public static string CanBuildSluice(FarmPlot p)
         {

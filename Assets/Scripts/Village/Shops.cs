@@ -68,7 +68,7 @@ namespace SereneIsle
             var trees = new List<CropDefinition>();
             foreach (var c in crops.crops)
             {
-                if (c == null || !items.Get(c.SeedId)) continue; // ke ca lua, nep, sen, sung (ruong nuoc da co)
+                if (c == null || c.wild || !items.Get(c.SeedId)) continue; // ke ca lua, nep, sen, sung (ruong nuoc da co); cay dai thi khong ban
                 if (c.kind == CropKind.Tree) trees.Add(c);
                 else if (c.InSeason(season)) annual.Add(c);
             }

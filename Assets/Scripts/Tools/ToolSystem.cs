@@ -158,6 +158,11 @@ namespace SereneIsle
                 var lantern = Festivals.Instance.NearbyAction(p, out label);
                 if (lantern != null) return lantern;
             }
+            if (ReefPond.Instance)      // dam nuoi ran san ho: tha ca, ngam
+            {
+                var pond = ReefPond.Instance.NearbyAction(p, out label);
+                if (pond != null) return pond;
+            }
             if (MotherTrees.Instance)   // cay dau dong: cat canh ghep
             {
                 var cut = MotherTrees.Instance.NearbyAction(p, out label);
@@ -266,6 +271,9 @@ namespace SereneIsle
 
             // do / vo
             var drops = WorldObjects.Drops(type, _rng);
+            // vung da hoi sinh: bui co co the roi hat giong dai (Docs muc 4.8)
+            var wild = s.Restoration ? FarmCare.WildSeed(type, s.Restoration.VitalityAt(new Vector3(i, 0, j)), _rng) : null;
+            if (wild != null) drops.Add((wild, 1));
             RemoveObject(k, type);
             if (tool == "axe") GameAudio.Play(Sfx.Fell);
             if (tool == "axe" && s.Restoration) s.Restoration.Add(k, -1);   // chat cay truong thanh: -1 suc song vung
