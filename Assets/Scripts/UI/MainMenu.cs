@@ -328,9 +328,42 @@ namespace SereneIsle
             var body = go.AddComponent<IslandCharacter>();
             body.outfit = _outfit.Clone();
             go.SetActive(true);
-            var p = d.TownPoint(-1, -11); // bai co phia sau lang, nhin ra lang va bien
+            var p = ClearSpot(d); // bai co phia sau lang, nhin ra lang va bien (cho khong co cay chan camera)
             go.transform.position = new Vector3(p.x, d.GroundHeight(p.x, p.y), p.y);
             _preview = go;
+        }
+
+        /// <summary>Cho dung xem truoc: quanh TownPoint(-1, -11), doan nhan vat -> camera (dat nhu LateUpdate) khong co
+        /// cay / da / nha, khong duoi nuoc. Truoc day dao ban build khong ve cay nen khong ai thay cay chan.</summary>
+        static Vector2 ClearSpot(IslandData d)
+        {
+            float face = d.TownAngle + Mathf.PI * .85f;
+            var fwd = new Vector2(Mathf.Sin(face), Mathf.Cos(face));
+            var right = new Vector2(-fwd.y, fwd.x);
+            bool Free(Vector2 q)
+            {
+                int i = Mathf.RoundToInt(q.x), j = Mathf.RoundToInt(q.y);
+                for (int dj = -1; dj <= 1; dj++)
+                    for (int di = -1; di <= 1; di++)
+                    {
+                        if (!d.InBounds(i + di, j + dj)) return false;
+                        int k = d.Idx(i + di, j + dj);
+                        if (d.ObjType[k] != 0 || d.Solid[k] != 0 || d.Level[k] == 0) return false;
+                    }
+                return true;
+            }
+            for (int r = 0; r <= 8; r++)
+                for (int dz = -r; dz <= r; dz++)
+                    for (int dx = -r; dx <= r; dx++)
+                    {
+                        if (Mathf.Max(Mathf.Abs(dx), Mathf.Abs(dz)) != r) continue;
+                        var p = d.TownPoint(-1 + dx, -11 + dz);
+                        if (d.HT[d.Idx(Mathf.RoundToInt(p.x), Mathf.RoundToInt(p.y))] < TideClock.MaxLevel + .1f) continue;
+                        bool ok = true;
+                        for (float t = 0; t <= 1.01f && ok; t += .25f) ok = Free(p + (fwd * 4.2f + right * 1.35f) * t);
+                        if (ok) return p;
+                    }
+            return d.TownPoint(-1, -11);
         }
 
         /// <summary>Ten hop le: bo ky tu &lt;&gt;&amp;", cat khoang trang, 1-16 ky tu.</summary>

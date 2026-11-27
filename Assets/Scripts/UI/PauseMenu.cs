@@ -52,6 +52,7 @@ namespace SereneIsle
         {
             var s = S;
             _card.Clear();
+            _card.style.width = StyleKeyword.Null;
             _card.Add(L("panel-title", "Tạm dừng"));
             var date = s.Date;
             _card.Add(L("panel-sub", $"{s.PlayerName} · {LunarCalendar.SeasonName(date.Season)} · {date.ShortLabel} · {s.Clock.TimeLabel}"));

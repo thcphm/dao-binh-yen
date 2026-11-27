@@ -199,7 +199,10 @@ namespace SereneIsle
             _bigMarks = E(null, "map-marks");
             _bigMap.Add(_bigMarks);
             row.Add(_bigMap);
-            _side = E(null, "bm-side");
+            var sideScroll = new ScrollView(ScrollViewMode.Vertical) { horizontalScrollerVisibility = ScrollerVisibility.Hidden };
+            sideScroll.AddToClassList("bm-side");
+            sideScroll.style.height = _size;   // cot lich cao bang ban do, dai hon thi cuon (khong de chu tran de len chu thich)
+            _side = sideScroll;
             row.Add(_side);
 
             var leg = E(null, "bm-legend");

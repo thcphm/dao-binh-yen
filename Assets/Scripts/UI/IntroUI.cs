@@ -106,7 +106,7 @@ namespace SereneIsle
             _textLabel = new Label(); _textLabel.AddToClassList("intro-text");
             cap.Add(_label); cap.Add(_textLabel);
             _root.Add(cap);
-            _hint = new Label("Bấm để tiếp tục ▸"); _hint.AddToClassList("intro-hint");
+            _hint = new Label("Bấm để tiếp tục"); _hint.AddToClassList("intro-hint");
             _root.Add(_hint);
             var skip = new Button(End) { text = "Bỏ qua" };
             skip.AddToClassList("intro-skip");
@@ -209,8 +209,8 @@ namespace SereneIsle
                 _boat.position = p;
                 _boat.rotation = Quaternion.LookRotation(_boatDir) * Quaternion.Euler(0, 0, Mathf.Sin(_t * 1.1f) * 2.3f);
                 var side = new Vector3(_boatDir.z, 0, -_boatDir.x);
-                cam.transform.position = p - _boatDir * 4.5f + side * 4f + Vector3.up * 2.6f;
-                cam.transform.LookAt(p + _boatDir * 6 + Vector3.up * 1.2f);
+                cam.transform.position = p - _boatDir * 5.5f + side * 3.2f + Vector3.up * 3.4f;
+                cam.transform.LookAt(p + _boatDir * 3.5f - Vector3.up * .2f);   // ghe nam giua khung, tren dong chu
             }
         }
 

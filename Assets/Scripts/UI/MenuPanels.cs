@@ -52,6 +52,8 @@ namespace SereneIsle
         {
             var s = GameSettings.Current;
             card.Clear();
+            card.style.width = 680;   // khung tam dung hep: noi rong cho 4 tab + thanh truot (Main() tra lai)
+            card.style.maxWidth = Length.Percent(96);
             card.Add(L("panel-title", "Cài đặt"));
             var tabs = E(null, "set-tabs");
             foreach (var (id, name) in new[] { ("sound", "Âm thanh"), ("gfx", "Hình ảnh"), ("ctrl", "Điều khiển"), ("help", "Hướng dẫn") })
