@@ -16,7 +16,6 @@ namespace SereneIsle
         public int viewDistance = 1;            // 0 gan, 1 vua, 2 xa
         public bool shadows = true;
         public float renderScale = 1f;          // .75 = nhe may, 1 = net
-        public bool showHelp = true;
         public bool autosave = true;
         public int textSize = 1;                // co chu giao dien: 0 nho, 1 vua, 2 lon, 3 rat lon
 

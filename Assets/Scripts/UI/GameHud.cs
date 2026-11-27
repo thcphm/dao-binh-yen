@@ -31,11 +31,10 @@ namespace SereneIsle
         StatIconElement _sun;
         VisualElement _hpFill, _waterFill, _energyFill, _calmFill, _energyRec, _weightFill;
         VisualElement _breathFill, _breathRow;   // hoi tho khi lan (DivingSystem)
-        VisualElement _toasts, _hotbar, _overlay, _grid, _toolsRow, _fade, _ghost, _help;
+        VisualElement _toasts, _hotbar, _overlay, _grid, _toolsRow, _fade, _ghost;
         ItemIcon _ghostIcon;
         SlotView[] _slots;
         bool _pointerOver, _dirtyHotbar = true, _dirtyPanel = true;
-        bool? _helpSetting;
         GameSession _hooked;
 
         GameSession S => GameSession.Instance;
@@ -53,7 +52,19 @@ namespace SereneIsle
             Build();
         }
 
-        void ApplyTextSize() { if (Panel) Panel.scale = GameSettings.Current.UiScale; }
+        Vector2Int _screenAt;
+
+        /// <summary>Co chu nguoi chon, nhung khong phong qua muc lam vung giao dien nho hon 1180 x 640 don vi
+        /// (man hinh / cua so nho: khung bi chat, chu tran). Ti le theo man hinh: ScaleWithScreenSize 1600 x 900, match .5.</summary>
+        void ApplyTextSize()
+        {
+            if (!Panel) return;
+            float w = Mathf.Max(1, Screen.width), h = Mathf.Max(1, Screen.height);
+            float fit = Mathf.Sqrt(w / 1600f * (h / 900f));
+            float max = Mathf.Min(w / (1180f * fit), h / (640f * fit));
+            Panel.scale = Mathf.Max(.6f, Mathf.Min(GameSettings.Current.UiScale, max));
+            _screenAt = new Vector2Int(Screen.width, Screen.height);
+        }
 
         void OnDestroy()
         {
@@ -102,7 +113,7 @@ namespace SereneIsle
             Panel.screenMatchMode = PanelScreenMatchMode.MatchWidthOrHeight;
             Panel.match = .5f;
             Panel.sortingOrder = 10;
-            Panel.scale = GameSettings.Current.UiScale;
+            ApplyTextSize();
             GameSettings.Changed += ApplyTextSize;
 
             var go = new GameObject("HudDocument");
@@ -186,16 +197,6 @@ namespace SereneIsle
             _targetHint.style.display = DisplayStyle.None;
             _hud.Add(_targetHint);
 
-            // ---- huong dan ----
-            _help = E("help", "chip", true);
-            _help.Add(L(null, null, "WASD đi · Shift chạy · Space nhảy"));
-            _help.Add(L(null, null, "1–9, 0 hoặc lăn chuột: đổi ô · F / chuột trái: dùng"));
-            _help.Add(L(null, null, "Cần câu: giữ F lấy lực, thả để quăng · E: nói chuyện, ngủ, bàn chế tạo"));
-            _help.Add(L(null, null, "Xây dựng (9): F đặt đồ, R đổi món · cuốc chim / xẻng: nhặt lại"));
-            _help.Add(L(null, null, "I: túi đồ · M: bản đồ · J: sổ tay · V: ngồi nghỉ · Esc: tạm dừng"));
-            _help.Add(L(null, null, "Kéo chuột phải: xoay · Ctrl+lăn: zoom"));
-            _help.Add(L(null, null, "H: ẩn hướng dẫn"));
-            _hud.Add(_help);
 
             BuildInventoryPanel();
 
@@ -288,14 +289,13 @@ namespace SereneIsle
         void Update()
         {
             if (_hooked != S) Hook();
+            if (Screen.width != _screenAt.x || Screen.height != _screenAt.y) ApplyTextSize();   // doi kich thuoc cua so
             UpdatePointerOver();
             var s = S;
-            bool show = s && s.Running;
+            bool show = s && s.Running && !IntroUI.Playing;
             _hud.style.display = show || (s && s.Transitioning) ? DisplayStyle.Flex : DisplayStyle.None;
             if (!show) return;
 
-            bool hs = GameSettings.Current.showHelp;
-            if (_helpSetting != hs) { _helpSetting = hs; _help.style.display = hs ? DisplayStyle.Flex : DisplayStyle.None; }
 
             // phim
             if (!s.Transitioning)
@@ -303,9 +303,6 @@ namespace SereneIsle
                 if (GameInput.InventoryPressed) SetInventory(!InventoryOpen);
                 else if (InventoryOpen && GameInput.CancelPressed) SetInventory(false);
             }
-            var kb = Keyboard.current;
-            if (kb != null && kb.hKey.wasPressedThisFrame)
-                _help.style.display = _help.style.display == DisplayStyle.None ? DisplayStyle.Flex : DisplayStyle.None;
 
             // dong ho + chi so
             var date = s.Date;

@@ -144,6 +144,7 @@ namespace SereneIsle
             if (!MotherTrees.Instance) Session.gameObject.AddComponent<MotherTrees>();
             if (!ReefPond.Instance) Session.gameObject.AddComponent<ReefPond>();
             if (!SeedExchange.Instance) Session.gameObject.AddComponent<SeedExchange>();
+            if (!IntroUI.Instance) Session.gameObject.AddComponent<IntroUI>();
             if (!GameAudio.Instance) cam.gameObject.AddComponent<GameAudio>(); // nhac + am nen + hieu ung (giai doan 6e)
             var village = Village.Instance ? Village.Instance : Session.gameObject.AddComponent<Village>();
             if (Terrain.IsReady) village.Build();
@@ -209,7 +210,10 @@ namespace SereneIsle
             {
                 if (save != null) SaveSystem.ApplyWorld(save, Session);
                 else Player.PlaceAtArrival();
-                if (save == null && slot >= 0) { Session.EnsureStarterKit(); Session.SaveNow(); } // tao o luu ngay de menu thay (da co do khoi dau)
+                void Kit() { if (save == null && slot >= 0) { Session.EnsureStarterKit(); Session.SaveNow(); } } // tao o luu ngay de menu thay (da co do khoi dau)
+                // van moi tu menu: chay mo dau (vi sao ra dao) truoc khi vao game
+                if (save == null && newOutfit != null && IntroUI.Instance && !Application.isBatchMode) IntroUI.Instance.Play(newOutfit.model == "Rogue", Kit);
+                else Kit();
             }
             if (Terrain.IsReady) Place();
             else Terrain.Ready += _ => Place();

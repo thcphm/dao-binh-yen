@@ -71,9 +71,21 @@ namespace SereneIsle.EditorTools
             AssetDatabase.Refresh();
         }
 
+        /// <summary>Cay co ve bang GPU instancing voi vat lieu tao luc chay: Unity khong thay asset nao bat instancing
+        /// nen "Strip Unused" cat mat bien the instancing cua shader -> ban build khong co cay co. Giu tat ca (2 = Keep All).</summary>
+        static void KeepInstancingVariants()
+        {
+            var gs = AssetDatabase.LoadAllAssetsAtPath("ProjectSettings/GraphicsSettings.asset");
+            if (gs == null || gs.Length == 0) return;
+            var so = new SerializedObject(gs[0]);
+            var p = so.FindProperty("m_InstancingStripping");
+            if (p != null && p.intValue != 2) { p.intValue = 2; so.ApplyModifiedPropertiesWithoutUndo(); AssetDatabase.SaveAssets(); }
+        }
+
         static void Run(BuildTarget target, string path)
         {
             EnsureKeepPrefab();
+            KeepInstancingVariants();
             AssetDatabase.SaveAssets();
             var opts = new BuildPlayerOptions { scenes = Scenes, locationPathName = path, target = target, options = BuildOptions.None };
             var t0 = DateTime.Now;

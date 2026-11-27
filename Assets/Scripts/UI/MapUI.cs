@@ -156,8 +156,11 @@ namespace SereneIsle
             if (ss && !hud.Root.styleSheets.Contains(ss)) hud.Root.styleSheets.Add(ss);
             _mini = E("minimap", "chip", true);
             _miniImg = new Image { scaleMode = ScaleMode.StretchToFill, pickingMode = PickingMode.Ignore };
-            _miniImg.AddToClassList("mini-img");
-            _mini.Add(_miniImg);
+            var clip = E(null, "mini-img");   // khung cat: anh ben trong phong to + dich (UITK khong ve lai khi chi doi Image.uv)
+            clip.style.overflow = Overflow.Hidden;
+            _miniImg.style.position = Position.Absolute;
+            clip.Add(_miniImg);
+            _mini.Add(clip);
             _miniMarks = E(null, "map-marks");
             _mini.Add(_miniMarks);
             _miniArrow = L("map-arrow", "▲");
@@ -191,7 +194,7 @@ namespace SereneIsle
             _bigMap.style.width = _size; _bigMap.style.height = _size;
             _bigImg = new Image { image = _tex, scaleMode = ScaleMode.StretchToFill, pickingMode = PickingMode.Ignore };
             _bigImg.style.position = Position.Absolute;
-            _bigImg.style.left = 0; _bigImg.style.top = 0; _bigImg.style.right = 0; _bigImg.style.bottom = 0;
+            _bigImg.style.left = 0; _bigImg.style.top = 0;   // kich thuoc / vi tri dat trong Frame()
             _bigMap.Add(_bigImg);
             _bigMarks = E(null, "map-marks");
             _bigMap.Add(_bigMarks);
@@ -240,6 +243,20 @@ namespace SereneIsle
         }
         Vector2 ToLocal(float x, float z) => new Vector2((x - (_cx - Span / 2)) / Span * _size, _size - (z - (_cz - Span / 2)) / Span * _size);
         Vector2 ToWorld(Vector2 l) => new Vector2(_cx - Span / 2 + l.x / _size * Span, _cz - Span / 2 + (_size - l.y) / _size * Span);
+
+        /// <summary>Hien vung [x0, x0+span] x [z0, z0+span] cua ban do trong khung view x view px: phong ca tam anh len
+        /// (rong n/span lan) va dich, khung cha cat phan thua. Khong dung Image.uv vi UITK khong ve lai khi chi doi uv
+        /// (anh dung yen trong khi nhan, dau nguoi choi van dich -> lech).</summary>
+        void Frame(Image img, float view, float x0, float z0, float span)
+        {
+            if (img == null || _n <= 0 || span <= 0) return;
+            float full = view * _n / span;
+            img.uv = new Rect(0, 0, 1, 1);
+            img.style.width = full; img.style.height = full;
+            img.style.left = -x0 / _n * full;
+            img.style.top = (z0 + span) / _n * full - full;   // anh: z = n o mep tren
+            img.style.right = StyleKeyword.Auto; img.style.bottom = StyleKeyword.Auto;
+        }
 
         public void ZoomAt(Vector2 local, float factor)
         {
@@ -306,7 +323,7 @@ namespace SereneIsle
             var s = S; var d = D;
             if (!BigOpen || s == null || d == null) return;
             if (_regionLabels.Count == 0 && s.Restoration) { s.Restoration.VitalityAt(Vector3.zero); BuildRegions(d); }
-            _bigImg.uv = new Rect((_cx - Span / 2) / _n, (_cz - Span / 2) / _n, Span / _n, Span / _n);
+            Frame(_bigImg, _size, _cx - Span / 2, _cz - Span / 2, Span);
             _bigMarks.Clear();
             // ten vung + suc song
             foreach (var (name, at, r) in _regionLabels)
@@ -471,8 +488,8 @@ namespace SereneIsle
             _miniT = .2f;
             float half = MiniWindow / 2f;
             float x0 = Mathf.Clamp(p.x - half, 0, _n - MiniWindow), z0 = Mathf.Clamp(p.z - half, 0, _n - MiniWindow);
-            _miniImg.uv = new Rect(x0 / _n, z0 / _n, (float)MiniWindow / _n, (float)MiniWindow / _n);
             float W = _mini.layout.width > 0 ? _mini.layout.width - 6 : 160;
+            Frame(_miniImg, W, x0, z0, MiniWindow);
             Vector2 Loc(float x, float z) => new Vector2(3 + (x - x0) / MiniWindow * W, 3 + W - (z - z0) / MiniWindow * W);
             var me = Loc(p.x, p.z);
             _miniArrow.style.left = me.x; _miniArrow.style.top = me.y;

@@ -44,21 +44,74 @@ namespace SereneIsle
         }
 
         // ------------------------------------------------------------------ cai dat
-        public static void Settings(VisualElement card, Action done)
+        static string _setTab = "sound";
+
+        /// <summary>Cai dat chia 4 tab nhu ban web (Am thanh / Hinh anh / Dieu khien / Huong dan).
+        /// exitToMenu: mo tu trong game thi co them nut luu va thoat ra menu chinh.</summary>
+        public static void Settings(VisualElement card, Action done, Action exitToMenu = null)
         {
             var s = GameSettings.Current;
             card.Clear();
             card.Add(L("panel-title", "Cài đặt"));
+            var tabs = E(null, "set-tabs");
+            foreach (var (id, name) in new[] { ("sound", "Âm thanh"), ("gfx", "Hình ảnh"), ("ctrl", "Điều khiển"), ("help", "Hướng dẫn") })
+            {
+                string tid = id;
+                tabs.Add(Btn(name, () => { _setTab = tid; Settings(card, done, exitToMenu); }, _setTab == id ? null : "off"));
+            }
+            card.Add(tabs);
             var scroll = new ScrollView(ScrollViewMode.Vertical) { horizontalScrollerVisibility = ScrollerVisibility.Hidden };
             scroll.style.flexShrink = 1;
             var c = scroll.contentContainer;
             card.Add(scroll);
+            void Redraw() => Settings(card, done, exitToMenu);
 
-            c.Add(L("set-section", "ÂM THANH (nhạc và tiếng động có ở bản sau)"));
-            AddSlider(c, "Nhạc", s.music, v => s.music = v);
-            AddSlider(c, "Tiếng động", s.sfx, v => s.sfx = v);
+            if (_setTab == "sound")
+            {
+                AddSlider(c, "Nhạc nền", s.music, v => { s.music = v; GameSettings.Set(s); });
+                AddSlider(c, "Hiệu ứng âm thanh", s.sfx, v => { s.sfx = v; GameSettings.Set(s); });
+            }
+            else if (_setTab == "help") HelpTab(c);
+            else if (_setTab == "ctrl")
+            {
+                AddSlider(c, "Độ nhạy chuột", Mathf.InverseLerp(.3f, 2.5f, s.mouseSensitivity), v => s.mouseSensitivity = Mathf.Lerp(.3f, 2.5f, v));
+                AddToggle(c, "Kéo chuột đảo chiều", s.invertDrag, v => s.invertDrag = v);
+                AddToggle(c, "Tự lưu mỗi sáng", s.autosave, v => s.autosave = v);
+            }
+            else GfxTab(c, s, Redraw);
 
-            c.Add(L("set-section", "HÌNH ẢNH"));
+            var row = E(null, "menu-buttons");
+            row.Add(Btn("Khôi phục mặc định", () => { GameSettings.Set(new GameSettings()); Redraw(); }, "muted"));
+            if (exitToMenu != null) row.Add(Btn("Lưu và thoát ra menu", () => { GameSettings.Set(s); exitToMenu(); }, "muted"));
+            row.Add(Btn("Xong", () => { GameSettings.Set(s); done?.Invoke(); }));
+            card.Add(row);
+        }
+
+        /// <summary>Bang phim (ban web: settingsHTML tab "help") + loi dan song sot.</summary>
+        static void HelpTab(VisualElement c)
+        {
+            foreach (var (keys, what) in new[]
+            {
+                ("W A S D", "Di chuyển"), ("Shift", "Chạy nhanh (tốn sức gấp đôi)"), ("Space", "Nhảy"),
+                ("Chuột trái · F", "Dùng đồ đang cầm (giữ để làm liên tục), ăn / uống"),
+                ("E", "Nói chuyện, thu hoạch, ngủ, bàn chế tạo, nấu ăn"),
+                ("1–9 · 0 · Lăn chuột", "Đổi ô trên thanh nhanh"), ("R", "Đổi đồ đặt khi cầm Xây dựng"),
+                ("Cần câu: giữ F", "Lấy lực, thả để quăng"),
+                ("I", "Túi đồ"), ("J", "Sổ tay: sinh vật, cột mốc, nhật ký, thư nhà"), ("V", "Ngồi nghỉ, ngắm cảnh (thời gian trôi nhanh, tăng Bình yên)"),
+                ("M", "Bản đồ toàn đảo (lăn chuột phóng to, kéo để di chuyển)"),
+                ("Kéo chuột phải", "Xoay camera"), ("Ctrl + lăn chuột", "Phóng to / thu nhỏ"), ("Esc", "Tạm dừng, cài đặt"),
+            })
+            {
+                var r = E(null, "help-row");
+                r.Add(L("help-key", keys));
+                r.Add(L("help-what", what));
+                c.Add(r);
+            }
+            c.Add(L("panel-sub", "Ngày bắt đầu 7 giờ. 23 giờ phải về tới lều, không thì ngất và mất hết đồ trong túi. Nhớ ăn uống đủ: tim (máu), giọt nước (nước), tia sét (sức)."));
+        }
+
+        static void GfxTab(VisualElement c, GameSettings s, Action redraw)
+        {
             var vrow = E(null, "set-row");
             vrow.Add(L("set-label", "Tầm nhìn"));
             var seg = E(null, "seg");
@@ -66,7 +119,7 @@ namespace SereneIsle
             {
                 int idx = i;
                 var b = Btn(GameSettings.ViewNames[i], null, s.viewDistance == i ? null : "off");
-                b.clicked += () => { s.viewDistance = idx; Settings(card, done); };
+                b.clicked += () => { s.viewDistance = idx; redraw(); };
                 seg.Add(b);
             }
             vrow.Add(seg);
@@ -79,24 +132,13 @@ namespace SereneIsle
             {
                 int idx = i;
                 var b = Btn(GameSettings.TextSizeNames[i], null, s.textSize == i ? null : "off");
-                b.clicked += () => { s.textSize = idx; GameSettings.Set(s); Settings(card, done); };   // ap dung ngay de xem truoc
+                b.clicked += () => { s.textSize = idx; GameSettings.Set(s); redraw(); };   // ap dung ngay de xem truoc
                 tseg.Add(b);
             }
             trow.Add(tseg);
             c.Add(trow);
             AddToggle(c, "Bóng đổ", s.shadows, v => s.shadows = v);
             AddToggle(c, "Giảm độ phân giải (máy yếu)", s.renderScale < .99f, v => s.renderScale = v ? .75f : 1f);
-
-            c.Add(L("set-section", "ĐIỀU KHIỂN"));
-            AddSlider(c, "Độ nhạy chuột", Mathf.InverseLerp(.3f, 2.5f, s.mouseSensitivity), v => s.mouseSensitivity = Mathf.Lerp(.3f, 2.5f, v));
-            AddToggle(c, "Kéo chuột đảo chiều", s.invertDrag, v => s.invertDrag = v);
-            AddToggle(c, "Hiện bảng hướng dẫn phím", s.showHelp, v => s.showHelp = v);
-            AddToggle(c, "Tự lưu mỗi sáng", s.autosave, v => s.autosave = v);
-
-            var row = E(null, "menu-buttons");
-            row.Add(Btn("Khôi phục mặc định", () => { GameSettings.Set(new GameSettings()); Settings(card, done); }, "muted"));
-            row.Add(Btn("Xong", () => { GameSettings.Set(s); done?.Invoke(); }));
-            card.Add(row);
         }
 
         static void AddSlider(VisualElement c, string label, float value01, Action<float> set)

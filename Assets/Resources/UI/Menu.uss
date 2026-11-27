@@ -79,3 +79,10 @@
 /* tam dung */
 .pause-card { width: 360px; align-items: stretch; }
 .pause-card .btn { margin-top: 8px; align-self: stretch; }
+/* cai dat: 4 tab + bang phim (huong dan) */
+.set-tabs { flex-direction: row; flex-wrap: wrap; margin-bottom: 8px; }
+.set-tabs .btn { margin-right: 6px; margin-bottom: 4px; padding-left: 14px; padding-right: 14px; }
+.set-tabs .btn.off { background-color: #c8b48a; border-color: #8a7a5a; }
+.help-row { flex-direction: row; align-items: flex-start; margin-top: 6px; }
+.help-key { width: 190px; flex-shrink: 0; font-size: 14px; -unity-font-style: bold; color: var(--ink); white-space: normal; }
+.help-what { flex-grow: 1; flex-shrink: 1; font-size: 14px; color: var(--ink-2); white-space: normal; }

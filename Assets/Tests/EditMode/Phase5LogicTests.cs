@@ -34,7 +34,7 @@ namespace SereneIsle.Tests
         {
             var s = new GameSettings();
             Assert.AreEqual(1, s.viewDistance);
-            Assert.IsTrue(s.shadows && s.showHelp && s.autosave);
+            Assert.IsTrue(s.shadows && s.autosave);
             var json = UnityEngine.JsonUtility.ToJson(s);
             var back = UnityEngine.JsonUtility.FromJson<GameSettings>(json);
             Assert.AreEqual(s.music, back.music);

@@ -431,16 +431,39 @@ namespace SereneIsle
         /// <summary>moveEntity: tach truc X/Z, kiem 3 diem mep ban kinh r.</summary>
         public void MoveEntity(ref float px, ref float pz, float dx, float dz, float r, float fromY)
         {
+            bool blockX = false, blockZ = false;
             if (dx != 0)
             {
                 float nx = px + dx, ex = nx + Mathf.Sign(dx) * r;
                 if (Walkable(ex, pz, fromY) && Walkable(ex, pz + r * .7f, fromY) && Walkable(ex, pz - r * .7f, fromY)) px = nx;
+                else blockX = true;
             }
             if (dz != 0)
             {
                 float nz = pz + dz, ez = nz + Mathf.Sign(dz) * r;
                 if (Walkable(px, ez, fromY) && Walkable(px + r * .7f, ez, fromY) && Walkable(px - r * .7f, ez, fromY)) pz = nz;
+                else blockZ = true;
             }
+            // truot qua goc: di gan thang vao vat can 1 o (lua trai, cot, cay) ma ben canh con trong -> day ngang de vong qua
+            // thay vi dung im (ban web khong co, de ket o giua duong)
+            if (blockZ && Mathf.Abs(dx) < Mathf.Abs(dz) * .35f) SlideAround(ref px, pz, dz, r, fromY, true);
+            else if (blockX && Mathf.Abs(dz) < Mathf.Abs(dx) * .35f) SlideAround(ref pz, px, dx, r, fromY, false);
+        }
+
+        /// <summary>Bi chan theo truc chinh: tim ben (trai / phai, trong 0.9 o) ma tu do di tiep duoc, dich ngang ve phia do.</summary>
+        void SlideAround(ref float side, float along, float d, float r, float fromY, bool alongZ)
+        {
+            float step = Mathf.Abs(d), ahead = along + d + Mathf.Sign(d) * r;
+            bool Free(float s) => alongZ ? Walkable(s, ahead, fromY) && Walkable(s, along, fromY)
+                                         : Walkable(ahead, s, fromY) && Walkable(along, s, fromY);
+            for (float off = .3f; off <= .9f; off += .3f)
+                foreach (float sgn in new[] { 1f, -1f })
+                {
+                    if (!Free(side + sgn * off)) continue;
+                    float ns = side + sgn * step, edge = ns + sgn * r;
+                    if (alongZ ? Walkable(edge, along, fromY) : Walkable(along, edge, fromY)) side = ns;
+                    return;
+                }
         }
 
         /// <summary>Diem den khi tau cap ben (findArrival): o tren cau tau, huong vao thi tran.</summary>

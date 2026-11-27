@@ -62,7 +62,7 @@ namespace SereneIsle
                 s.Say(ok ? $"Đã lưu vào đảo {s.SaveSlot + 1}." : "Chế độ thử nghiệm: không lưu.");
                 Close();
             }));
-            _card.Add(Btn("Cài đặt", () => Settings(_card, Main)));
+            _card.Add(Btn("Cài đặt", () => Settings(_card, Main, () => { Close(); if (GameBootstrap.Instance) GameBootstrap.Instance.BackToMenu(); })));
             _card.Add(Btn("Ghi công", () => Credits(_card, Main), "muted"));
             _card.Add(Btn("Ủng hộ tác giả", () => Donate(_card, Main), "muted"));
             _card.Add(Btn("Lưu và về menu chính", () => { Close(); if (GameBootstrap.Instance) GameBootstrap.Instance.BackToMenu(); }, "muted"));

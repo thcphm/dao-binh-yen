@@ -1,0 +1,24 @@
+/* Mo dau van moi (ban web: #intro) */
+.intro { position: absolute; left: 0; top: 0; right: 0; bottom: 0; }
+.intro-scene { position: absolute; left: 0; top: 0; right: 0; bottom: 0; overflow: hidden; background-color: #000; }
+.intro-bar { position: absolute; left: 0; right: 0; height: 9%; background-color: #000; }
+.intro-bar.top { top: 0; }
+.intro-bar.bot { bottom: 0; }
+.intro-black { position: absolute; left: 0; top: 0; right: 0; bottom: 0; background-color: #000; }
+/* canh 4: khung dien thoai, ngoai khung toi */
+.intro-phone { flex-shrink: 0; width: 300px; height: 540px;
+    border-width: 12px; border-color: #15171d; border-top-left-radius: 34px; border-top-right-radius: 34px;
+    border-bottom-left-radius: 34px; border-bottom-right-radius: 34px; }
+.intro-cap { position: absolute; left: 8%; right: 8%; bottom: 12%; }
+.intro-label { font-size: 15px; -unity-font-style: bold; letter-spacing: 3px; color: #e0a868; margin-bottom: 6px; }
+.intro-text { font-size: 24px; -unity-font-style: bold; color: #f6ead2; white-space: normal;
+    -unity-text-outline-width: 1px; -unity-text-outline-color: rgba(0, 0, 0, .7); min-height: 70px; }
+.intro-hint { position: absolute; right: 28px; bottom: 3%; font-size: 15px; -unity-font-style: bold; color: #d9c49a; }
+.intro-skip { position: absolute; top: 2.5%; right: 18px; font-size: 15px; -unity-font-style: bold; color: #f6ead2;
+    background-color: rgba(255, 243, 214, .15); border-width: 2px; border-color: rgba(255, 243, 214, .4);
+    border-top-left-radius: 10px; border-top-right-radius: 10px; border-bottom-left-radius: 10px; border-bottom-right-radius: 10px;
+    padding: 4px 14px; }
+.intro-cap { background-color: rgba(10, 12, 18, .45); padding: 10px 18px; border-top-left-radius: 12px; border-top-right-radius: 12px; border-bottom-left-radius: 12px; border-bottom-right-radius: 12px; }
+/* lam toi ngoai khung dien thoai */
+.intro-phone { border-color: #15171d; }
+.intro-dim { position: absolute; background-color: rgba(6, 8, 12, .85); }
