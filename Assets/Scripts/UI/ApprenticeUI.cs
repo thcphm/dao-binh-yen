@@ -126,7 +126,7 @@ namespace SereneIsle
                 int lv = Crafts.Level(c.id);
                 var card = E(null, "craft-card");
                 card.Add(L("craft-name", $"{c.name} · bậc {lv}/{c.levels.Length}"));
-                for (int i = 0; i < lv && i < c.levels.Length; i++) card.Add(L("req ok", $"✓ Bậc {i + 1}: {c.levels[i].unlock}"));
+                for (int i = 0; i < lv && i < c.levels.Length; i++) card.Add(IconGlyph.Row(IconGlyph.Kind.Check, $"Bậc {i + 1}: {c.levels[i].unlock}", "req ok"));
                 if (lv >= c.levels.Length) { card.Add(L("craft-desc", "Đã thành thợ cả nghề này!")); _list.Add(card); continue; }
                 var next = c.levels[lv];
                 card.Add(L("craft-desc", $"Bậc {lv + 1}: {next.unlock}"));
@@ -135,7 +135,7 @@ namespace SereneIsle
                     var (have, kinds) = Crafts.Count(s.Inventory, s.Items, r);
                     bool ok = Crafts.Meets(s.Inventory, s.Items, r);
                     string k = r.kinds > 1 ? $", {kinds}/{r.kinds} loại" : "";
-                    card.Add(L(ok ? "req ok" : "req no", $"{(ok ? "✓" : "✗")} {Crafts.ReqText(r, s.Items)} (đang có {have}{k})"));
+                    card.Add(IconGlyph.Row(ok ? IconGlyph.Kind.Check : IconGlyph.Kind.Cross, $"{Crafts.ReqText(r, s.Items)} (đang có {have}{k})", ok ? "req ok" : "req no"));
                 }
                 var craft = c;
                 var btn = new Button(() => StartTest(craft)) { text = "Làm bài thử tay nghề" };

@@ -66,7 +66,7 @@ namespace SereneIsle
             _card.Add(Btn("Ghi công", () => Credits(_card, Main), "muted"));
             _card.Add(Btn("Ủng hộ tác giả", () => Donate(_card, Main), "muted"));
             _card.Add(Btn("Lưu và về menu chính", () => { Close(); if (GameBootstrap.Instance) GameBootstrap.Instance.BackToMenu(); }, "muted"));
-            if (!Application.isEditor) _card.Add(Btn("Lưu và thoát game", () => { if (s.SaveSlot >= 0) s.SaveNow(); Application.Quit(); }, "danger"));
+            if (!Application.isEditor && Application.platform != RuntimePlatform.WebGLPlayer) _card.Add(Btn("Lưu và thoát game", () => { if (s.SaveSlot >= 0) s.SaveNow(); Application.Quit(); }, "danger"));
         }
 
         public void Close()

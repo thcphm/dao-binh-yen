@@ -59,7 +59,7 @@ namespace SereneIsle
         {
             int N = d.N, GS = d.GS, M = IslandData.M;
             var px = new Color32[N * N];
-            Parallel.For(0, N, j =>
+            Par.For(0, N, j =>
             {
                 for (int i = 0; i < N; i++)
                 {
@@ -95,7 +95,7 @@ namespace SereneIsle
         async void StartBuild(IslandData d)
         {
             _building = true;
-            var b = await Task.Run(() => BuildBase(d));
+            var b = Par.Threads ? await Task.Run(() => BuildBase(d)) : BuildBase(d); // WebGL: khong co luong phu
             if (this == null || D != d) { _building = false; return; }
             _base = b; _n = d.N;
             _px = new Color32[_n * _n];

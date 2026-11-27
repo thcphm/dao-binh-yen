@@ -89,10 +89,19 @@ namespace SereneIsle
             return t;
         }
 
+        /// <summary>Ky tu bieu tuong cu -> bieu tuong ve (font khong co cac ky tu nay).</summary>
+        static IconGlyph.Kind GlyphOf(string icon) => icon switch
+        {
+            "▶" => IconGlyph.Kind.Play, "✿" => IconGlyph.Kind.Flower, "◆" => IconGlyph.Kind.Diamond, "⚙" => IconGlyph.Kind.Gear,
+            "✦" => IconGlyph.Kind.Sparkle, "♥" => IconGlyph.Kind.Heart, _ => IconGlyph.Kind.Close,
+        };
+
         VisualElement MenuButton(string icon, string title, string sub, System.Action act, string cls = null)
         {
             var b = E(null, "mb" + (cls != null ? " " + cls : ""), true);
-            b.Add(L("mb-icon", icon));
+            var ic = E(null, "mb-icon");
+            ic.Add(new IconGlyph(GlyphOf(icon), 20));
+            b.Add(ic);
             var txt = E();
             txt.Add(L("mb-title", title));
             if (!string.IsNullOrEmpty(sub)) txt.Add(L("mb-sub", sub));
@@ -132,7 +141,7 @@ namespace SereneIsle
             _title.Add(MenuButton("⚙", "Cài đặt", null, () => Panel(c => Settings(c, ShowTitle))));
             _title.Add(MenuButton("✦", "Ghi công", null, () => Panel(c => Credits(c, ShowTitle))));
             _title.Add(MenuButton("♥", "Ủng hộ tác giả", null, () => Panel(c => Donate(c, ShowTitle)), "don"));
-            if (!Application.isEditor) _title.Add(MenuButton("✕", "Thoát", null, Application.Quit));
+            if (!Application.isEditor && Application.platform != RuntimePlatform.WebGLPlayer) _title.Add(MenuButton("✕", "Thoát", null, Application.Quit));
         }
 
         void Panel(System.Action<VisualElement> fill, string cls = null)
@@ -271,7 +280,7 @@ namespace SereneIsle
 
             var r = E(null, "menu-buttons");
             r.Add(Btn("Quay lại", ShowTitle, "muted"));
-            r.Add(Btn("Lên đường ▸", Go));
+            r.Add(Btn("Lên đường →", Go));
             c.Add(r);
         }
 

@@ -11,6 +11,7 @@ namespace SereneIsle
         public static Mesh Primitive(PrimitiveType type)
         {
             if (_prims.TryGetValue(type, out var m) && m) return m;
+            // CreatePrimitive tu them collider: ban build giu lop collider nho Resources/Internal/KeepPhysics.prefab (BuildScript)
             var go = GameObject.CreatePrimitive(type);
             m = go.GetComponent<MeshFilter>().sharedMesh;
             Object.DestroyImmediate(go);

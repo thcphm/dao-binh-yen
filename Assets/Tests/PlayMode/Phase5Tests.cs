@@ -110,6 +110,9 @@ namespace SereneIsle.Tests
             Assert.AreEqual("#7cb66b", s.Body.outfit.shirt);
             Assert.AreEqual(0, s.SaveSlot);
             Assert.IsTrue(SaveSystem.Exists(0), "van moi tao o luu ngay");
+            var first = SaveSystem.Load(0);
+            CollectionAssert.Contains(first.ownedTools, "axe", "o luu dau tien da co do khoi dau (loi cu: luu truoc khi phat do)");
+            Assert.IsTrue(first.kitGiven);
             var info = SaveSystem.Info(0);
             Assert.AreEqual("Lan", info.name);
             Assert.AreEqual("Rogue", info.model);

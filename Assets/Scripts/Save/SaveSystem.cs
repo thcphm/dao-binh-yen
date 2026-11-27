@@ -93,6 +93,17 @@ namespace SereneIsle
     {
         public const int Slots = 4;
 
+#if UNITY_WEBGL && !UNITY_EDITOR
+        [System.Runtime.InteropServices.DllImport("__Internal")] static extern void SereneSyncFS();
+#endif
+        /// <summary>WebGL: day file vua ghi xuong IndexedDB (Plugins/WebGL/SereneSync.jslib). Noi khac: khong lam gi.</summary>
+        public static void Flush()
+        {
+#if UNITY_WEBGL && !UNITY_EDITOR
+            try { SereneSyncFS(); } catch (Exception e) { Debug.LogWarning("[SereneIsle] syncfs: " + e.Message); }
+#endif
+        }
+
         public static string Dir
         {
             get
@@ -125,7 +136,7 @@ namespace SereneIsle
         /// <summary>Xoa o luu (nguoi choi da xac nhan o man hinh chon o).</summary>
         public static void Delete(int slot)
         {
-            try { if (Exists(slot)) File.Delete(PathOf(slot)); }
+            try { if (Exists(slot)) File.Delete(PathOf(slot)); Flush(); }
             catch (Exception e) { Debug.LogWarning("[SereneIsle] Khong xoa duoc o luu: " + e.Message); }
         }
 
@@ -140,7 +151,7 @@ namespace SereneIsle
                 hp = s.Stats.Hp, water = s.Stats.Water, energy = s.Stats.Energy, calm = s.Stats.Calm,
                 bagLevel = s.Inventory.BagLevel,
                 hotbar = s.Hotbar.ToArray(), selected = s.Hotbar.Selected,
-                kitGiven = true,
+                kitGiven = s.KitGiven,
             };
             foreach (var kv in s.Inventory.Stacks()) d.inventory.Add(new ItemCount { id = kv.Key, n = kv.Value });
             d.ownedTools.AddRange(s.OwnedTools);
@@ -188,6 +199,7 @@ namespace SereneIsle
                 File.WriteAllText(path + ".tmp", json);
                 if (File.Exists(path)) File.Delete(path);
                 File.Move(path + ".tmp", path);
+                Flush();
                 return true;
             }
             catch (Exception e)

@@ -19,7 +19,7 @@
 .mb.main { background-color: rgb(236, 120, 76); border-color: rgb(255, 196, 150); }
 .mb.main:hover { background-color: rgb(244, 136, 90); }
 .mb.don { border-color: rgb(255, 160, 170); }
-.mb-icon { font-size: 22px; width: 36px; color: #fff6dc; -unity-text-align: middle-center; }
+.mb-icon { font-size: 22px; width: 36px; color: #fff6dc; -unity-text-align: middle-center; align-items: center; justify-content: center; }
 .mb-title { font-size: 19px; -unity-font-style: bold; color: #fffaf0; }
 .mb-sub { font-size: 13px; color: #ffe8c8; }
 .tfoot { position: absolute; left: 7%; right: 7%; bottom: 3%; flex-direction: row; justify-content: space-between; }
@@ -77,4 +77,4 @@
 
 /* tam dung */
 .pause-card { width: 360px; align-items: stretch; }
-.pause-card .btn { margin-top: 8px; }
+.pause-card .btn { margin-top: 8px; align-self: stretch; }

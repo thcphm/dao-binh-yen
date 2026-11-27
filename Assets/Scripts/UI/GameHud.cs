@@ -74,6 +74,21 @@ namespace SereneIsle
             return e;
         }
 
+        static UnityEngine.TextCore.Text.FontAsset _uiFont;
+        /// <summary>Font giao dien: Baloo 2 (Resources/Fonts), sinh glyph dong khi can (tieng Viet day du).</summary>
+        public static UnityEngine.TextCore.Text.FontAsset UiFont
+        {
+            get
+            {
+                if (_uiFont) return _uiFont;
+                var ttf = Resources.Load<Font>("Fonts/Baloo2");
+                if (!ttf) return null;
+                _uiFont = UnityEngine.TextCore.Text.FontAsset.CreateFontAsset(ttf);
+                if (_uiFont) _uiFont.name = "Baloo2 SDF";
+                return _uiFont;
+            }
+        }
+
         void Build()
         {
             Panel = ScriptableObject.CreateInstance<PanelSettings>();
@@ -94,6 +109,9 @@ namespace SereneIsle
 
             _root = _doc.rootVisualElement;
             _root.pickingMode = PickingMode.Ignore;
+            // font Baloo 2 (OFL, giong ban web): WebGL khong co font he thong -> thieu dau tieng Viet neu khong nap font rieng
+            var font = UiFont;
+            if (font) _root.style.unityFontDefinition = new StyleFontDefinition(FontDefinition.FromSDFFont(font));
             var ss = Resources.Load<StyleSheet>("UI/Hud");
             if (ss) _root.styleSheets.Add(ss);
             _hud = E("hud", "hud-root");

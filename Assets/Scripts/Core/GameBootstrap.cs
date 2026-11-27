@@ -192,7 +192,8 @@ namespace SereneIsle
             if (save != null)
             {
                 SaveSystem.ApplyState(save, Session);
-                Session.MarkKitGiven();
+                // file luu loi cu (ghi ngay luc vao dao, truoc khi phat do) khong co dung cu nao -> phat lai do khoi dau
+                if (save.kitGiven && save.ownedTools != null && save.ownedTools.Count > 0) Session.MarkKitGiven();
                 Debug.Log($"[SereneIsle] Tai o luu {slot}: ngay {save.day}, luu luc {save.savedAt}");
             }
             else if (newOutfit != null || !string.IsNullOrEmpty(newName))
@@ -204,7 +205,7 @@ namespace SereneIsle
             {
                 if (save != null) SaveSystem.ApplyWorld(save, Session);
                 else Player.PlaceAtArrival();
-                if (save == null && slot >= 0) Session.SaveNow(); // tao o luu ngay de menu thay
+                if (save == null && slot >= 0) { Session.EnsureStarterKit(); Session.SaveNow(); } // tao o luu ngay de menu thay (da co do khoi dau)
             }
             if (Terrain.IsReady) Place();
             else Terrain.Ready += _ => Place();

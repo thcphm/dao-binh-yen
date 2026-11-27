@@ -153,7 +153,11 @@ namespace SereneIsle
             if (tex) qr.style.backgroundImage = new StyleBackground(tex);
             card.Add(qr);
             card.Add(L("don-text", "Mở app ngân hàng bất kỳ, quét mã VietQR để ủng hộ Thuc Pham."));
-            card.Add(L("don-text", "Mỗi sự ủng hộ, dù nhỏ, đều là động lực rất lớn. Cảm ơn bạn! ♥"));
+            var thanks = IconGlyph.Row(IconGlyph.Kind.Heart, "Mỗi sự ủng hộ, dù nhỏ, đều là động lực rất lớn. Cảm ơn bạn!", "don-text");
+            thanks.style.flexDirection = FlexDirection.RowReverse; thanks.style.justifyContent = Justify.FlexEnd; // tim o cuoi cau
+            ((VisualElement)thanks[0]).style.marginLeft = 5; ((VisualElement)thanks[0]).style.marginRight = 0;
+            ((VisualElement)thanks[0]).style.color = new Color(.85f, .3f, .3f);
+            card.Add(thanks);
             var row = E(null, "menu-buttons");
             row.Add(Btn("Tặng sao trên GitHub", () => Application.OpenURL(GitHubUrl), "muted"));
             row.Add(Btn("Đóng", done));

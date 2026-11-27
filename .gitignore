@@ -57,3 +57,6 @@ Thumbs.db
 
 # File luu game khi chay trong Editor
 /[Ss]aves/
+
+# Burst sinh ra khi dung WebGL
+/[Dd]ata/

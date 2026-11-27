@@ -247,7 +247,7 @@ namespace SereneIsle
 
             // luoi dinh: song song theo hang
             int done = 0;
-            Parallel.For(0, GS, v =>
+            Par.For(0, GS, v =>
             {
                 for (int u = 0; u < GS; u++)
                 {
@@ -262,7 +262,7 @@ namespace SereneIsle
             });
 
             // phan loai o
-            Parallel.For(0, N, j =>
+            Par.For(0, N, j =>
             {
                 for (int i = 0; i < N; i++)
                 {

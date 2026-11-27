@@ -43,6 +43,7 @@ namespace SereneIsle
             {
                 Directory.CreateDirectory(SaveSystem.Dir);
                 File.WriteAllText(PathOf, JsonUtility.ToJson(this, true));
+                SaveSystem.Flush();
             }
             catch (Exception e) { Debug.LogWarning("[SereneIsle] Khong luu duoc cai dat: " + e.Message); }
         }

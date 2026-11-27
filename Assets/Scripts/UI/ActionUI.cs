@@ -17,6 +17,7 @@ namespace SereneIsle
 
         VisualElement _layer, _prompt, _floats, _dialog, _dialogBody, _dialogButtons, _craft, _craftList, _power, _powerFill, _reel, _reelZone, _reelFish, _reelProg;
         Label _promptLabel, _dialogTitle, _dialogText, _reelName, _craftSub;
+        readonly System.Collections.Generic.List<IconGlyph> _reelStars = new System.Collections.Generic.List<IconGlyph>();
         bool _built;
 
         struct FloatText { public Label label; public Vector3 world; public float t; }
@@ -100,6 +101,11 @@ namespace SereneIsle
 
             // keo ca
             _reel = E("reel", "chip");
+            var stars = E(null, "reel-stars");
+            stars.style.flexDirection = FlexDirection.Row; stars.style.justifyContent = Justify.Center;
+            stars.style.color = new Color(1f, .89f, .48f);
+            for (int q = 0; q < 5; q++) { var st = new IconGlyph(IconGlyph.Kind.StarOutline, 14); st.style.marginLeft = st.style.marginRight = 1; _reelStars.Add(st); stars.Add(st); }
+            _reel.Add(stars);
             _reelName = L("reel-name");
             _reel.Add(_reelName);
             var row = E(null, "reel-row");
@@ -173,7 +179,8 @@ namespace SereneIsle
             {
                 var R = f.Reel;
                 int d = Mathf.Clamp(R.d, 0, 5);
-                _reelName.text = $"{new string('★', d)}{new string('☆', 5 - d)}  {Fishing.Rarity[d]}";
+                _reelName.text = Fishing.Rarity[d];
+                for (int q = 0; q < _reelStars.Count; q++) _reelStars[q].Glyph = q < d ? IconGlyph.Kind.Star : IconGlyph.Kind.StarOutline;
                 _reelZone.style.height = Length.Percent(R.zone * 100);
                 _reelZone.style.bottom = Length.Percent((R.pos - R.zone / 2) * 100);
                 _reelZone.EnableInClassList("reel-zone--on", R.inZone);

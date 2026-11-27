@@ -78,7 +78,9 @@ namespace SereneIsle.Tests
             float m0 = s.Clock.Minutes;
             s.Sit();
             Assert.IsTrue(s.Sitting);
-            yield return Wait(5.6f);
+            // hoi binh yen moi 5 giay (Time.deltaTime): may cham thi doi lau hon
+            float tw = Time.realtimeSinceStartup;
+            while (s.Stats.Calm <= calm0 + .5f && Time.realtimeSinceStartup - tw < 20) yield return null;
             Assert.Greater(s.Stats.Calm, calm0 + .5f, "ngoi canh lua hoi binh yen");
             Assert.Greater(s.Stats.Energy, 40f, "hoi nang luong");
             Assert.Greater(s.Clock.Minutes - m0, 30f, "thoi gian troi nhanh khi ngoi");

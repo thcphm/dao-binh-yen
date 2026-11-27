@@ -274,6 +274,9 @@ namespace SereneIsle
 
         /// <summary>Da tai van choi: khong phat do khoi dau nua.</summary>
         public void MarkKitGiven() => _kitGiven = true;
+        public bool KitGiven => _kitGiven;
+        /// <summary>Phat do khoi dau ngay (van moi: truoc lan luu dau tien, khong doi toi Update).</summary>
+        public void EnsureStarterKit() { if (starterKit && !_kitGiven) GiveStarterKit(); }
 
         void GiveStarterKit()
         {

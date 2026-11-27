@@ -112,7 +112,8 @@ namespace SereneIsle
                     icon.Set(e.item, !e.known);
                     cell.Add(icon);
                 }
-                else cell.Add(L("j-animal", e.known ? "✿" : "?"));
+                else if (e.known) { var paw = E(null, "j-animal"); paw.Add(new IconGlyph(IconGlyph.Kind.Flower, 24)); cell.Add(paw); }
+                else cell.Add(L("j-animal", "?"));
                 cell.Add(L("j-name", e.known ? e.name : "???"));
                 cell.Add(L("j-info", e.known ? (e.item ? $"{e.price} xu · {e.where}" : e.where) : ""));
                 grid.Add(cell);
@@ -180,7 +181,7 @@ namespace SereneIsle
             {
                 bool on = s.Stats.Calm >= lv;
                 var row = E(null, "j-page" + (on ? "" : " j-locked"));
-                row.Add(L("craft-name", $"{(on ? "✓" : "·")} Mức {lv}"));
+                row.Add(on ? IconGlyph.Row(IconGlyph.Kind.Check, $"Mức {lv}", "craft-name") : L("craft-name", $"· Mức {lv}"));
                 row.Add(L("j-text", perk));
                 c.Add(row);
             }

@@ -51,6 +51,9 @@ namespace SereneIsle
             if (Instance == this) Instance = null;
         }
 
+        /// <summary>Thoi gian sinh du lieu dao (giay) - de do toc do tren WebGL.</summary>
+        public float GenSeconds { get; private set; }
+
         IEnumerator Start()
         {
             int s = seed >= 0 ? seed : UnityEngine.Random.Range(0, 1000000);
@@ -60,19 +63,36 @@ namespace SereneIsle
             List<WorldObjects.Placement> objects = null;
             float t0 = Time.realtimeSinceStartup;
 
-            var task = Task.Run(() =>
+            if (Par.Threads)
             {
-                data.Generate(p => Progress = p * .7f);
-                objects = WorldObjects.Place(data);
-                Islets.Carve(data, objects);   // quan dao nho (sau genObjects: dao chinh giu nguyen nhu ban web)
-                chunks = BuildChunkData(data, p => Progress = .7f + p * .25f);
-            });
-            while (!task.IsCompleted) yield return null;
-            if (task.IsFaulted)
-            {
-                Debug.LogException(task.Exception);
-                yield break;
+                var task = Task.Run(() =>
+                {
+                    data.Generate(p => Progress = p * .7f);
+                    objects = WorldObjects.Place(data);
+                    Islets.Carve(data, objects);   // quan dao nho (sau genObjects: dao chinh giu nguyen nhu ban web)
+                    chunks = BuildChunkData(data, p => Progress = .7f + p * .25f);
+                });
+                while (!task.IsCompleted) yield return null;
+                if (task.IsFaulted)
+                {
+                    Debug.LogException(task.Exception);
+                    yield break;
+                }
             }
+            else
+            {
+                // WebGL: cung thu tu, chay tren main thread, nghi 1 khung giua cac buoc de man hinh tai con ve
+                yield return null;
+                data.Generate(p => Progress = p * .7f);
+                Progress = .7f; yield return null;
+                objects = WorldObjects.Place(data);
+                yield return null;
+                Islets.Carve(data, objects);
+                Progress = .75f; yield return null;
+                chunks = BuildChunkData(data, p => Progress = .75f + p * .2f);
+                yield return null;
+            }
+            GenSeconds = Time.realtimeSinceStartup - t0;
             Data = data;
 
             // tao Mesh tren main thread, rai ra vai frame
@@ -107,7 +127,7 @@ namespace SereneIsle
             var FH = d.FH;
             var result = new ChunkData[TCN * TCN];
             int done = 0;
-            Parallel.For(0, TCN * TCN, ci =>
+            Par.For(0, TCN * TCN, ci =>
             {
                 int cu = ci % TCN, cv = ci / TCN;
                 int u0 = cu * TCH, v0 = cv * TCH, u1 = Math.Min(GS - 1, u0 + TCH), v1 = Math.Min(GS - 1, v0 + TCH);
@@ -216,11 +236,19 @@ namespace SereneIsle
             return m;
         }
 
+        GUIStyle _loadStyle;
+
         void OnGUI()
         {
             if (IsReady) return;
-            var r = new Rect(Screen.width / 2f - 160, Screen.height / 2f - 14, 320, 28);
-            GUI.Box(r, $"Đang nặn núi đồi, đào sông hồ… {Progress * 100f:F0}%");
+            if (_loadStyle == null)
+            {
+                _loadStyle = new GUIStyle(GUI.skin.box) { fontSize = 15, alignment = TextAnchor.MiddleCenter };
+                var f = Resources.Load<Font>("Fonts/Baloo2"); // WebGL khong co font he thong cho chu Viet
+                if (f) _loadStyle.font = f;
+            }
+            var r = new Rect(Screen.width / 2f - 170, Screen.height / 2f - 16, 340, 32);
+            GUI.Box(r, $"Đang nặn núi đồi, đào sông hồ… {Progress * 100f:F0}%", _loadStyle);
         }
     }
 }

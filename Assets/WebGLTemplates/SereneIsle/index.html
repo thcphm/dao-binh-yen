@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+  <title>{{{ PRODUCT_NAME }}} · Serene Isle</title>
+  <meta name="description" content="Đảo Bình Yên - game nông trại đảo nhỏ, sống chậm. Phiên bản Unity.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&display=swap" rel="stylesheet">
+  <style>
+    html, body { margin: 0; height: 100%; overflow: hidden; background: #1d5f7a; }
+    #unity-canvas { position: fixed; inset: 0; width: 100%; height: 100%; display: block; background: #1d5f7a; outline: none; }
+    /* man tai giong ban web: troi hoang hon, mat troi, song */
+    #loading { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; text-align: center; padding: 16px; box-sizing: border-box;
+      background: linear-gradient(180deg, #f6c68a 0%, #f29a62 38%, #3a8fb0 62%, #1d5f7a 100%); color: #fff8e8; font-family: 'Baloo 2', system-ui, sans-serif; transition: opacity .6s; }
+    #loading.done { opacity: 0; pointer-events: none; }
+    .lcard { display: flex; flex-direction: column; gap: 8px; align-items: center; width: min(420px, 100%); }
+    .lsun { width: 84px; height: 84px; border-radius: 50%; background: radial-gradient(circle, #fff0b0, #ffb64a); box-shadow: 0 0 40px #ffd27a; animation: sunb 3.5s ease-in-out infinite; }
+    @keyframes sunb { 50% { transform: translateY(-6px); } }
+    .lwave { width: 180px; height: 10px; margin-top: -14px; border-radius: 10px; background: repeating-linear-gradient(90deg, #bfe6f2 0 18px, #7cc6dc 18px 36px); animation: wv 1.6s linear infinite; }
+    @keyframes wv { to { background-position: 36px 0; } }
+    #loading b { font-size: clamp(34px, 8vw, 50px); font-weight: 800; text-shadow: 0 3px 0 rgba(90, 40, 10, .4); }
+    .len { letter-spacing: .3em; text-transform: uppercase; font-weight: 800; font-size: 13px; margin-top: -6px; }
+    .lbar { width: 100%; height: 14px; border-radius: 10px; background: rgba(0, 0, 0, .25); overflow: hidden; border: 2px solid rgba(255, 255, 255, .6); margin-top: 8px; }
+    .lbar i { display: block; height: 100%; width: 0; background: linear-gradient(90deg, #ffe08a, #6ca94a); transition: width .2s; }
+    #lStep { font-weight: 600; font-size: 15px; }
+    #lErr { display: none; max-width: 380px; font-size: 14px; background: rgba(90, 30, 20, .55); padding: 8px 12px; border-radius: 10px; }
+  </style>
+</head>
+<body>
+  <canvas id="unity-canvas" tabindex="-1"></canvas>
+  <div id="loading"><div class="lcard">
+    <div class="lsun"></div><div class="lwave"></div>
+    <b>Đảo Bình Yên</b><span class="len">Serene Isle</span>
+    <div class="lbar"><i id="lFill"></i></div>
+    <span id="lStep">Đang chèo ghe ra đảo…</span>
+    <span id="lErr"></span>
+  </div></div>
+  <script>
+    var canvas = document.getElementById('unity-canvas');
+    var fill = document.getElementById('lFill'), step = document.getElementById('lStep'), err = document.getElementById('lErr');
+    function showError(msg) { err.style.display = 'block'; err.textContent = 'Không mở được game: ' + msg; }
+    if (!window.WebGL2RenderingContext) showError('trình duyệt chưa hỗ trợ WebGL 2. Thử Chrome, Edge hoặc Firefox bản mới.');
+    var config = {
+      arguments: [],
+      dataUrl: 'Build/{{{ DATA_FILENAME }}}',
+      frameworkUrl: 'Build/{{{ FRAMEWORK_FILENAME }}}',
+      codeUrl: 'Build/{{{ CODE_FILENAME }}}',
+      streamingAssetsUrl: 'StreamingAssets',
+      companyName: {{{ JSON.stringify(COMPANY_NAME) }}},
+      productName: {{{ JSON.stringify(PRODUCT_NAME) }}},
+      productVersion: {{{ JSON.stringify(PRODUCT_VERSION) }}},
+      showBanner: function (msg, type) { if (type === 'error') showError(msg); else console.log(msg); },
+    };
+    var script = document.createElement('script');
+    script.src = 'Build/{{{ LOADER_FILENAME }}}';
+    script.onload = function () {
+      createUnityInstance(canvas, config, function (p) {
+        fill.style.width = Math.round(p * 100) + '%';
+        step.textContent = p < .9 ? 'Đang chèo ghe ra đảo… ' + Math.round(p * 100) + '%' : 'Sắp tới bờ rồi…';
+      }).then(function (inst) {
+        window.unityInstance = inst;
+        document.getElementById('loading').classList.add('done');
+        canvas.focus();
+      }).catch(function (m) { showError(m); });
+    };
+    script.onerror = function () { showError('thiếu file Build/{{{ LOADER_FILENAME }}}'); };
+    document.body.appendChild(script);
+  </script>
+</body>
+</html>
