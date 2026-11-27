@@ -18,8 +18,13 @@ namespace SereneIsle
         public float renderScale = 1f;          // .75 = nhe may, 1 = net
         public bool showHelp = true;
         public bool autosave = true;
+        public int textSize = 1;                // co chu giao dien: 0 nho, 1 vua, 2 lon, 3 rat lon
 
         public static readonly string[] ViewNames = { "Gần", "Vừa", "Xa" };
+        public static readonly string[] TextSizeNames = { "Nhỏ", "Vừa", "Lớn", "Rất lớn" };
+        static readonly float[] TextScales = { .95f, 1.15f, 1.35f, 1.55f };
+        /// <summary>He so phong giao dien (nhan voi ti le theo man hinh 1600 x 900).</summary>
+        public float UiScale => TextScales[Mathf.Clamp(textSize, 0, TextScales.Length - 1)];
 
         static GameSettings _current;
         public static GameSettings Current => _current ??= Load();

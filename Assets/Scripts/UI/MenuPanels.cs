@@ -71,6 +71,19 @@ namespace SereneIsle
             }
             vrow.Add(seg);
             c.Add(vrow);
+            var trow = E(null, "set-row");
+            trow.Add(L("set-label", "Cỡ chữ"));
+            var tseg = E(null, "seg");
+            tseg.AddToClassList("seg-tight");   // 4 nut vua mot hang
+            for (int i = 0; i < GameSettings.TextSizeNames.Length; i++)
+            {
+                int idx = i;
+                var b = Btn(GameSettings.TextSizeNames[i], null, s.textSize == i ? null : "off");
+                b.clicked += () => { s.textSize = idx; GameSettings.Set(s); Settings(card, done); };   // ap dung ngay de xem truoc
+                tseg.Add(b);
+            }
+            trow.Add(tseg);
+            c.Add(trow);
             AddToggle(c, "Bóng đổ", s.shadows, v => s.shadows = v);
             AddToggle(c, "Giảm độ phân giải (máy yếu)", s.renderScale < .99f, v => s.renderScale = v ? .75f : 1f);
 

@@ -1,7 +1,7 @@
 /* Ban do nho + ban do lon (ban web: #mini, #bigmap). */
 #minimap { position: absolute; top: 66px; right: 12px; width: 168px; height: 168px; padding: 0; overflow: hidden; border-radius: 16px; }
 .mini-img { position: absolute; left: 3px; top: 3px; right: 3px; bottom: 3px; border-radius: 10px; }
-.mini-hint { position: absolute; right: 6px; bottom: 4px; font-size: 11px; -unity-font-style: bold; color: #fff6dc;
+.mini-hint { position: absolute; right: 6px; bottom: 4px; font-size: 12px; -unity-font-style: bold; color: #fff6dc;
              -unity-text-outline-width: 1px; -unity-text-outline-color: rgba(40, 20, 10, .8); }
 .map-marks { position: absolute; left: 0; top: 0; right: 0; bottom: 0; }
 .map-arrow { position: absolute; translate: -50% -50%; font-size: 15px; color: #ffffff; -unity-font-style: bold;
@@ -26,7 +26,7 @@
 .bm-town { position: absolute; width: 10px; height: 10px; translate: -50% -50%; background-color: #c45a3a; border-width: 2px; border-color: #fff3d6; }
 .bm-town-label { position: absolute; translate: -50% 0; font-size: 12px; -unity-font-style: bold; color: #fff3d6;
                  -unity-text-outline-width: 1.5px; -unity-text-outline-color: rgba(30, 20, 10, .85); }
-.bm-pin { position: absolute; width: 18px; height: 18px; border-radius: 9px; translate: -50% -100%; font-size: 11px; -unity-font-style: bold;
+.bm-pin { position: absolute; width: 18px; height: 18px; border-radius: 9px; translate: -50% -100%; font-size: 12px; -unity-font-style: bold;
           color: #ffffff; -unity-text-align: middle-center; border-width: 2px; border-color: #ffffff; }
 .bm-x { position: absolute; translate: -50% -50%; font-size: 30px; -unity-font-style: bold; color: #ff3b2f;
         -unity-text-outline-width: 1.5px; -unity-text-outline-color: rgba(40, 15, 5, .95); }

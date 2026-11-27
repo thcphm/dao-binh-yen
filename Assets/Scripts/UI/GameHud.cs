@@ -53,10 +53,13 @@ namespace SereneIsle
             Build();
         }
 
+        void ApplyTextSize() { if (Panel) Panel.scale = GameSettings.Current.UiScale; }
+
         void OnDestroy()
         {
             if (Instance == this) Instance = null;
             Unhook();
+            GameSettings.Changed -= ApplyTextSize;
             if (Panel) Destroy(Panel);
         }
 
@@ -99,6 +102,8 @@ namespace SereneIsle
             Panel.screenMatchMode = PanelScreenMatchMode.MatchWidthOrHeight;
             Panel.match = .5f;
             Panel.sortingOrder = 10;
+            Panel.scale = GameSettings.Current.UiScale;
+            GameSettings.Changed += ApplyTextSize;
 
             var go = new GameObject("HudDocument");
             go.SetActive(false);
