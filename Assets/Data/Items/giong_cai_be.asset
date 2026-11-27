@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1e9a6876b7042064b965bcdd10808fc1, type: 3}
+  m_Name: giong_cai_be
+  m_EditorClassIdentifier: SereneIsle::SereneIsle.ItemDefinition
+  id: giong_cai_be
+  displayName: "H\u1EA1t gi\u1EEF gi\u1ED1ng c\u1EA3i b\u1EB9 xanh"
+  category: 5
+  price: 6
+  weight: 0.02
+  eatHp: 0
+  eatWater: 0
+  eatEnergy: 0
+  icon: 25
+  iconColor: {r: 0.65882355, g: 0.5019608, b: 0.3529412, a: 1}
+  iconColor2: {r: 0.47843137, g: 0.7607843, b: 0.30588236, a: 1}
+  sprite: {fileID: 0}
+  seedOf: cai_be
+  bagLevel: 0
+  fishDifficulty: 0
+  habitats: []
+  activeTime: 
+  description: "H\u1EA1t l\u1EA5y t\u1EEB c\xE2y nh\xE0 \u0111\u1EC3 gi\xE0. C\xE2y con mang h\u1EA1ng c\u1EE7a c\xE2y m\u1EB9; gi\u1EEF gi\u1ED1ng 3 v\u1EE5 li\u1EC1n th\xE0nh gi\u1ED1ng nh\xE0."

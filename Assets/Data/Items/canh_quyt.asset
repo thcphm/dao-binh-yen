@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1e9a6876b7042064b965bcdd10808fc1, type: 3}
+  m_Name: canh_quyt
+  m_EditorClassIdentifier: SereneIsle::SereneIsle.ItemDefinition
+  id: canh_quyt
+  displayName: "C\xE0nh gh\xE9p qu\xFDt"
+  category: 0
+  price: 27
+  weight: 0.2
+  eatHp: 0
+  eatWater: 0
+  eatEnergy: 0
+  icon: 4
+  iconColor: {r: 0.41568628, g: 0.2901961, b: 0.16470589, a: 1}
+  iconColor2: {r: 0.9411765, g: 0.5411765, b: 0.1254902, a: 1}
+  sprite: {fileID: 0}
+  seedOf: 
+  bagLevel: 0
+  fishDifficulty: 0
+  habitats: []
+  activeTime: 
+  description: "C\xE0nh t\u1EEB c\xE2y \u0111\u1EA7u d\xF2ng. C\u1EA7m l\xEAn, \u0111\u1EE9ng tr\u01B0\u1EDBc c\xE2y \u0103n tr\xE1i r\u1ED3i b\u1EA5m chu\u1ED9t \u0111\u1EC3 gh\xE9p: c\xF9ng lo\u1EA1i th\xEC tr\xE1i \u0111\u1EB7c s\u1EA3n, kh\xE1c lo\u1EA1i ra gi\u1ED1ng lai."

@@ -11,6 +11,8 @@ namespace SereneIsle
         public int bag;            // nang cap tui len bac nay
         public (string id, int n)[] req;
         public string desc;
+        public string craft;       // can bac nghe (vd: lam vuon bac 3 moi dung nha luoi)
+        public int craftLevel;
     }
 
     public static class Recipes
@@ -32,6 +34,12 @@ namespace SereneIsle
             R("sprinkler", "Mỗi sáng tưới 8 ô quanh nó", ("ore", 3), ("stone", 4)),
             R("chuong_ga", "Nuôi được 4 con gà (mua giống ở Bác Chín Đò)", ("wood", 20), ("fiber", 8)),
             R("chuong_trau", "Nuôi được 2 con trâu, bò hoặc dê", ("wood", 40), ("stone", 12)),
+            // vuon ruong nang cao (Docs muc 4.5, 4.6, 4.8)
+            R("tro_bep", "Đốt củi lấy tro: trị rầy, bón cây", ("wood", 2)),
+            R("nuoc_toi_ot", "Phun trị sâu bệnh 9 ô", ("toi", 1), ("ot", 2)),
+            R("cong", "Cống cho ruộng đất trũng: luân canh lúa tôm", ("wood", 4), ("stone", 4)),
+            new Recipe { id = "nha_luoi", craft = Crafts.Garden, craftLevel = 3, req = new[] { ("wood", 20), ("fiber", 16), ("stone", 4) },
+                         desc = "Che 5 × 5 ô: trồng trái mùa (nghề làm vườn bậc 3)" },
         };
 
         public static Recipe Get(string id) => All.FirstOrDefault(r => r.id == id);
@@ -43,7 +51,8 @@ namespace SereneIsle
             => (r.tool != null && s.OwnedTools.Contains(r.tool)) || (r.bag > 0 && s.Inventory.BagLevel >= r.bag);
 
         /// <summary>Tui bac 2 can co tui bac 1 truoc.</summary>
-        public static bool Locked(Recipe r, GameSession s) => r.bag > 0 && s.Inventory.BagLevel != r.bag - 1;
+        public static bool Locked(Recipe r, GameSession s)
+            => (r.bag > 0 && s.Inventory.BagLevel != r.bag - 1) || (r.craft != null && Crafts.Level(r.craft) < r.craftLevel);
 
         public static bool CanCraft(Recipe r, GameSession s) => CanPay(r, s.Inventory) && !AlreadyHave(r, s) && !Locked(r, s);
 

@@ -99,6 +99,26 @@ namespace SereneIsle
                     : $"Gieo mùa {when}. Lớn sau {row.grow} ngày tưới{(row.regrow > 0 ? $", thu lại mỗi {row.regrow} ngày" : "")}. Hợp {soil}."
                       + (row.paddy ? " Cần ruộng nước." : "") + (row.trellis ? " Leo giàn." : "");
             }
+            // ---- vuon ruong nang cao (muc 4.4 - 4.6): hat giu giong, canh ghep, tri sau, lua tom ----
+            foreach (var row in CropCatalogData.Rows)
+            {
+                if (row.kind == CropKind.Tree)
+                {
+                    var g = R(FarmCare.ScionPrefix + row.id, "Cành ghép " + row.name.ToLowerInvariant(), M, row.seedPrice / 2, .2f,
+                              IconShape.Fiber, "#6a4a2a", row.prod);
+                    g.description = $"Cành từ cây đầu dòng. Cầm lên, đứng trước cây ăn trái rồi bấm chuột để ghép: cùng loại thì trái đặc sản, khác loại ra giống lai.";
+                    continue;
+                }
+                var sv = R(FarmCare.SavedSeedPrefix + row.id, "Hạt giữ giống " + row.name.ToLowerInvariant(), S, row.seedPrice, .02f,
+                           IconShape.SeedBag, "#a8805a", row.prod);
+                sv.seedOf = row.id;
+                sv.description = "Hạt lấy từ cây nhà để già. Cây con mang hạng của cây mẹ; giữ giống 3 vụ liền thành giống nhà.";
+            }
+            R("tro_bep", "Tro bếp", M, 2, .1f, IconShape.Rock, "#8a8680", "#5a5650").description = "Rắc lên cây trị rầy, sâu; cũng là phân bón.";
+            R("nuoc_toi_ot", "Nước ngâm tỏi ớt", M, 15, .5f, IconShape.Bottle, "#e05a3a", "#f2ece0").description = "Phun trị sâu bệnh cho 9 ô quanh chỗ đứng.";
+            R("cong", "Cống chặn nước", M, 30, 3f, IconShape.Fence, "#7d8890", "#8a5a2e").description = "Đặt lên ô đất trũng đã đắp bờ bao. Bấm E để mở / đóng cống: mùa Hạ nuôi tôm, mùa Thu cấy lúa chịu mặn.";
+            R("tom_giong", "Tôm giống", X, 8, .1f, IconShape.Lobster, "#b8c8c8", "#6a8a8a").description = "Thả vào ruộng đã mở cống trong mùa Hạ, 10 ngày thì thu.";
+            R("tom_su", "Tôm sú", X, 45, .2f, IconShape.Lobster, "#5a6a5a", "#d8603a");
             R("wheat", "Lúa mì", C, 20, .3f, IconShape.Wheat, "#e0b84a", "#a8862a");
             R("seed_wheat", "Hạt lúa mì", S, 4, .02f, IconShape.SeedBag, "#d8b27a", "#e0b84a").seedOf = "wheat";
 
@@ -142,6 +162,7 @@ namespace SereneIsle
             R("scarecrow", "Bù nhìn", P, 15, 2f, IconShape.Scarecrow, "#e0b84a", "#3f7fb0");
             R("chuong_ga", "Chuồng gà", P, 60, 4f, IconShape.Fence, "#c8a06a", "#b5523a");
             R("chuong_trau", "Chuồng trâu bò", P, 120, 6f, IconShape.Fence, "#8a6038", "#b89a5a");
+            R("nha_luoi", "Nhà lưới", P, 200, 6f, IconShape.Fence, "#e8ecef", "#6a8a4a").description = "Che 5 × 5 ô ruộng quanh cột giữa: gieo trái mùa được, ít sâu, bão không hại.";
 
             // ---- con trung (BUGS: mau than / canh, gio, biome) ----
             Bug("b_fly", "Bướm xanh", 20, "day", "2,5,6,9,10", IconShape.Butterfly, "#2b5fa8", "#5bb6f0");

@@ -23,6 +23,7 @@ MonoBehaviour:
   soils: 1
   needsPaddy: 0
   trellis: 0
+  saltTolerant: 0
   yieldMin: 1
   yieldMax: 1
   leafColor: {r: 0.24705882, g: 0.5411765, b: 0.22745098, a: 1}

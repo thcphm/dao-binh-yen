@@ -34,11 +34,11 @@ namespace SereneIsle
             M("Ba", "Ba gửi con chút tiền mua đồ nghề. Nói thiệt, hồi con còn làm trên phố, tối nào ba mẹ cũng thấy đèn phòng con sáng tới khuya. Nội nói: \"Cho nó ra đảo đi, đảo chữa được bệnh đó\". Ba mẹ tin nội.",
               200),
             M("Ông nội", "Bốn chục năm trước có một trận bão lớn. Nước biển tràn vô vườn, cây xoài của ông cố trốc gốc, nhà sập một nửa. Cả nhà dọn vô đất liền từ đó. Nội gửi con cây xoài giống, trồng lại giùm nội một cây nghen.",
-              0, ("seed_xoai", 1)),
+              0, ("seed_xoai", 1), ("canh_xoai", 1)),
             M("Mẹ", "Ông Bảy có gửi lời theo ghe Bác Chín, khen con siêng. Ông nội nghe xong cười cả buổi. Mẹ gửi con hạt sen, bà nội con hồi xưa có cái ao sen nhỏ sau nhà, mùa nào cũng thơm.",
               0, ("seed_sen", 2), ("seed_rau_thom", 3)),
-            M("Ông nội", "Trận bão năm rồi, nội lo cho ông Bảy với cái đảo mà không đi được, chân yếu rồi. Nên nội mới nhờ con ra. Không phải để làm giàu, mà để coi đảo có xanh lại được không. Nội gửi cây quýt, trồng để Tết có trái chưng.",
-              0, ("seed_quyt", 1)),
+            M("Ông nội", "Trận bão năm rồi, nội lo cho ông Bảy với cái đảo mà không đi được, chân yếu rồi. Nên nội mới nhờ con ra. Không phải để làm giàu, mà để coi đảo có xanh lại được không. Nội gửi cây quýt với cành quýt đầu dòng nhà mình, ghép vô cho trái ngọt, Tết có trái chưng.",
+              0, ("seed_quyt", 1), ("canh_quyt", 1)),
             M("Ba", "Cả nhà đọc thư con mấy lần. Con viết vui hơn hồi trước nhiều. Ba gửi nếp với lá thơm, cuối năm con thử gói bánh chưng coi, nồi bánh đầu tiên trên đảo phải do con nấu.",
               150, ("seed_nep", 5), ("rau_thom", 2)),
             M("Ông nội", "Nội hỏi Bác Chín rồi, Tết này Bác chèo ghe đưa nội ra đảo một chuyến. Nội muốn ngồi ở cầu tàu với ông Bảy, coi con trồng cây, nghe sóng như hồi nhỏ. Con giữ đảo giùm nội nghen. Thương con.",
@@ -51,6 +51,7 @@ namespace SereneIsle
             M("Mẹ", "Nhà mình vẫn khỏe. Ông nội giờ sáng nào cũng ra hiên ngó về phía biển. Gửi con ít hạt giống mùa mới.", 0, ("seed_tomato", 4), ("seed_ot", 4)),
             M("Ba", "Ba gửi con chút tiền xài dần. Nhớ giữ sức, đừng ở ngoài trễ quá mà bị ngất nghen con.", 200),
             M("Ông nội", "Nội nhớ mùi gió biển. Con kể nội nghe thêm về con nước với mấy con cá con câu được nghen.", 0, ("seed_toi", 4)),
+            M("Ông nội", "Nhà hàng xóm mới chiết được cành bưởi ngon, nội xin một nhánh gửi con. Ghép lên cây bưởi con trồng, hai mùa sau có trái ngọt như hồi xưa.", 0, ("canh_buoi", 1)),
             M("Mẹ", "Mẹ làm ít mứt gừng gửi theo ghe. Đêm lạnh ngồi bên lửa trại mà nhâm nhi.", 0, ("seed_gung", 3), ("berry", 4)),
         };
 

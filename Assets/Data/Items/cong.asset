@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1e9a6876b7042064b965bcdd10808fc1, type: 3}
+  m_Name: cong
+  m_EditorClassIdentifier: SereneIsle::SereneIsle.ItemDefinition
+  id: cong
+  displayName: "C\u1ED1ng ch\u1EB7n n\u01B0\u1EDBc"
+  category: 0
+  price: 30
+  weight: 3
+  eatHp: 0
+  eatWater: 0
+  eatEnergy: 0
+  icon: 43
+  iconColor: {r: 0.49019608, g: 0.53333336, b: 0.5647059, a: 1}
+  iconColor2: {r: 0.5411765, g: 0.3529412, b: 0.18039216, a: 1}
+  sprite: {fileID: 0}
+  seedOf: 
+  bagLevel: 0
+  fishDifficulty: 0
+  habitats: []
+  activeTime: 
+  description: "\u0110\u1EB7t l\xEAn \xF4 \u0111\u1EA5t tr\u0169ng \u0111\xE3 \u0111\u1EAFp b\u1EDD bao. B\u1EA5m E \u0111\u1EC3 m\u1EDF / \u0111\xF3ng c\u1ED1ng: m\xF9a H\u1EA1 nu\xF4i t\xF4m, m\xF9a Thu c\u1EA5y l\xFAa ch\u1ECBu m\u1EB7n."

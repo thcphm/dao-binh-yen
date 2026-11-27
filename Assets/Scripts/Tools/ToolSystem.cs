@@ -158,6 +158,16 @@ namespace SereneIsle
                 var lantern = Festivals.Instance.NearbyAction(p, out label);
                 if (lantern != null) return lantern;
             }
+            if (MotherTrees.Instance)   // cay dau dong: cat canh ghep
+            {
+                var cut = MotherTrees.Instance.NearbyAction(p, out label);
+                if (cut != null) return cut;
+            }
+            if (s.Farm)                 // o ruong phia truoc: thu tom, bat sau, chua giong, mo / dong cong
+            {
+                var farm = s.Farm.NearbyAction(out label);
+                if (farm != null) return farm;
+            }
             // lua trai phia truoc / ben canh: nau an, ngoi suoi (ban web: getInteract dong 1448)
             var front = p + new Vector3(Mathf.Sin(s.Player.Facing), 0, Mathf.Cos(s.Player.Facing)) * .9f;
             if (P && CookUI.Instance && (IsCampfire(front) || P.Near("campfire", p, 1)))

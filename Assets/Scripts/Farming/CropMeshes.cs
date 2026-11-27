@@ -182,6 +182,87 @@ namespace SereneIsle
             }
         }
 
+        static Mesh _pest, _stake, _gate, _shrimp;
+
+        /// <summary>Sau benh: cham nau den tren dat va la.</summary>
+        public static Mesh PestMarker
+        {
+            get
+            {
+                if (_pest) return _pest;
+                var b = new MeshBuilder();
+                var r = new System.Random(7);
+                for (int i = 0; i < 9; i++)
+                {
+                    float x = (float)r.NextDouble() * .6f - .3f, z = (float)r.NextDouble() * .6f - .3f, y = .06f + (float)r.NextDouble() * .3f;
+                    b.Box(i % 3 == 0 ? "#3a2a1a" : "#6a7a2a", x, y, z, .06f, .04f, .09f, 0, (float)r.NextDouble() * 3, 0);
+                }
+                _pest = b.ToMesh("PestMarker");
+                return _pest;
+            }
+        }
+
+        /// <summary>Cay chua giong: coc tre buoc day do.</summary>
+        public static Mesh SeedStake
+        {
+            get
+            {
+                if (_stake) return _stake;
+                var b = new MeshBuilder();
+                b.Box("#c8a860", .36f, .4f, .36f, .04f, .8f, .04f);
+                b.Box("#d8402a", .36f, .7f, .36f, .07f, .06f, .07f);
+                b.Box("#d8402a", .36f, .66f, .29f, .02f, .12f, .1f, .4f, 0, 0);
+                _stake = b.ToMesh("SeedStake");
+                return _stake;
+            }
+        }
+
+        /// <summary>Cong chan nuoc: 2 tru da + tam van tren bo bao phia -z.</summary>
+        public static Mesh SluiceGate
+        {
+            get
+            {
+                if (_gate) return _gate;
+                var b = new MeshBuilder();
+                b.Box("#9a958a", -.3f, .16f, -.46f, .12f, .32f, .14f);
+                b.Box("#9a958a", .3f, .16f, -.46f, .12f, .32f, .14f);
+                b.Box("#8a5a2e", 0, .3f, -.46f, .72f, .06f, .1f);
+                _gate = b.ToMesh("SluiceGate");
+                return _gate;
+            }
+        }
+
+        /// <summary>Tam van cong (nang len khi mo cong).</summary>
+        public static Mesh SluicePlank
+        {
+            get
+            {
+                if (_plank) return _plank;
+                var b = new MeshBuilder();
+                b.Box("#7a5232", 0, .1f, 0, .48f, .2f, .05f);
+                _plank = b.ToMesh("SluicePlank");
+                return _plank;
+            }
+        }
+        static Mesh _plank;
+
+        /// <summary>Ruong nuoi tom: phao tre + vai con tom noi mat nuoc.</summary>
+        public static Mesh Shrimp
+        {
+            get
+            {
+                if (_shrimp) return _shrimp;
+                var b = new MeshBuilder();
+                b.Box("#c8a860", .3f, .2f, .3f, .04f, .4f, .04f);
+                b.Box("#e8e0c8", .3f, .38f, .3f, .1f, .06f, .1f);
+                var r = new System.Random(3);
+                for (int i = 0; i < 5; i++)
+                    b.Box("#d8703a", (float)r.NextDouble() * .5f - .3f, .04f, (float)r.NextDouble() * .5f - .3f, .1f, .03f, .04f, 0, (float)r.NextDouble() * 3, 0);
+                _shrimp = b.ToMesh("ShrimpPond");
+                return _shrimp;
+            }
+        }
+
         static Mesh _soil;
         /// <summary>O dat da cuoc: khoi .94 x .22 x .94, mat tren cao hon mat dat .04 (ban web: soilIM).</summary>
         public static Mesh Soil

@@ -58,6 +58,7 @@ namespace SereneIsle
             {
                 foreach (var a in AnimalDefs.All)
                     if (a.role == AnimalRole.Farm && items && items.Get(a.calf)) list.Add(new ShopOffer { id = a.calf, price = a.price });
+                if (items && items.Get("tom_giong")) list.Add(Offer(items, "tom_giong", .75f));   // luan canh lua tom (muc 4.6)
                 return list;
             }
             if (shop != HatGiong || !crops || !items) return list;

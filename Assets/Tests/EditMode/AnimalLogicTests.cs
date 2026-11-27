@@ -46,7 +46,7 @@ namespace SereneIsle.Tests
         public void CuaHangConGiong()
         {
             var offers = Shops.Offers(Shops.ConGiong, 1, Items, null);
-            CollectionAssert.AreEquivalent(new[] { "a_chick", "a_goat", "a_cow", "a_trau" }, offers.Select(o => o.id));
+            CollectionAssert.AreEquivalent(new[] { "a_chick", "a_goat", "a_cow", "a_trau", "tom_giong" }, offers.Select(o => o.id));
             Assert.IsFalse(Shops.Buys(Shops.ConGiong));
             Assert.AreEqual(Shops.ConGiong, NpcDefs.Get("chin").shop);
         }

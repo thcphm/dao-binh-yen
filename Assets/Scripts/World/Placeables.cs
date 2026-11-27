@@ -14,7 +14,19 @@ namespace SereneIsle
         public static Placeables Instance { get; private set; }
 
         /// <summary>Thu tu R doi mon (ban web: PLACEABLES).</summary>
-        public static readonly string[] Types = { "campfire", "torch", "fence", "path", "sprinkler", "scarecrow", "chuong_ga", "chuong_trau" };
+        public static readonly string[] Types = { "campfire", "torch", "fence", "path", "sprinkler", "scarecrow", "chuong_ga", "chuong_trau", "nha_luoi" };
+
+        /// <summary>O k nam duoi nha luoi (5 x 5 quanh cot giua, muc 4.8).</summary>
+        public bool Sheltered(int k)
+        {
+            var d = D;
+            if (d == null) return false;
+            int i = k % d.N, j = k / d.N, r = FarmCare.ShelterRadius;
+            for (int dj = -r; dj <= r; dj++)
+                for (int di = -r; di <= r; di++)
+                    if (d.InBounds(i + di, j + dj) && _items.TryGetValue(d.Idx(i + di, j + dj), out var v) && v.item.type == "nha_luoi") return true;
+            return false;
+        }
 
         /// <summary>Do cao de nhay qua (ban web: PLH). Bu nhin = khong nhay qua duoc.</summary>
         public static float JumpTop(string type) => type switch
@@ -115,6 +127,20 @@ namespace SereneIsle
             if (d.Solid[k] != 0 || _items.ContainsKey(k)) return false;
             if (S && S.Farm && S.Farm.PlotAt(k) != null) { why = "Ô này là ruộng. Lấp đất bằng xẻng trước đã."; return false; }
             if (d.HT[k] < TideClock.MaxLevel + .04f) { why = "Nước rong sẽ tràn tới đây. Chọn chỗ cao hơn."; return false; }
+            if (id == "nha_luoi")
+            {
+                // khung 5 x 5: khong de len nha, sap, cay, do da dat
+                int i0 = k % d.N, j0 = k / d.N, r = FarmCare.ShelterRadius;
+                for (int dj = -r; dj <= r; dj++)
+                    for (int di = -r; di <= r; di++)
+                    {
+                        int i = i0 + di, j = j0 + dj;
+                        if (!d.InBounds(i, j)) return false;
+                        int q = d.Idx(i, j);
+                        if (d.Level[q] == 0 || d.Pier[q] != 0 || d.Solid[q] != 0 || _items.ContainsKey(q))
+                        { why = "Nhà lưới cần khoảng đất trống 5 × 5 ô (không vướng nhà, cây, đồ đã đặt)."; return false; }
+                    }
+            }
             if (id != "path" && S && S.Player)
             {
                 var p = S.Player.transform.position;
@@ -324,6 +350,21 @@ namespace SereneIsle
                     b.Box("#e0c878", .25f, .07f, .18f, .4f, .14f, .3f, 0, -.2f, 0);
                     b.P(LowPolyShapes.Cylinder(.14f, .14f, .3f, 10), "#5a8aa8", .38f, .15f, -.05f); // thung nuoc
                     break;
+                case "nha_luoi":
+                {
+                    // nha luoi (muc 4.8): khung tre 5 x 5 o, mai luoi trang dan thua (cot giua + 4 cot goc)
+                    const float R = 2.45f, H = 2.2f;
+                    foreach (var (x, z) in new[] { (-R, -R), (R, -R), (-R, R), (R, R), (0f, 0f) })
+                        b.Box("#a8884a", x, H / 2, z, .09f, H, .09f);
+                    foreach (var z in new[] { -R, 0f, R }) b.Box("#9a7a3a", 0, H, z, R * 2 + .1f, .07f, .07f);
+                    foreach (var x in new[] { -R, 0f, R }) b.Box("#9a7a3a", x, H, 0, .07f, .07f, R * 2 + .1f);
+                    for (float t = -R + .35f; t < R - .1f; t += .35f)
+                    {
+                        b.Box("#eef0ec", 0, H + .04f, t, R * 2, .015f, .02f);
+                        b.Box("#eef0ec", t, H + .045f, 0, .02f, .015f, R * 2);
+                    }
+                    break;
+                }
                 default:
                     b.Box("#c9a46e", 0, .2f, 0, .4f, .4f, .4f);
                     break;

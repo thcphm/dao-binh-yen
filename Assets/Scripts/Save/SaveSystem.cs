@@ -66,6 +66,9 @@ namespace SereneIsle
         public string mailTopic, mailGift;
         // khoanh khac binh yen (id, ngay gap)
         public List<ItemCount> moments = new List<ItemCount>();
+        // vuon ruong nang cao: dong giong giu lai, ngay cat canh cay dau dong (id vung -> ngay)
+        public List<Strain> strains = new List<Strain>();
+        public List<ItemCount> motherCuts = new List<ItemCount>();
     }
 
     /// <summary>Tom tat 1 o luu cho man hinh chon o (giai doan 5).</summary>
@@ -168,6 +171,8 @@ namespace SereneIsle
             if (Journal.Instance) { d.stats = Journal.Instance.SnapshotStats(); d.miles = Journal.Instance.SnapshotMiles(); d.journalPages = Journal.Instance.PagesUnlocked; }
             if (Bottles.Instance) { d.bottle = Bottles.Instance.Bottle; d.treasure = Bottles.Instance.Treasure; d.letters = Bottles.Instance.LettersRead; }
             if (Moments.Instance) d.moments = Moments.Instance.Snapshot();
+            if (s.Farm) d.strains = s.Farm.StrainSnapshot();
+            if (MotherTrees.Instance) d.motherCuts = MotherTrees.Instance.Snapshot();
             var mail = Mail.Instance;
             if (mail) { d.mailChapter = mail.Chapter; d.mailMonth = mail.LastMonth; d.mailSent = mail.SentMonth; d.mailTopic = mail.Topic; d.mailGift = mail.Gift; }
             var ts = ToolSystem.Instance;
@@ -250,6 +255,8 @@ namespace SereneIsle
             if (Journal.Instance) Journal.Instance.Restore(d.stats, d.miles, d.journalPages);
             if (Bottles.Instance) Bottles.Instance.Restore(d.bottle, d.treasure, d.letters);
             if (Moments.Instance) Moments.Instance.Restore(d.moments);
+            if (s.Farm) s.Farm.RestoreStrains(d.strains);
+            if (MotherTrees.Instance) MotherTrees.Instance.Restore(d.motherCuts);
             if (Mail.Instance) Mail.Instance.Restore(d.mailChapter, d.mailMonth, d.mailSent, d.mailTopic, d.mailGift);
             if (d.hotbar != null && d.hotbar.Length == Hotbar.Size) s.Hotbar.Load(d.hotbar);
             s.Hotbar.Selected = Mathf.Clamp(d.selected, 0, Hotbar.Size - 1);
@@ -268,7 +275,7 @@ namespace SereneIsle
             if (s.Farm && d.farm != null)
             {
                 // JsonUtility ghi null thanh "" -> tra lai null (o dat trong)
-                foreach (var p in d.farm) { if (string.IsNullOrEmpty(p.crop)) p.crop = null; if (string.IsNullOrEmpty(p.deadReason)) p.deadReason = null; }
+                foreach (var p in d.farm) { if (string.IsNullOrEmpty(p.crop)) p.crop = null; if (string.IsNullOrEmpty(p.deadReason)) p.deadReason = null; if (string.IsNullOrEmpty(p.graft)) p.graft = null; }
                 s.Farm.Restore(d.farm);
             }
             if (s.Restoration && d.vitality != null && d.vitality.Length > 0) s.Restoration.Restore(d.vitality);

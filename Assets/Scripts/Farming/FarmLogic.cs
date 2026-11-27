@@ -28,6 +28,22 @@ namespace SereneIsle
         public bool dike;             // da dap bo bao ngan man
         public int saltDays;          // con man bao nhieu ngay nua
         public bool fertilized;       // da bon phan vu nay
+        // vuon ruong nang cao (muc 4.4 - 4.6, FarmCare)
+        public Pest pest;             // sau benh dang co
+        public int pestDays;          // so ngay bi sau
+        public bool nearLegume;       // ke cay dau (xen canh): +1 hang
+        public bool saved;            // chua cay nay lam giong (de gia lay hat)
+        public int seedAge;           // so ngay da gia (tu khi chin + chua giong)
+        public int strainQ;           // gieo tu hat giu giong: hang cay me + 1 (0 = hat mua)
+        public int strainGen;         // the he giong (gieo tu hat giu giong)
+        public bool homeStrain;       // giong nha da dat ten: +1 hang
+        public string graft;          // cay an trai: canh ghep (id cay), null = chua ghep
+        public GraftTrait trait;      // ghep khac loai: dac tinh moi
+        public int extraSeasons;      // ghep ra trai hai mua: mua cua canh ghep (SeasonMask)
+        public bool sluice;           // co cong chan nuoc (luan canh lua tom)
+        public bool sluiceOpen;       // cong dang mo: ruong thanh dam nuoc lo nuoi tom
+        public int shrimpAge;         // 0 = chua tha tom, 1.. = so ngay + 1
+        public bool shrimpBonus;      // vua nuoi tom xong: vu lua sau tu duoc bon phan
 
         public bool Empty => crop == null;
         public bool Wilting => crop != null && !dead && dryDays > 0;
@@ -53,59 +69,94 @@ namespace SereneIsle
             return f < .34f ? 0 : f < .67f ? 1 : 2;
         }
 
+        /// <summary>Thu hoach duoc: cay chin (cay an trai: co trai); cay chua giong thi phai gia du ngay moi lay hat.</summary>
         public static bool Harvestable(FarmPlot p, CropDefinition c)
-            => !p.dead && c != null && Mature(p, c) && (c.kind != CropKind.Tree || p.hasFruit);
+            => !p.dead && c != null && Mature(p, c) && (c.kind != CropKind.Tree || p.hasFruit) && (!p.saved || FarmCare.SeedReady(p));
 
-        /// <summary>Hang khi thu hoach: 2 dac san (dung dat, chua tung quen tuoi), 1 ngon (mot trong hai), 0 thuong.</summary>
+        /// <summary>Hang khi thu hoach: 2 dac san (dung dat, chua tung quen tuoi), 1 ngon (mot trong hai), 0 thuong.
+        /// Them (muc 4.4, 4.5): bon phan it nhat ngon, ke cay dau +1, hat giu giong mang hang cay me, giong nha +1,
+        /// dang bi sau -1; cay an trai chua ghep chi cho hang thuong.</summary>
         public static int Quality(FarmPlot p, CropDefinition c)
         {
             bool soil = SoilOk(p, c), care = !p.everDry;
             int q = soil && care ? 2 : soil || care ? 1 : 0;
-            return p.fertilized ? Math.Max(q, 1) : q;   // bon phan: it nhat hang ngon
+            if (p.fertilized) q = Math.Max(q, 1);   // bon phan: it nhat hang ngon
+            if (p.nearLegume) q++;
+            if (p.strainQ > 0) q = Math.Max(q, p.strainQ - 1);
+            if (p.homeStrain) q++;
+            if (p.pest != Pest.None) q--;
+            if (c.kind == CropKind.Tree && p.graft == null) q = 0;
+            return Math.Max(0, Math.Min(2, q));
         }
 
-        /// <summary>Kiem tra gieo duoc khong. flooded: o ke muong / nguon nuoc ngot (ruong nuoc). Tra ve loi hoac null.</summary>
-        public static string CanPlant(FarmPlot p, CropDefinition c, Season s, bool flooded = false)
+        /// <summary>Kiem tra gieo duoc khong. flooded: o ke muong / nguon nuoc ngot (ruong nuoc).
+        /// sheltered: trong nha luoi (gieo trai mua duoc). Tra ve loi hoac null.</summary>
+        public static string CanPlant(FarmPlot p, CropDefinition c, Season s, bool flooded = false, bool sheltered = false)
         {
             if (c == null) return "Hạt này chưa trồng được.";
             if (p == null) return "Gieo hạt trên ô đất đã cuốc.";
             if (p.ditch) return "Đây là mương nước, gieo ở ô ruộng bên cạnh.";
+            if (p.sluiceOpen) return "Cống đang mở, ruộng đang ngập nước lợ. Đóng cống rồi rửa mặn mới cấy được.";
             if (!p.Empty) return "Ô này đã có cây.";
-            if (p.saltDays > 0) return $"Đất còn mặn {p.saltDays} ngày. Tưới nước ngọt để rửa mặn nhanh hơn.";
+            if (p.saltDays > 0 && !(c.saltTolerant && p.saltDays <= FarmCare.TolerantSalt))
+                return $"Đất còn mặn {p.saltDays} ngày. Tưới nước ngọt để rửa mặn nhanh hơn."
+                       + (c.saltTolerant ? "" : $" Lúa chịu mặn cấy được khi còn {FarmCare.TolerantSalt} ngày.");
             if (c.needsPaddy && !flooded) return $"{c.displayName} cần ruộng ngập nước: cuốc mương dẫn nước ngọt tới sát ô này.";
-            if (!c.perennial && !c.InSeason(s))
+            if (!c.perennial && !c.InSeason(s) && !sheltered)
                 return $"{c.displayName} gieo mùa {CropCatalogData.SeasonText(c.seasons)}, bây giờ là mùa {LunarCalendar.SeasonName(s)}.";
             return null;
         }
 
         public static void Plant(FarmPlot p, CropDefinition c)
         {
-            p.crop = c.id; p.growth = 0; p.dryDays = 0; p.everDry = false; p.dead = false; p.deadReason = null;
-            p.fruitTimer = 0; p.hasFruit = false; p.fertilized = false;
+            Reset(p);
+            p.crop = c.id;
+            if (p.shrimpBonus) { p.fertilized = true; p.shrimpBonus = false; }   // dat sau vu tom: tu bon
         }
 
-        public static void Clear(FarmPlot p)
+        public static void Clear(FarmPlot p) => Reset(p);
+
+        static void Reset(FarmPlot p)
         {
             p.crop = null; p.growth = 0; p.dryDays = 0; p.everDry = false; p.dead = false; p.deadReason = null;
             p.fruitTimer = 0; p.hasFruit = false; p.fertilized = false;
+            p.pest = Pest.None; p.pestDays = 0; p.saved = false; p.seedAge = 0;
+            p.strainQ = 0; p.strainGen = 0; p.homeStrain = false;
+            p.graft = null; p.trait = GraftTrait.None; p.extraSeasons = 0;
         }
 
-        /// <summary>Qua 1 ngay. rained: troi mua (tu tuoi). Tra ve true neu cay vua chet.</summary>
-        public static bool NewDay(FarmPlot p, CropDefinition c, Season s, bool rained = false)
+        /// <summary>Cay ra trai mua s (tinh ca mua cua canh ghep "hai mua").</summary>
+        public static bool FruitSeason(FarmPlot p, CropDefinition c, Season s)
+            => c.InSeason(s) || (p.extraSeasons != 0 && LunarCalendar.In((SeasonMask)p.extraSeasons, s));
+
+        /// <summary>Qua 1 ngay. rained: troi mua (tu tuoi). sheltered: trong nha luoi (khong chet trai mua).
+        /// Tra ve true neu cay vua chet.</summary>
+        public static bool NewDay(FarmPlot p, CropDefinition c, Season s, bool rained = false, bool sheltered = false)
         {
             bool wet = p.watered || rained;
             p.watered = false;
+            // cong mo: ruong la dam nuoc lo, tom lon dan, dat giu man
+            if (p.sluiceOpen)
+            {
+                p.saltDays = SaltDays;
+                if (p.shrimpAge > 0) p.shrimpAge++;
+                return false;
+            }
             // dat man nhat dan; tuoi nuoc ngot thi rua nhanh gap doi
             if (p.saltDays > 0) p.saltDays = Math.Max(0, p.saltDays - (wet ? 2 : 1));
             if (p.Empty || p.dead || c == null) return false;
 
-            if (!c.perennial && !c.InSeason(s)) return Kill(p, "trái mùa");
+            if (!c.perennial && !c.InSeason(s) && !sheltered) return Kill(p, "trái mùa");
+
+            // sau benh (muc 4.5): cay dung lon, de lau thi chet
+            if (p.pest != Pest.None && ++p.pestDays >= FarmCare.PestKillDays) return Kill(p, "sâu bệnh");
 
             float step = (SoilOk(p, c) ? 1f : OffSoilGrowth) + (p.fertilized ? FertilizerBonus : 0);
+            if (p.pest != Pest.None) step = 0;
             if (c.kind == CropKind.Tree && Mature(p, c))
             {
                 // cay an trai da lon: khong can tuoi, ra trai dung mua
-                if (c.InSeason(s))
+                if (FruitSeason(p, c, s))
                 {
                     if (!p.hasFruit && ++p.fruitTimer >= Math.Max(1, c.regrowDays)) { p.hasFruit = true; p.fruitTimer = 0; }
                 }
@@ -113,7 +164,11 @@ namespace SereneIsle
                 return false;
             }
 
-            if (Mature(p, c)) return false;      // da chin, cho thu hoach
+            if (Mature(p, c))
+            {
+                if (p.saved) p.seedAge++;        // cay chua giong: gia dan de lay hat
+                return false;                    // da chin, cho thu hoach
+            }
             if (wet)
             {
                 p.growth = Math.Min(c.growDays, p.growth + step);
@@ -131,7 +186,7 @@ namespace SereneIsle
         public static int Harvest(FarmPlot p, CropDefinition c, Random rng, out int quality)
         {
             quality = Quality(p, c);
-            int n = rng.Next(c.yieldMin, c.yieldMax + 1) + (quality == 2 ? 1 : 0);
+            int n = rng.Next(c.yieldMin, c.yieldMax + 1) + (quality == 2 ? 1 : 0) + (p.trait == GraftTrait.BigFruit ? 1 : 0);
             if (c.kind == CropKind.Tree) { p.hasFruit = false; p.fruitTimer = 0; }
             else if (c.regrowDays > 0) { p.growth = Math.Max(0, c.growDays - c.regrowDays); p.everDry = false; p.dryDays = 0; }
             else Clear(p);
@@ -140,12 +195,12 @@ namespace SereneIsle
 
         // ------------------------------------------------------------ dat trung, nuoc man (muc 4.6)
         /// <summary>Muc nuoc cao nhat trong ngay tran toi o dat trung chua dap bo bao: cay chet man, dat man 7 ngay.
-        /// Tra ve true neu o vua bi man.</summary>
-        public static bool SaltFlood(FarmPlot p, float tileHeight, float dayHigh)
+        /// tolerant: cay chiu man (lua chiu man, cay ghep chiu man) khong chet, dat van man. Tra ve true neu o vua bi man.</summary>
+        public static bool SaltFlood(FarmPlot p, float tileHeight, float dayHigh, bool tolerant = false)
         {
-            if (!p.lowland || p.dike || p.ditch || dayHigh < tileHeight - .02f) return false;
+            if (!p.lowland || p.dike || p.ditch || p.sluiceOpen || dayHigh < tileHeight - .02f) return false;
             p.saltDays = SaltDays;
-            if (!p.Empty && !p.dead) Kill(p, "nhiễm mặn");
+            if (!p.Empty && !p.dead && !tolerant && p.trait != GraftTrait.SaltTolerant) Kill(p, "nhiễm mặn");
             return true;
         }
 

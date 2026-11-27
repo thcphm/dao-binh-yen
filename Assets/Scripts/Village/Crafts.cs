@@ -46,7 +46,7 @@ namespace SereneIsle
                     new CraftLevel { req = new[] { new CraftReq("@crop", 12, kinds: 3), new CraftReq("wood", 10) },
                                      unlock = "Sạp Cô Sáu bán thêm 2 giống và cây giống ăn trái, hạt giống rẻ 20%." },
                     new CraftLevel { req = new[] { new CraftReq("@crop", 25, kinds: 5), new CraftReq("sprinkler", 1) },
-                                     unlock = "Thu hoạch: 60% được thêm 1 trái. Cô Sáu bán đủ mọi giống đúng mùa." },
+                                     unlock = "Thu hoạch: 60% được thêm 1 trái. Cô Sáu bán đủ mọi giống đúng mùa. Dựng được nhà lưới." },
                 },
             },
             new CraftDef
