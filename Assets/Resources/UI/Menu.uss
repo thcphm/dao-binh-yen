@@ -46,7 +46,7 @@
 .isl .btn { margin-left: 8px; min-width: 70px; }
 
 /* tao nhan vat */
-.create-card { position: absolute; right: 4%; top: 6%; width: 470px; max-width: 46%; max-height: 88%; }
+.create-card { position: absolute; left: 51%; top: 6%; width: 470px; max-width: 45%; max-height: 88%; }   /* neo trai: tren WebGL right% bi lech, khung tran mep phai */
 .create-row { flex-direction: row; align-items: center; margin-top: 6px; }
 .create-label { width: 92px; font-size: 14px; -unity-font-style: bold; color: var(--ink-2); }
 .swatch { width: 30px; height: 30px; border-radius: 15px; margin-right: 6px; border-width: 3px; border-color: rgba(0, 0, 0, 0); }

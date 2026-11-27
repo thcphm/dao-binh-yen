@@ -1,3 +1,4 @@
+
 // HUD trong game bang UI Toolkit (ban web: #hud, #clock, #stats, #coins, #toasts, #hotbar, #help, #panel tui do, #fade).
 // Dung hoan toan bang code + Resources/UI/Hud.uss, khong can UXML.
 using System.Collections.Generic;
@@ -62,8 +63,38 @@ namespace SereneIsle
             float w = Mathf.Max(1, Screen.width), h = Mathf.Max(1, Screen.height);
             float fit = Mathf.Sqrt(w / 1600f * (h / 900f));
             float max = Mathf.Min(w / (1180f * fit), h / (640f * fit));
-            Panel.scale = Mathf.Max(.6f, Mathf.Min(GameSettings.Current.UiScale, max));
+            SetUiScale(Mathf.Max(.45f, Mathf.Min(GameSettings.Current.UiScale, max)));
             _screenAt = new Vector2Int(Screen.width, Screen.height);
+            _fitChecks = 30;   // vai khung hinh sau: do lai vung giao dien that
+        }
+
+        int _fitChecks;
+
+        /// <summary>WebGL: UI Toolkit bo tri theo kich thuoc canvas (diem anh thiet bi) nhung ve phong them devicePixelRatio
+        /// (do: goc 1192 don vi ma chi thay ~950 o dpr 1.25) -> khung neo phai / % tran ra ngoai man hinh. Thu goc ve phan
+        /// nhin thay: rong / cao = 100% / dpr, neo goc tren trai (con tro chuot da khop voi phan nhin thay).</summary>
+        float _uiScale = 1;
+
+        /// <summary>Phong giao dien bang do phan giai tham chieu (1600 x 900 / s), KHONG dung PanelSettings.scale:
+        /// tren WebGL scale != 1 lam UI Toolkit ve lech them dung devicePixelRatio so voi bo cuc (khung neo phai tran
+        /// ra ngoai man hinh khi Windows phong 125%).</summary>
+        void SetUiScale(float s)
+        {
+            _uiScale = s;
+            Panel.scale = 1;
+            Panel.referenceResolution = new Vector2Int(Mathf.RoundToInt(1600 / s), Mathf.RoundToInt(900 / s));
+        }
+
+        /// <summary>Do be rong / cao that cua goc giao dien (don vi UITK). Tren WebGL ti le theo man hinh khong khop cong
+        /// thuc tren (canvas, devicePixelRatio) -> neu vung hep hon 1180 x 640 thi giam scale theo ti le cho vua.</summary>
+        void FitToScreen()
+        {
+            if (!Panel || _root == null || _fitChecks <= 0) return;
+            _fitChecks--;
+            float lw = _root.layout.width, lh = _root.layout.height;
+            if (float.IsNaN(lw) || lw <= 1 || lh <= 1) return;
+            float k = Mathf.Min(1, Mathf.Min(lw / 1180f, lh / 640f));
+            if (k < .985f) SetUiScale(Mathf.Max(.45f, _uiScale * k));
         }
 
         void OnDestroy()
@@ -290,6 +321,7 @@ namespace SereneIsle
         {
             if (_hooked != S) Hook();
             if (Screen.width != _screenAt.x || Screen.height != _screenAt.y) ApplyTextSize();   // doi kich thuoc cua so
+            FitToScreen();
             UpdatePointerOver();
             var s = S;
             bool show = s && s.Running && !IntroUI.Playing;
