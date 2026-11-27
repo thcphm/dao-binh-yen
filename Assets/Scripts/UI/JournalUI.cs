@@ -49,6 +49,7 @@ namespace SereneIsle
 
         public void Close()
         {
+            FreePhotos();
             if (!IsOpen) return;
             _overlay.RemoveFromHierarchy();
             _overlay = null;
@@ -64,7 +65,7 @@ namespace SereneIsle
             head.Add(L("j-calm", $"Bình yên {Mathf.RoundToInt(s.Stats.Calm)}/100 · {LunarCalendar.Date(s.Clock.Day).LongLabel}"));
             _card.Add(head);
             var tabs = E(null, "seg j-tabs");
-            foreach (var (id, name) in new[] { ("book", "Sổ sinh vật"), ("mile", "Cột mốc"), ("diary", "Nhật ký"), ("mail", "Thư nhà"), ("calm", "Bình yên") })
+            foreach (var (id, name) in new[] { ("book", "Sổ sinh vật"), ("mile", "Cột mốc"), ("diary", "Nhật ký"), ("mail", "Thư nhà"), ("moment", "Khoảnh khắc"), ("calm", "Bình yên") })
             {
                 string t = id;
                 tabs.Add(Btn(name, () => Open(t), Tab == id ? null : "off"));
@@ -81,6 +82,7 @@ namespace SereneIsle
                 case "mile": Miles(c); break;
                 case "diary": Diary(c); break;
                 case "mail": Letters(c); break;
+                case "moment": MomentsTab(c); break;
                 default: Calm(c); break;
             }
             var foot = E(null, "menu-buttons");
@@ -154,6 +156,33 @@ namespace SereneIsle
                 c.Add(page);
             }
             if (Bottles.Instance) c.Add(L("j-section", $"ĐÃ ĐỌC {Bottles.Instance.LettersRead} LÁ THƯ TRONG CHAI"));
+        }
+
+        readonly System.Collections.Generic.List<Texture2D> _photos = new System.Collections.Generic.List<Texture2D>();
+        void FreePhotos() { foreach (var t in _photos) if (t) Destroy(t); _photos.Clear(); }
+
+        void MomentsTab(VisualElement c)
+        {
+            FreePhotos();
+            var m = Moments.Instance;
+            int n = m ? m.Count : 0;
+            c.Add(L("j-text", $"Đã gặp {n}/{Moments.All.Length} khoảnh khắc. Mỗi khoảnh khắc lần đầu tự chụp một tấm ảnh vào sổ và +{Moments.CalmReward} bình yên."));
+            var grid = E(null, "j-grid");
+            c.Add(grid);
+            foreach (var mo in Moments.All)
+            {
+                bool has = m && m.Has(mo.id);
+                var cell = E(null, "j-photo" + (has ? "" : " j-unknown"));
+                var img = new Image { scaleMode = ScaleMode.ScaleAndCrop };
+                img.AddToClassList("j-photo-img");
+                var tex = has ? m.LoadPhoto(mo.id) : null;
+                if (tex) { _photos.Add(tex); img.image = tex; }
+                else img.Add(L("j-animal", has ? "" : "?"));
+                cell.Add(img);
+                cell.Add(L("j-name", has ? mo.name : "???"));
+                cell.Add(L("j-info", has ? LunarCalendar.Date(m.DayOf(mo.id)).ShortLabel : mo.hint));
+                grid.Add(cell);
+            }
         }
 
         void Letters(VisualElement c)

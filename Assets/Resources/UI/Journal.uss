@@ -16,3 +16,6 @@
 .j-page { padding: 8px 12px; margin-bottom: 8px; border-radius: 12px; background-color: var(--paper-2); }
 .j-page.j-locked { opacity: .5; }
 .j-text { font-size: 14px; white-space: normal; -unity-font-style: italic; }
+.j-photo { width: 222px; margin: 0 8px 10px 0; padding: 6px; border-radius: 12px; background-color: var(--paper-2); align-items: center; }
+.j-photo.j-unknown { opacity: .55; }
+.j-photo-img { width: 210px; height: 118px; border-radius: 8px; background-color: #d9c79e; justify-content: center; }
